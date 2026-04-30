@@ -99,15 +99,12 @@ body { font-family:'Sarabun',sans-serif; background:#f0ede8; min-height:100vh; p
   <div class="stock-lbl">📂 โหลดสต๊อก</div>
   <div class="stock-row">
     <button class="btn-load-stock">
-      เลือกไฟล์ Excel
-      <input type="file" id="stockFile" accept=".xlsx,.xls" onchange="loadStock(this)">
+      เลือกไฟล์ Excel (หลายไฟล์ได้)
+      <input type="file" id="stockFile" accept=".xlsx,.xls" multiple onchange="loadStock(this)">
     </button>
-    <select id="fileTypeSelect" style="padding:8px 12px;border:1.5px solid #e0e0e0;border-radius:8px;font-family:'Sarabun',sans-serif;font-size:12px;outline:none;">
-      <option value="custom">Excel ทำเอง</option>
-      <option value="vrich">V Rich App</option>
-    </select>
     <span class="stock-info" id="stockInfo">ยังไม่มีสต๊อก</span>
   </div>
+  <div style="font-size:11px;color:#aaa;margin-top:6px;">📌 รองรับทั้ง Excel ทำเอง และ Export จาก V Rich อัตโนมัติ</div>
 </div>
 
 <!-- CURRENT PRODUCT -->
@@ -316,30 +313,42 @@ function resetPrice() {
   showToast('รีเซ็ตราคาแล้วค่ะ');
 }
 
-// ── LOAD STOCK ──
+// ── LOAD STOCK — รองรับหลายไฟล์ + ตรวจ format อัตโนมัติ ──
 function loadStock(input) {
-  const file = input.files[0];
-  if (!file) return;
-  const fileType = document.getElementById('fileTypeSelect').value;
+  const files = input.files;
+  if (!files || files.length === 0) return;
 
-  const reader = new FileReader();
-  reader.onload = e => {
-    const wb = XLSX.read(e.target.result, { type:'array' });
-    const ws = wb.Sheets[wb.SheetNames[0]];
-    const rows = XLSX.utils.sheet_to_json(ws, { header:1, defval:'' });
-    if (rows.length < 2) return;
+  let allProducts = {};
+  let totalCount = 0;
+  let filesRead = 0;
 
-    const parsed = fileType === 'vrich' ? parseVRich(rows) : parseCustom(rows);
-    products = {};
-    parsed.forEach(p => { products[p.code] = p; });
+  Array.from(files).forEach(file => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const wb = XLSX.read(e.target.result, { type:'array' });
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(ws, { header:1, defval:'' });
 
-    document.getElementById('stockInfo').textContent = `โหลดแล้ว ${parsed.length} รายการ`;
-    showToast(`โหลดสต๊อก ${parsed.length} รายการสำเร็จค่ะ`);
+      if (rows.length >= 2) {
+        const hdr = rows[0].map(x => String(x||'').trim());
+        // auto-detect: ถ้ามี "รหัสสต็อก" หรือ "รหัสขาย" = V Rich, นอกนั้น = custom
+        const isVRich = hdr.includes('รหัสสต็อก') || hdr.includes('รหัสขาย');
+        const parsed = isVRich ? parseVRich(rows) : parseCustom(rows);
+        parsed.forEach(p => { allProducts[p.code] = p; });
+        totalCount += parsed.length;
+      }
 
-    // push products to Firebase so overlay can read
-    if (db) db.ref('chiccoco/products').set(products);
-  };
-  reader.readAsArrayBuffer(file);
+      filesRead++;
+      if (filesRead === files.length) {
+        // ทุกไฟล์อ่านแล้ว
+        products = allProducts;
+        document.getElementById('stockInfo').textContent = `โหลดแล้ว ${totalCount} รายการ (${files.length} ไฟล์)`;
+        showToast(`โหลดสต๊อกสำเร็จ ${totalCount} รายการค่ะ`);
+        if (db) db.ref('chiccoco/products').set(products);
+      }
+    };
+    reader.readAsArrayBuffer(file);
+  });
 }
 
 // ── PARSERS ──
