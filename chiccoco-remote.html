@@ -166,28 +166,28 @@ body { font-family:'Sarabun',sans-serif; background:#f0ede8; min-height:100vh; p
 .OV-brand { text-align:center; font-family:'Kanit',sans-serif; font-size:15px; font-weight:400; letter-spacing:10px; color:#5c7a6b; }
 .OV-toprow { display:flex; gap:14px; }
 .OV-box { background:white; border-radius:20px; padding:18px 22px; text-align:center; flex:1; box-shadow:0 2px 12px rgba(0,0,0,.07); }
-.OV-box-lbl { font-size:22px; font-weight:400; color:#aaa8a0; margin-bottom:10px; }
-.OV-box-code { font-size:80px; font-weight:800; color:#8b1a1a; line-height:1; font-family:'Kanit',sans-serif; }
+.OV-box-lbl { font-size:40px; font-weight:400; color:#aaa8a0; margin-bottom:10px; }
+.OV-box-code { font-size:82px; font-weight:800; color:#8b1a1a; line-height:1; font-family:'Kanit',sans-serif; }
 .OV-box-sizes { font-size:72px; font-weight:800; color:#8b1a1a; line-height:1.1; font-family:'Kanit',sans-serif; }
 .OV-price { background:#d9cfc4; border-radius:20px; text-align:center; padding:18px 22px; box-shadow:0 2px 12px rgba(0,0,0,.07); }
-.OV-price-lbl { font-size:22px; font-weight:400; color:#a09488; margin-bottom:6px; }
-.OV-price-num { font-size:80px; font-weight:800; color:#2c2c2c; line-height:1; font-family:'Kanit',sans-serif; }
+.OV-price-lbl { font-size:40px; font-weight:400; color:#a09488; margin-bottom:6px; }
+.OV-price-num { font-size:82px; font-weight:800; color:#2c2c2c; line-height:1; font-family:'Kanit',sans-serif; }
 .OV-price-sale { display:flex; flex-direction:column; align-items:center; gap:4px; }
 .OV-price-original { font-size:40px; font-weight:700; color:#b0a498; text-decoration:line-through; line-height:1; font-family:'Kanit',sans-serif; }
-.OV-price-new { font-size:80px; font-weight:800; color:#8b1a1a; line-height:1; font-family:'Kanit',sans-serif; }
+.OV-price-new { font-size:82px; font-weight:800; color:#8b1a1a; line-height:1; font-family:'Kanit',sans-serif; }
 .OV-name { font-size:42px; font-weight:700; color:#2c2c2c; text-align:center; line-height:1.4; }
 .OV-inforow { display:flex; background:white; border-radius:20px; overflow:hidden; box-shadow:0 2px 12px rgba(0,0,0,.07); }
 .OV-info { flex:1; padding:16px 20px; text-align:center; }
 .OV-info+.OV-info { border-left:1.5px solid #ede9e4; }
-.OV-info-lbl { font-size:22px; color:#aaa8a0; font-weight:400; margin-bottom:8px; }
-.OV-info-val { font-size:40px; font-weight:700; color:#2c2c2c; line-height:1.3; }
+.OV-info-lbl { font-size:25px; color:#aaa8a0; font-weight:400; margin-bottom:8px; }
+.OV-info-val { font-size:50px; font-weight:700; color:#2c2c2c; line-height:1.3; }
 .OV-table { width:100%; border-collapse:separate; border-spacing:0; border-radius:20px; overflow:hidden; box-shadow:0 2px 12px rgba(0,0,0,.07); }
 .OV-table thead tr { background:#3d4f47; }
-.OV-table thead th { color:white; padding:16px 10px; font-size:28px; font-weight:700; text-align:center; }
+.OV-table thead th { color:white; padding:16px 10px; font-size:31px; font-weight:700; text-align:center; }
 .OV-table tbody tr:nth-child(odd) { background:white; }
 .OV-table tbody tr:nth-child(even) { background:#f5f1eb; }
-.OV-table tbody td { padding:14px 10px; text-align:center; font-size:36px; font-weight:600; color:#2c2c2c; }
-.OV-table tbody td:first-child { font-size:40px; font-weight:800; color:#8b1a1a; font-family:'Kanit',sans-serif; }
+.OV-table tbody td { padding:14px 10px; text-align:center; font-size:50px; font-weight:600; color:#2c2c2c; }
+.OV-table tbody td:first-child { font-size:45px; font-weight:800; color:#8b1a1a; font-family:'Kanit',sans-serif; }
 </style>
 </head>
 <body>
@@ -367,6 +367,8 @@ let products = {};
 let currentCode = null;
 let soldSizes = [];
 let salePrice = null;
+let salePriceMap = {};   // จำราคาลดต่อรหัส
+let soldSizesMap = {};   // จำไซส์หมดต่อรหัส — แก้ bug #2 และ #4
 let overlayHidden = false;
 let history = [];
 let cfList = [];
@@ -374,6 +376,7 @@ let timerInterval = null;
 let timerSeconds = 0;
 let timerRunning = false;
 let wakeLock = null;
+let fbConnected = false; // track connection state — แก้ bug #5
 
 // ── PAGE NAVIGATION ──
 function switchPage(page) {
@@ -433,7 +436,17 @@ function doInit(apiKey, projectId, dbUrl) {
   try {
     if (!firebase.apps.length) firebase.initializeApp({ apiKey, projectId, databaseURL: dbUrl });
     db = firebase.database();
-    setStatus('connected', '✅ เชื่อมต่อ Firebase สำเร็จ');
+
+    // ── แก้ bug #5: ตรวจ disconnect/reconnect ──
+    db.ref('.info/connected').on('value', snap => {
+      fbConnected = snap.val() === true;
+      if (fbConnected) {
+        setStatus('connected', '✅ เชื่อมต่อ Firebase สำเร็จ');
+      } else {
+        setStatus('error', '⚠️ Firebase หลุดการเชื่อมต่อ... รอสักครู่');
+      }
+    });
+
     document.getElementById('configSection').style.display = 'none';
     db.ref('chiccoco/state').on('value', snap => { const d = snap.val(); if (d) syncFromRemote(d); });
     showToast('เชื่อมต่อสำเร็จ!');
@@ -442,18 +455,34 @@ function doInit(apiKey, projectId, dbUrl) {
   }
 }
 
+// ── แก้ bug #1: เพิ่ม updatePreview และ updateCurrentUI ใน syncFromRemote ──
 function syncFromRemote(d) {
-  if (d.code && d.code !== currentCode) { currentCode = d.code; updateCurrentUI(); }
+  if (d.code && d.code !== currentCode) {
+    currentCode = d.code;
+    soldSizes = soldSizesMap[currentCode] || [];
+    salePrice = salePriceMap[currentCode] || null;
+    updateCurrentUI();
+  }
   if (d.soldSizes) soldSizes = d.soldSizes;
   if (d.salePrice !== undefined) salePrice = d.salePrice;
   renderSizePills();
+  updatePreview(); // แก้ bug #1
 }
 
+// ── แก้ bug #3: guard ถ้าไม่มี db หรือ currentCode ──
 function pushState() {
-  if (!db) return;
-  const p = products[currentCode];
-  if (!p) return;
-  db.ref('chiccoco/state').set({ code: currentCode, soldSizes, salePrice, hidden: overlayHidden, ts: Date.now() });
+  if (!db || !fbConnected) {
+    showToast('⚠️ Firebase ยังไม่เชื่อมต่อค่ะ');
+    return;
+  }
+  if (!currentCode || !products[currentCode]) return;
+  db.ref('chiccoco/state').set({
+    code: currentCode,
+    soldSizes: soldSizes,
+    salePrice: salePrice,
+    hidden: overlayHidden,
+    ts: Date.now()
+  });
 }
 
 // ── OVERLAY TOGGLE ──
@@ -471,6 +500,10 @@ function resetAll() {
   soldSizes = [];
   salePrice = null;
   overlayHidden = false;
+  if (currentCode) {
+    delete soldSizesMap[currentCode]; // ล้างไซส์หมดของรหัสนี้
+    delete salePriceMap[currentCode]; // ล้างราคาลดของรหัสนี้
+  }
   document.getElementById('priceInput').value = '';
   document.getElementById('btnHide').textContent = '👁 ซ่อน Overlay';
   document.getElementById('btnHide').classList.remove('hidden');
@@ -505,15 +538,19 @@ function selectProduct(code) {
   document.getElementById('searchInput').value = '';
   document.getElementById('searchResults').style.display = 'none';
   currentCode = code;
-  soldSizes = [];
-  salePrice = null;
-  document.getElementById('priceInput').value = '';
+  // ── แก้ bug #2 และ #4: โหลด soldSizes และ salePrice ต่อรหัส ──
+  soldSizes = soldSizesMap[code] ? [...soldSizesMap[code]] : [];
+  salePrice = salePriceMap[code] || null;
+  document.getElementById('priceInput').value = salePrice || '';
   addToHistory(code);
   updateCurrentUI();
   renderSizePills();
   updatePreview();
   pushState();
-  showToast(`เปลี่ยนเป็น ${code} แล้วค่ะ`);
+  const msg = salePrice
+    ? `${code} — ราคาลดเหลือ ฿${Number(salePrice).toLocaleString()} (จำไว้)`
+    : `เปลี่ยนเป็น ${code} แล้วค่ะ`;
+  showToast(msg);
   document.getElementById('scanInput').focus();
 }
 
@@ -568,6 +605,7 @@ function renderSizePills() {
     pill.onclick = () => {
       if (soldSizes.includes(s.size)) soldSizes = soldSizes.filter(x => x !== s.size);
       else soldSizes.push(s.size);
+      soldSizesMap[currentCode] = [...soldSizes]; // บันทึกต่อรหัส
       renderSizePills();
       updatePreview();
       pushState();
@@ -582,19 +620,23 @@ function applyPrice() {
   const val = document.getElementById('priceInput').value.trim();
   if (!val || !currentCode) return;
   salePrice = val;
+  salePriceMap[currentCode] = val;
   updateCurrentUI();
   updatePreview();
   pushState();
-  showToast(`ลดราคาเป็น ฿${Number(val).toLocaleString()} แล้วค่ะ`);
+  showToast(`ลดราคา ${currentCode} เป็น ฿${Number(val).toLocaleString()} แล้วค่ะ`);
+  document.getElementById('scanInput').focus(); // กลับไปช่องสแกนทันที
 }
 
 function resetPrice() {
   salePrice = null;
+  delete salePriceMap[currentCode];
   document.getElementById('priceInput').value = '';
   updateCurrentUI();
   updatePreview();
   pushState();
   showToast('รีเซ็ตราคาแล้วค่ะ');
+  document.getElementById('scanInput').focus(); // กลับไปช่องสแกนทันที
 }
 
 // ── CURRENT UI ──
@@ -676,20 +718,31 @@ function startTimer() {
   timerInterval = setInterval(() => {
     timerSeconds--;
     updateTimerDisplay();
-    if (db) db.ref('chiccoco/timer').set({
-      seconds: timerSeconds,
-      label: document.getElementById('timerLabel').value,
-      running: true,
-      ts: Date.now()
-    });
+    // ── แก้ bug #6: sync timer ไป Firebase ทุก 5 วินาที (ไม่ทุกวิ เพื่อลด load) ──
+    if (timerSeconds % 5 === 0 || timerSeconds <= 10) {
+      if (db && fbConnected) db.ref('chiccoco/timer').set({
+        seconds: timerSeconds,
+        label: document.getElementById('timerLabel').value || '',
+        running: true,
+        ts: Date.now()
+      });
+    }
     if (timerSeconds <= 0) {
       clearInterval(timerInterval);
       timerRunning = false;
       document.getElementById('btnTimerStart').style.display = '';
       document.getElementById('btnTimerPause').style.display = 'none';
+      if (db && fbConnected) db.ref('chiccoco/timer').set({ seconds: 0, running: false, ts: Date.now() });
       showToast('⏰ หมดเวลาแล้วค่ะ!');
     }
   }, 1000);
+  // sync ทันทีเมื่อเริ่ม
+  if (db && fbConnected) db.ref('chiccoco/timer').set({
+    seconds: timerSeconds,
+    label: document.getElementById('timerLabel').value || '',
+    running: true,
+    ts: Date.now()
+  });
 }
 
 function pauseTimer() {
@@ -697,7 +750,7 @@ function pauseTimer() {
   timerRunning = false;
   document.getElementById('btnTimerStart').style.display = '';
   document.getElementById('btnTimerPause').style.display = 'none';
-  if (db) db.ref('chiccoco/timer').set({ seconds: timerSeconds, running: false, ts: Date.now() });
+  if (db && fbConnected) db.ref('chiccoco/timer').set({ seconds: timerSeconds, running: false, ts: Date.now() });
 }
 
 function resetTimer() {
@@ -707,7 +760,7 @@ function resetTimer() {
   updateTimerDisplay();
   document.getElementById('btnTimerStart').style.display = '';
   document.getElementById('btnTimerPause').style.display = 'none';
-  if (db) db.ref('chiccoco/timer').set({ seconds: 0, running: false, ts: Date.now() });
+  if (db && fbConnected) db.ref('chiccoco/timer').set({ seconds: 0, running: false, ts: Date.now() });
 }
 
 function updateTimerDisplay() {
