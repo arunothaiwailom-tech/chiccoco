@@ -230,7 +230,13 @@ function draw(){
   var h = '';
 
   if(p.type === 'misc'){
-    // ── MISC layout: รหัส+ราคา | ชื่อ | สี+ขนาด ──
+    // ดึงขนาด/ไซส์จากทั้ง p.size และ p.sizes
+    var miscSize = p.size || '';
+    if (!miscSize && p.sizes && p.sizes.length > 0) {
+      miscSize = p.sizes.map(function(s){ return s.size; }).filter(Boolean).join(', ');
+    }
+
+    // ── MISC layout: รหัส+ราคา | ชื่อ | สี | ขนาดสินค้า ──
     h = '<div class="OV-brand">C H I C C O C O</div>'
       + '<div class="OV-toprow">'
       +   '<div class="OV-box" style="flex:1.1"><div class="OV-box-lbl">รหัสสินค้า</div><div class="OV-box-code">'+p.code+'</div></div>'
@@ -238,9 +244,10 @@ function draw(){
       + '</div>'
       + '<div class="OV-name">'+p.name+'</div>'
       + '<div class="OV-inforow">'
-      + (p.color ? '<div class="OV-info"><div class="OV-info-lbl">สี</div><div class="OV-info-val">'+p.color+'</div></div>' : '')
-      + (p.size  ? '<div class="OV-info"><div class="OV-info-lbl">ขนาดสินค้า</div><div class="OV-info-val" style="font-size:32px">'+p.size+'</div></div>' : '')
-      + '</div>';
+      + (p.color   ? '<div class="OV-info"><div class="OV-info-lbl">สี</div><div class="OV-info-val">'+p.color+'</div></div>' : '')
+      + (miscSize  ? '<div class="OV-info"><div class="OV-info-lbl">ขนาดสินค้า</div><div class="OV-info-val" style="font-size:32px">'+miscSize+'</div></div>' : '')
+      + '</div>'
+      + (p.material ? '<div class="OV-inforow"><div class="OV-info"><div class="OV-info-lbl">วัสดุ</div><div class="OV-info-val" style="font-size:28px">'+p.material+'</div></div></div>' : '');
   } else {
     // ── CLOTHING layout: รหัส+ไซส์ | ราคา | ชื่อ | สี+วัสดุ | ตาราง ──
     var rows = av.map(function(s){
