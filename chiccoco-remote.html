@@ -7,82 +7,206 @@
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&family=Kanit:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
 * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
-body { font-family:'Sarabun',sans-serif; background:#f0ede8; min-height:100vh; padding:16px; color:#111; }
+body { font-family:'Sarabun',sans-serif; background:#f0ede8; min-height:100vh; padding:16px 14px 100px; color:#111; }
 
-.app-title { font-family:'Kanit',sans-serif; font-size:20px; font-weight:800; letter-spacing:4px; text-align:center; margin-bottom:2px; }
-.app-sub { text-align:center; font-size:10px; color:#aaa; letter-spacing:2px; margin-bottom:16px; }
+/* ── HEADER ── */
+.app-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+.app-title { font-family:'Kanit',sans-serif; font-size:20px; font-weight:800; letter-spacing:4px; }
+.app-sub { font-size:10px; color:#aaa; letter-spacing:2px; }
+.btn-screen-on { padding:6px 12px; border:none; border-radius:8px; font-family:'Kanit',sans-serif; font-size:11px; font-weight:700; cursor:pointer; background:#f0ece6; color:#5c7a6b; border:1.5px solid #b5cdbf; }
+.btn-screen-on.active { background:#5c7a6b; color:white; border-color:#5c7a6b; }
 
-/* STATUS */
-.status-bar { background:white; border-radius:12px; padding:12px 16px; margin-bottom:12px; display:flex; align-items:center; gap:10px; box-shadow:0 1px 6px rgba(0,0,0,.06); }
+/* ── SECTION BASE ── */
+.sec { background:white; border-radius:16px; padding:14px 16px; margin-bottom:12px; box-shadow:0 1px 6px rgba(0,0,0,.06); }
+.sec-lbl { font-size:10px; font-weight:700; color:#aaa; letter-spacing:1px; text-transform:uppercase; margin-bottom:10px; font-family:'Kanit',sans-serif; }
+
+/* ── STATUS ── */
+.status-bar { display:flex; align-items:center; gap:10px; }
 .status-dot { width:10px; height:10px; border-radius:50%; background:#ccc; flex-shrink:0; transition:background .3s; }
 .status-dot.connected { background:#5c7a6b; }
 .status-dot.error { background:#e63946; }
 .status-txt { font-size:12px; font-weight:600; color:#555; flex:1; }
 
-/* CURRENT PRODUCT */
-.current-card { background:white; border-radius:14px; padding:16px; margin-bottom:12px; box-shadow:0 1px 6px rgba(0,0,0,.06); border-left:4px solid #5c7a6b; }
-.current-lbl { font-size:10px; font-weight:700; color:#aaa; letter-spacing:1px; text-transform:uppercase; margin-bottom:8px; font-family:'Kanit',sans-serif; }
-.current-code { font-size:32px; font-weight:800; color:#8b1a1a; line-height:1; font-family:'Kanit',sans-serif; }
+/* ── FIREBASE CONFIG ── */
+.config-section { background:#fff8e1; border:1.5px solid #f5c842; border-radius:14px; padding:16px; margin-bottom:12px; }
+.config-lbl { font-size:11px; font-weight:700; color:#b8860b; letter-spacing:1px; text-transform:uppercase; margin-bottom:10px; font-family:'Kanit',sans-serif; }
+.config-input { width:100%; padding:8px 12px; border:1.5px solid #e0d0a0; border-radius:8px; font-size:12px; margin-bottom:6px; outline:none; font-family:monospace; background:white; }
+.btn-connect { width:100%; padding:10px; background:#f5c842; color:#333; border:none; border-radius:8px; font-family:'Kanit',sans-serif; font-size:13px; font-weight:700; cursor:pointer; margin-top:4px; }
+
+/* ── STOCK ── */
+.stock-row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+.btn-load-stock { padding:10px 16px; background:#111; color:white; border:none; border-radius:8px; font-family:'Kanit',sans-serif; font-size:12px; font-weight:700; cursor:pointer; position:relative; overflow:hidden; }
+.btn-load-stock input { position:absolute; inset:0; opacity:0; cursor:pointer; }
+.stock-info { font-size:12px; color:#888; }
+
+/* ── CURRENT PRODUCT ── */
+.current-card { border-left:4px solid #5c7a6b; }
+.current-code { font-size:36px; font-weight:800; color:#8b1a1a; line-height:1; font-family:'Kanit',sans-serif; }
 .current-name { font-size:13px; color:#555; margin-top:4px; }
 .current-price { font-size:18px; font-weight:700; color:#2c2c2c; margin-top:4px; font-family:'Kanit',sans-serif; }
+.current-actions { display:flex; gap:8px; margin-top:10px; }
+.btn-hide-overlay { flex:1; padding:10px; background:#f0ece6; border:2px solid #5c7a6b; border-radius:10px; font-family:'Kanit',sans-serif; font-size:13px; font-weight:700; color:#5c7a6b; cursor:pointer; }
+.btn-hide-overlay.hidden { background:#5c7a6b; color:white; }
+.btn-reset-all { flex:1; padding:10px; background:#fee; border:2px solid #f5b8b8; border-radius:10px; font-family:'Kanit',sans-serif; font-size:13px; font-weight:700; color:#c0392b; cursor:pointer; }
 
-/* BARCODE INPUT */
-.scan-section { background:white; border-radius:14px; padding:16px; margin-bottom:12px; box-shadow:0 1px 6px rgba(0,0,0,.06); }
-.scan-lbl { font-size:11px; font-weight:700; color:#aaa; letter-spacing:1px; text-transform:uppercase; margin-bottom:10px; font-family:'Kanit',sans-serif; }
+/* ── SEARCH ── */
+.search-wrap { position:relative; margin-bottom:8px; }
+.search-input { width:100%; padding:12px 16px 12px 40px; border:2px solid #e0e0e0; border-radius:10px; font-size:16px; font-family:'Sarabun',sans-serif; outline:none; }
+.search-input:focus { border-color:#5c7a6b; }
+.search-icon { position:absolute; left:13px; top:50%; transform:translateY(-50%); font-size:16px; color:#aaa; pointer-events:none; }
+.search-results { max-height:200px; overflow-y:auto; border:1.5px solid #e0e0e0; border-radius:10px; margin-top:4px; display:none; }
+.search-result-item { padding:10px 14px; font-size:14px; cursor:pointer; border-bottom:1px solid #f0f0f0; display:flex; justify-content:space-between; align-items:center; }
+.search-result-item:last-child { border-bottom:none; }
+.search-result-item:active { background:#f5f5f5; }
+.search-result-code { font-family:'Kanit',sans-serif; font-weight:700; color:#8b1a1a; font-size:15px; }
+.search-result-name { font-size:12px; color:#888; margin-top:2px; }
+.search-result-price { font-family:'Kanit',sans-serif; font-weight:700; color:#2c2c2c; font-size:13px; flex-shrink:0; margin-left:8px; }
+
+/* ── SCAN ── */
 .scan-input-wrap { display:flex; gap:8px; }
-.scan-input { flex:1; padding:14px 16px; border:2px solid #e0e0e0; border-radius:10px; font-size:20px; font-family:'Kanit',sans-serif; font-weight:700; color:#111; outline:none; text-transform:uppercase; }
+.scan-input { flex:1; padding:14px 16px; border:2px solid #e0e0e0; border-radius:10px; font-size:22px; font-family:'Kanit',sans-serif; font-weight:700; color:#111; outline:none; text-transform:uppercase; }
 .scan-input:focus { border-color:#5c7a6b; }
 .btn-scan { padding:14px 20px; background:#5c7a6b; color:white; border:none; border-radius:10px; font-family:'Kanit',sans-serif; font-size:14px; font-weight:700; cursor:pointer; }
 
-/* SIZE PILLS */
-.sizes-section { background:white; border-radius:14px; padding:16px; margin-bottom:12px; box-shadow:0 1px 6px rgba(0,0,0,.06); }
-.sizes-lbl { font-size:11px; font-weight:700; color:#aaa; letter-spacing:1px; text-transform:uppercase; margin-bottom:10px; font-family:'Kanit',sans-serif; }
+/* ── PREVIEW ── */
+.preview-wrap { background:#f0ece6; border-radius:12px; overflow:hidden; }
+.preview-wrap .OV { width:100% !important; padding:14px 12px; gap:7px; opacity:1 !important; border-radius:12px; }
+.preview-wrap .OV-brand { font-size:9px; letter-spacing:5px; }
+.preview-wrap .OV-box { padding:7px 8px; border-radius:8px; }
+.preview-wrap .OV-box-lbl { font-size:10px; margin-bottom:3px; }
+.preview-wrap .OV-box-code { font-size:28px; }
+.preview-wrap .OV-box-sizes { font-size:24px; }
+.preview-wrap .OV-price { padding:7px 8px; border-radius:8px; }
+.preview-wrap .OV-price-lbl { font-size:10px; margin-bottom:2px; }
+.preview-wrap .OV-price-num { font-size:28px; }
+.preview-wrap .OV-price-original { font-size:16px; }
+.preview-wrap .OV-price-new { font-size:28px; }
+.preview-wrap .OV-name { font-size:14px; }
+.preview-wrap .OV-inforow { border-radius:8px; }
+.preview-wrap .OV-info { padding:7px 8px; }
+.preview-wrap .OV-info-lbl { font-size:9px; margin-bottom:2px; }
+.preview-wrap .OV-info-val { font-size:14px; }
+.preview-wrap .OV-table { border-radius:8px; }
+.preview-wrap .OV-table thead th { font-size:11px; padding:5px 4px; }
+.preview-wrap .OV-table tbody td { font-size:12px; padding:4px; }
+.preview-wrap .OV-table tbody td:first-child { font-size:13px; }
+
+/* ── SIZE PILLS ── */
 .sizes-pills { display:flex; flex-wrap:wrap; gap:8px; }
-.size-pill {
-  padding:12px 20px; border-radius:10px; font-family:'Kanit',sans-serif; font-size:18px; font-weight:800;
-  cursor:pointer; border:2px solid #e0e0e0; background:#f5f5f5; color:#333; transition:all .15s; user-select:none;
-  min-width:70px; text-align:center;
-}
+.size-pill { padding:12px 20px; border-radius:10px; font-family:'Kanit',sans-serif; font-size:18px; font-weight:800; cursor:pointer; border:2px solid #e0e0e0; background:#f5f5f5; color:#333; transition:all .15s; user-select:none; min-width:70px; text-align:center; }
 .size-pill.sold { background:#fee; border-color:#f5b8b8; color:#c0392b; text-decoration:line-through; }
 .sizes-empty { font-size:13px; color:#aaa; }
 
-/* PRICE EDIT */
-.price-section { background:white; border-radius:14px; padding:16px; margin-bottom:12px; box-shadow:0 1px 6px rgba(0,0,0,.06); }
-.price-lbl { font-size:11px; font-weight:700; color:#aaa; letter-spacing:1px; text-transform:uppercase; margin-bottom:10px; font-family:'Kanit',sans-serif; }
+/* ── PRICE ── */
 .price-row { display:flex; gap:8px; align-items:center; }
 .price-input { flex:1; padding:12px 14px; border:2px solid #e0e0e0; border-radius:10px; font-size:20px; font-family:'Kanit',sans-serif; font-weight:700; outline:none; }
 .price-input:focus { border-color:#c8a96e; }
 .btn-price { padding:12px 16px; background:#8b1a1a; color:white; border:none; border-radius:10px; font-family:'Kanit',sans-serif; font-size:13px; font-weight:700; cursor:pointer; }
 .btn-price-reset { padding:12px 14px; background:#f5f5f5; color:#888; border:none; border-radius:10px; font-family:'Kanit',sans-serif; font-size:13px; font-weight:700; cursor:pointer; }
 
-/* STOCK LOADER */
-.stock-section { background:white; border-radius:14px; padding:16px; margin-bottom:12px; box-shadow:0 1px 6px rgba(0,0,0,.06); }
-.stock-lbl { font-size:11px; font-weight:700; color:#aaa; letter-spacing:1px; text-transform:uppercase; margin-bottom:10px; font-family:'Kanit',sans-serif; }
-.stock-row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
-.btn-load-stock { padding:10px 16px; background:#111; color:white; border:none; border-radius:8px; font-family:'Kanit',sans-serif; font-size:12px; font-weight:700; cursor:pointer; position:relative; overflow:hidden; }
-.btn-load-stock input { position:absolute; inset:0; opacity:0; cursor:pointer; }
-.stock-info { font-size:12px; color:#888; }
+/* ── TIMER ── */
+.timer-display { text-align:center; font-size:52px; font-weight:800; color:#2c2c2c; font-family:'Kanit',sans-serif; line-height:1; margin:8px 0; }
+.timer-display.warning { color:#e63946; }
+.timer-presets { display:flex; gap:6px; margin-bottom:10px; flex-wrap:wrap; }
+.timer-preset { padding:8px 14px; background:#f0f0f0; border:none; border-radius:8px; font-family:'Kanit',sans-serif; font-size:12px; font-weight:700; cursor:pointer; }
+.timer-preset:active { background:#e0e0e0; }
+.timer-controls { display:flex; gap:8px; }
+.btn-timer { flex:1; padding:12px; border:none; border-radius:10px; font-family:'Kanit',sans-serif; font-size:14px; font-weight:700; cursor:pointer; }
+.btn-timer-start { background:#5c7a6b; color:white; }
+.btn-timer-pause { background:#c8a96e; color:white; }
+.btn-timer-reset { background:#f5f5f5; color:#888; }
+.timer-label-row { display:flex; gap:8px; margin-top:8px; }
+.timer-label-input { flex:1; padding:8px 12px; border:1.5px solid #e0e0e0; border-radius:8px; font-size:13px; outline:none; }
 
-/* FIREBASE CONFIG */
-.config-section { background:#fff8e1; border:1.5px solid #f5c842; border-radius:14px; padding:16px; margin-bottom:12px; }
-.config-lbl { font-size:11px; font-weight:700; color:#b8860b; letter-spacing:1px; text-transform:uppercase; margin-bottom:10px; font-family:'Kanit',sans-serif; }
-.config-input { width:100%; padding:8px 12px; border:1.5px solid #e0d0a0; border-radius:8px; font-size:12px; margin-bottom:6px; outline:none; font-family:monospace; background:white; }
-.btn-connect { width:100%; padding:10px; background:#f5c842; color:#333; border:none; border-radius:8px; font-family:'Kanit',sans-serif; font-size:13px; font-weight:700; cursor:pointer; margin-top:4px; }
+/* ── HISTORY ── */
+.history-list { display:flex; flex-direction:column; gap:6px; max-height:220px; overflow-y:auto; }
+.history-item { display:flex; align-items:center; gap:10px; padding:10px 12px; background:#f9f9f9; border-radius:10px; cursor:pointer; border:1.5px solid transparent; transition:all .15s; }
+.history-item:active { background:#f0f0f0; }
+.history-item.current { border-color:#5c7a6b; background:#eaf0ec; }
+.history-code { font-family:'Kanit',sans-serif; font-weight:800; color:#8b1a1a; font-size:16px; min-width:55px; }
+.history-info { flex:1; }
+.history-name { font-size:12px; color:#555; }
+.history-price { font-size:11px; color:#888; }
+.history-time { font-size:10px; color:#bbb; flex-shrink:0; }
+.history-empty { font-size:13px; color:#aaa; text-align:center; padding:12px; }
 
-/* TOAST */
+/* ── CF LIST ── */
+.cf-input-row { display:flex; gap:8px; margin-bottom:10px; }
+.cf-name-input { flex:1; padding:10px 14px; border:2px solid #e0e0e0; border-radius:10px; font-size:15px; outline:none; }
+.cf-name-input:focus { border-color:#5c7a6b; }
+.btn-cf-add { padding:10px 16px; background:#5c7a6b; color:white; border:none; border-radius:10px; font-family:'Kanit',sans-serif; font-size:13px; font-weight:700; cursor:pointer; white-space:nowrap; }
+.cf-list { max-height:250px; overflow-y:auto; }
+.cf-item { display:flex; align-items:center; gap:8px; padding:10px 12px; background:#f9f9f9; border-radius:10px; margin-bottom:6px; }
+.cf-num { font-family:'Kanit',sans-serif; font-weight:800; color:#aaa; font-size:13px; min-width:24px; }
+.cf-info { flex:1; }
+.cf-buyer { font-size:14px; font-weight:700; color:#2c2c2c; }
+.cf-product { font-size:11px; color:#888; }
+.cf-time { font-size:10px; color:#bbb; }
+.btn-cf-del { padding:4px 8px; background:#fee; border:none; border-radius:6px; color:#e63946; font-size:12px; cursor:pointer; }
+.cf-summary { font-size:11px; color:#888; margin-top:6px; }
+.btn-cf-clear { padding:6px 12px; background:#f5f5f5; color:#888; border:none; border-radius:8px; font-family:'Kanit',sans-serif; font-size:11px; font-weight:700; cursor:pointer; margin-top:6px; }
+.cf-section-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+
+/* ── TOAST ── */
 .toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:#111; color:white; padding:10px 20px; border-radius:20px; font-size:13px; font-weight:600; font-family:'Kanit',sans-serif; opacity:0; transition:opacity .3s; pointer-events:none; z-index:999; white-space:nowrap; }
 .toast.show { opacity:1; }
+
+/* ── BOTTOM NAV ── */
+.bottom-nav { position:fixed; bottom:0; left:0; right:0; background:white; border-top:1px solid #eee; display:flex; padding:8px 0 env(safe-area-inset-bottom); box-shadow:0 -2px 12px rgba(0,0,0,.08); z-index:100; }
+.nav-btn { flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; padding:6px 4px; border:none; background:transparent; cursor:pointer; font-family:'Kanit',sans-serif; font-size:9px; font-weight:700; color:#aaa; }
+.nav-btn.active { color:#5c7a6b; }
+.nav-btn .icon { font-size:22px; line-height:1; }
+
+/* ── PAGES ── */
+.page { display:none; }
+.page.active { display:block; }
+
+/* OV styles for preview */
+.OV { width:100%; background:#f0ece6; padding:32px 28px 36px; display:flex; flex-direction:column; gap:16px; border-radius:32px; }
+.OV-brand { text-align:center; font-family:'Kanit',sans-serif; font-size:15px; font-weight:400; letter-spacing:10px; color:#5c7a6b; }
+.OV-toprow { display:flex; gap:14px; }
+.OV-box { background:white; border-radius:20px; padding:18px 22px; text-align:center; flex:1; box-shadow:0 2px 12px rgba(0,0,0,.07); }
+.OV-box-lbl { font-size:22px; font-weight:400; color:#aaa8a0; margin-bottom:10px; }
+.OV-box-code { font-size:80px; font-weight:800; color:#8b1a1a; line-height:1; font-family:'Kanit',sans-serif; }
+.OV-box-sizes { font-size:72px; font-weight:800; color:#8b1a1a; line-height:1.1; font-family:'Kanit',sans-serif; }
+.OV-price { background:#d9cfc4; border-radius:20px; text-align:center; padding:18px 22px; box-shadow:0 2px 12px rgba(0,0,0,.07); }
+.OV-price-lbl { font-size:22px; font-weight:400; color:#a09488; margin-bottom:6px; }
+.OV-price-num { font-size:80px; font-weight:800; color:#2c2c2c; line-height:1; font-family:'Kanit',sans-serif; }
+.OV-price-sale { display:flex; flex-direction:column; align-items:center; gap:4px; }
+.OV-price-original { font-size:40px; font-weight:700; color:#b0a498; text-decoration:line-through; line-height:1; font-family:'Kanit',sans-serif; }
+.OV-price-new { font-size:80px; font-weight:800; color:#8b1a1a; line-height:1; font-family:'Kanit',sans-serif; }
+.OV-name { font-size:42px; font-weight:700; color:#2c2c2c; text-align:center; line-height:1.4; }
+.OV-inforow { display:flex; background:white; border-radius:20px; overflow:hidden; box-shadow:0 2px 12px rgba(0,0,0,.07); }
+.OV-info { flex:1; padding:16px 20px; text-align:center; }
+.OV-info+.OV-info { border-left:1.5px solid #ede9e4; }
+.OV-info-lbl { font-size:22px; color:#aaa8a0; font-weight:400; margin-bottom:8px; }
+.OV-info-val { font-size:40px; font-weight:700; color:#2c2c2c; line-height:1.3; }
+.OV-table { width:100%; border-collapse:separate; border-spacing:0; border-radius:20px; overflow:hidden; box-shadow:0 2px 12px rgba(0,0,0,.07); }
+.OV-table thead tr { background:#3d4f47; }
+.OV-table thead th { color:white; padding:16px 10px; font-size:28px; font-weight:700; text-align:center; }
+.OV-table tbody tr:nth-child(odd) { background:white; }
+.OV-table tbody tr:nth-child(even) { background:#f5f1eb; }
+.OV-table tbody td { padding:14px 10px; text-align:center; font-size:36px; font-weight:600; color:#2c2c2c; }
+.OV-table tbody td:first-child { font-size:40px; font-weight:800; color:#8b1a1a; font-family:'Kanit',sans-serif; }
 </style>
 </head>
 <body>
 
-<div class="app-title">chiccoco</div>
-<div class="app-sub">REMOTE CONTROL</div>
+<!-- HEADER -->
+<div class="app-header">
+  <div>
+    <div class="app-title">chiccoco</div>
+    <div class="app-sub">REMOTE CONTROL</div>
+  </div>
+  <button class="btn-screen-on" id="btnScreenOn" onclick="toggleScreenOn()">☀️ กันจอดับ</button>
+</div>
 
 <!-- STATUS -->
-<div class="status-bar">
-  <div class="status-dot" id="statusDot"></div>
-  <span class="status-txt" id="statusTxt">ยังไม่ได้เชื่อมต่อ Firebase</span>
+<div class="sec" style="padding:12px 16px;">
+  <div class="status-bar">
+    <div class="status-dot" id="statusDot"></div>
+    <span class="status-txt" id="statusTxt">ยังไม่ได้เชื่อมต่อ Firebase</span>
+  </div>
 </div>
 
 <!-- FIREBASE CONFIG -->
@@ -90,54 +214,147 @@ body { font-family:'Sarabun',sans-serif; background:#f0ede8; min-height:100vh; p
   <div class="config-lbl">⚙️ ตั้งค่า Firebase (ทำครั้งเดียว)</div>
   <input class="config-input" id="cfg-apiKey" placeholder="apiKey">
   <input class="config-input" id="cfg-projectId" placeholder="projectId">
-  <input class="config-input" id="cfg-dbUrl" placeholder="databaseURL (https://xxx.firebaseio.com)">
+  <input class="config-input" id="cfg-dbUrl" placeholder="databaseURL">
   <button class="btn-connect" onclick="connectFirebase()">🔌 เชื่อมต่อ Firebase</button>
 </div>
 
-<!-- STOCK LOADER -->
-<div class="stock-section">
-  <div class="stock-lbl">📂 โหลดสต๊อก</div>
-  <div class="stock-row">
-    <button class="btn-load-stock">
-      เลือกไฟล์ Excel (หลายไฟล์ได้)
-      <input type="file" id="stockFile" accept=".xlsx,.xls" multiple onchange="loadStock(this)">
-    </button>
-    <span class="stock-info" id="stockInfo">ยังไม่มีสต๊อก</span>
+<!-- PAGES -->
+
+<!-- PAGE: LIVE (หน้าหลัก) -->
+<div class="page active" id="page-live">
+
+  <!-- STOCK -->
+  <div class="sec">
+    <div class="sec-lbl">📂 โหลดสต๊อก</div>
+    <div class="stock-row">
+      <button class="btn-load-stock">
+        เลือกไฟล์ Excel (หลายไฟล์ได้)
+        <input type="file" id="stockFile" accept=".xlsx,.xls" multiple onchange="loadStock(this)">
+      </button>
+      <span class="stock-info" id="stockInfo">ยังไม่มีสต๊อก</span>
+    </div>
+    <div style="font-size:11px;color:#aaa;margin-top:6px;">รองรับ Excel ทำเอง และ V Rich อัตโนมัติ</div>
   </div>
-  <div style="font-size:11px;color:#aaa;margin-top:6px;">📌 รองรับทั้ง Excel ทำเอง และ Export จาก V Rich อัตโนมัติ</div>
+
+  <!-- CURRENT PRODUCT -->
+  <div class="sec current-card">
+    <div class="sec-lbl">สินค้าที่แสดงอยู่ตอนนี้</div>
+    <div class="current-code" id="curCode">—</div>
+    <div class="current-name" id="curName">ยังไม่ได้เลือกสินค้า</div>
+    <div class="current-price" id="curPrice"></div>
+    <div class="current-actions">
+      <button class="btn-hide-overlay" id="btnHide" onclick="toggleOverlay()">👁 ซ่อน Overlay</button>
+      <button class="btn-reset-all" onclick="resetAll()">🔄 รีเซ็ตทั้งหมด</button>
+    </div>
+  </div>
+
+  <!-- SEARCH -->
+  <div class="sec">
+    <div class="sec-lbl">🔍 ค้นหาสินค้า</div>
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input class="search-input" id="searchInput" placeholder="พิมพ์ชื่อหรือรหัสสินค้า" oninput="doSearch(this.value)" autocomplete="off">
+    </div>
+    <div class="search-results" id="searchResults"></div>
+  </div>
+
+  <!-- SCAN -->
+  <div class="sec">
+    <div class="sec-lbl">🔫 สแกนบาร์โค้ด / พิมพ์รหัส</div>
+    <div class="scan-input-wrap">
+      <input class="scan-input" id="scanInput" placeholder="B129" autocomplete="off" autocorrect="off" spellcheck="false" onkeydown="if(event.key==='Enter')applyCode()">
+      <button class="btn-scan" onclick="applyCode()">ยืนยัน</button>
+    </div>
+  </div>
+
+  <!-- PREVIEW -->
+  <div class="sec" id="previewSection" style="display:none;">
+    <div class="sec-lbl">👁 ตัวอย่าง Overlay</div>
+    <div class="preview-wrap" id="previewWrap"></div>
+  </div>
+
+  <!-- SIZE PILLS -->
+  <div class="sec">
+    <div class="sec-lbl">📦 ติ๊กไซส์ที่หมด</div>
+    <div class="sizes-pills" id="sizesPills"><span class="sizes-empty">โหลดสินค้าก่อนค่ะ</span></div>
+  </div>
+
+  <!-- PRICE -->
+  <div class="sec">
+    <div class="sec-lbl">💰 แก้ราคา</div>
+    <div class="price-row">
+      <input class="price-input" type="number" id="priceInput" placeholder="ราคาใหม่">
+      <button class="btn-price" onclick="applyPrice()">ลดราคา</button>
+      <button class="btn-price-reset" onclick="resetPrice()">รีเซ็ต</button>
+    </div>
+  </div>
+
 </div>
 
-<!-- CURRENT PRODUCT -->
-<div class="current-card">
-  <div class="current-lbl">สินค้าที่แสดงอยู่ตอนนี้</div>
-  <div class="current-code" id="curCode">—</div>
-  <div class="current-name" id="curName">ยังไม่ได้เลือกสินค้า</div>
-  <div class="current-price" id="curPrice"></div>
-</div>
-
-<!-- BARCODE SCAN -->
-<div class="scan-section">
-  <div class="scan-lbl">🔫 สแกนบาร์โค้ด / พิมพ์รหัส</div>
-  <div class="scan-input-wrap">
-    <input class="scan-input" id="scanInput" placeholder="B129" autocomplete="off" autocorrect="off" spellcheck="false" onkeydown="if(event.key==='Enter')applyCode()">
-    <button class="btn-scan" onclick="applyCode()">ยืนยัน</button>
+<!-- PAGE: TIMER -->
+<div class="page" id="page-timer">
+  <div class="sec">
+    <div class="sec-lbl">⏱ Flash Sale Timer</div>
+    <div class="timer-presets">
+      <button class="timer-preset" onclick="setTimer(1)">1 นาที</button>
+      <button class="timer-preset" onclick="setTimer(3)">3 นาที</button>
+      <button class="timer-preset" onclick="setTimer(5)">5 นาที</button>
+      <button class="timer-preset" onclick="setTimer(10)">10 นาที</button>
+      <button class="timer-preset" onclick="setTimer(15)">15 นาที</button>
+      <button class="timer-preset" onclick="setTimer(30)">30 นาที</button>
+    </div>
+    <div class="timer-display" id="timerDisplay">00:00</div>
+    <div class="timer-label-row">
+      <input class="timer-label-input" id="timerLabel" placeholder="ข้อความ เช่น Flash Sale! ลด 50%">
+    </div>
+    <div class="timer-controls" style="margin-top:10px;">
+      <button class="btn-timer btn-timer-start" id="btnTimerStart" onclick="startTimer()">▶ เริ่ม</button>
+      <button class="btn-timer btn-timer-pause" id="btnTimerPause" onclick="pauseTimer()" style="display:none;">⏸ หยุด</button>
+      <button class="btn-timer btn-timer-reset" onclick="resetTimer()">↺ รีเซ็ต</button>
+    </div>
   </div>
 </div>
 
-<!-- SIZE PILLS -->
-<div class="sizes-section">
-  <div class="sizes-lbl">📦 ติ๊กไซส์ที่หมด</div>
-  <div class="sizes-pills" id="sizesPills"><span class="sizes-empty">โหลดสินค้าก่อนค่ะ</span></div>
+<!-- PAGE: HISTORY -->
+<div class="page" id="page-history">
+  <div class="sec">
+    <div class="sec-lbl">🕐 ประวัติสินค้าล่าสุด</div>
+    <div class="history-list" id="historyList">
+      <div class="history-empty">ยังไม่มีประวัติค่ะ</div>
+    </div>
+  </div>
 </div>
 
-<!-- PRICE EDIT -->
-<div class="price-section">
-  <div class="price-lbl">💰 แก้ราคา</div>
-  <div class="price-row">
-    <input class="price-input" type="number" id="priceInput" placeholder="ราคาใหม่">
-    <button class="btn-price" onclick="applyPrice()">ลดราคา</button>
-    <button class="btn-price-reset" onclick="resetPrice()">รีเซ็ต</button>
+<!-- PAGE: CF -->
+<div class="page" id="page-cf">
+  <div class="sec">
+    <div class="cf-section-header">
+      <div class="sec-lbl" style="margin:0;">📋 รายการ CF</div>
+      <button class="btn-cf-clear" onclick="clearCF()">ล้างทั้งหมด</button>
+    </div>
+    <div class="cf-input-row">
+      <input class="cf-name-input" id="cfNameInput" placeholder="ชื่อลูกค้า" onkeydown="if(event.key==='Enter')addCF()">
+      <button class="btn-cf-add" onclick="addCF()">+ CF</button>
+    </div>
+    <div class="cf-list" id="cfList"></div>
+    <div class="cf-summary" id="cfSummary"></div>
   </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+  <button class="nav-btn active" id="nav-live" onclick="switchPage('live')">
+    <span class="icon">📡</span>ไลฟ์
+  </button>
+  <button class="nav-btn" id="nav-timer" onclick="switchPage('timer')">
+    <span class="icon">⏱</span>Timer
+  </button>
+  <button class="nav-btn" id="nav-history" onclick="switchPage('history')">
+    <span class="icon">🕐</span>ประวัติ
+  </button>
+  <button class="nav-btn" id="nav-cf" onclick="switchPage('cf')">
+    <span class="icon">📋</span>CF
+  </button>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -146,27 +363,59 @@ body { font-family:'Sarabun',sans-serif; background:#f0ede8; min-height:100vh; p
 <script>
 // ── STATE ──
 let db = null;
-let products = {};       // keyed by code
+let products = {};
 let currentCode = null;
 let soldSizes = [];
 let salePrice = null;
+let overlayHidden = false;
+let history = [];
+let cfList = [];
+let timerInterval = null;
+let timerSeconds = 0;
+let timerRunning = false;
+let wakeLock = null;
 
-// ── FIREBASE CONNECT ──
+// ── PAGE NAVIGATION ──
+function switchPage(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  document.getElementById('nav-' + page).classList.add('active');
+  if (page === 'history') renderHistory();
+  if (page === 'cf') renderCF();
+}
+
+// ── SCREEN WAKE LOCK ──
+async function toggleScreenOn() {
+  const btn = document.getElementById('btnScreenOn');
+  if (wakeLock) {
+    wakeLock.release();
+    wakeLock = null;
+    btn.classList.remove('active');
+    showToast('ปิดกันจอดับแล้วค่ะ');
+  } else {
+    try {
+      wakeLock = await navigator.wakeLock.request('screen');
+      btn.classList.add('active');
+      showToast('เปิดกันจอดับแล้วค่ะ จอจะไม่ดับค่ะ');
+      wakeLock.addEventListener('release', () => { wakeLock = null; btn.classList.remove('active'); });
+    } catch(e) {
+      showToast('ไม่รองรับในอุปกรณ์นี้ค่ะ');
+    }
+  }
+}
+
+// ── FIREBASE ──
 function connectFirebase() {
-  const apiKey    = document.getElementById('cfg-apiKey').value.trim();
+  const apiKey = document.getElementById('cfg-apiKey').value.trim();
   const projectId = document.getElementById('cfg-projectId').value.trim();
-  const dbUrl     = document.getElementById('cfg-dbUrl').value.trim();
-
+  const dbUrl = document.getElementById('cfg-dbUrl').value.trim();
   if (!apiKey || !projectId || !dbUrl) { showToast('กรุณากรอกข้อมูลให้ครบค่ะ'); return; }
-
-  // save config
   localStorage.setItem('chiccoco_fb', JSON.stringify({ apiKey, projectId, dbUrl }));
-
   initFirebase(apiKey, projectId, dbUrl);
 }
 
 function initFirebase(apiKey, projectId, dbUrl) {
-  // dynamically load Firebase
   if (!window.firebase) {
     const s1 = document.createElement('script');
     s1.src = 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js';
@@ -177,117 +426,146 @@ function initFirebase(apiKey, projectId, dbUrl) {
       document.head.appendChild(s2);
     };
     document.head.appendChild(s1);
-  } else {
-    doInit(apiKey, projectId, dbUrl);
-  }
+  } else { doInit(apiKey, projectId, dbUrl); }
 }
 
 function doInit(apiKey, projectId, dbUrl) {
   try {
-    if (!firebase.apps.length) {
-      firebase.initializeApp({ apiKey, projectId, databaseURL: dbUrl });
-    }
+    if (!firebase.apps.length) firebase.initializeApp({ apiKey, projectId, databaseURL: dbUrl });
     db = firebase.database();
     setStatus('connected', '✅ เชื่อมต่อ Firebase สำเร็จ');
     document.getElementById('configSection').style.display = 'none';
-
-    // listen for changes from overlay
-    db.ref('chiccoco/state').on('value', snap => {
-      const d = snap.val();
-      if (d) syncFromRemote(d);
-    });
-
+    db.ref('chiccoco/state').on('value', snap => { const d = snap.val(); if (d) syncFromRemote(d); });
     showToast('เชื่อมต่อสำเร็จ!');
   } catch(e) {
     setStatus('error', '❌ เชื่อมต่อไม่สำเร็จ');
-    showToast('ตรวจสอบข้อมูล Firebase อีกครั้งค่ะ');
   }
 }
 
 function syncFromRemote(d) {
-  // just update UI to match current state
-  if (d.code && d.code !== currentCode) {
-    currentCode = d.code;
-    updateCurrentUI();
-  }
+  if (d.code && d.code !== currentCode) { currentCode = d.code; updateCurrentUI(); }
   if (d.soldSizes) soldSizes = d.soldSizes;
   if (d.salePrice !== undefined) salePrice = d.salePrice;
   renderSizePills();
 }
 
-// ── PUSH STATE TO FIREBASE ──
 function pushState() {
-  if (!db) { showToast('ยังไม่ได้เชื่อมต่อ Firebase'); return; }
+  if (!db) return;
   const p = products[currentCode];
   if (!p) return;
-
-  const state = {
-    code: currentCode,
-    soldSizes: soldSizes,
-    salePrice: salePrice,
-    ts: Date.now()
-  };
-
-  db.ref('chiccoco/state').set(state);
+  db.ref('chiccoco/state').set({ code: currentCode, soldSizes, salePrice, hidden: overlayHidden, ts: Date.now() });
 }
 
-// ── BARCODE / CODE INPUT ──
-function applyCode() {
-  const val = document.getElementById('scanInput').value.trim().toUpperCase();
-  if (!val) return;
+// ── OVERLAY TOGGLE ──
+function toggleOverlay() {
+  overlayHidden = !overlayHidden;
+  const btn = document.getElementById('btnHide');
+  btn.textContent = overlayHidden ? '👁 แสดง Overlay' : '👁 ซ่อน Overlay';
+  btn.classList.toggle('hidden', overlayHidden);
+  pushState();
+  showToast(overlayHidden ? 'ซ่อน Overlay แล้วค่ะ' : 'แสดง Overlay แล้วค่ะ');
+}
 
-  if (!products[val]) {
-    showToast(`ไม่พบรหัส ${val} ในสต๊อกค่ะ`);
-    return;
-  }
-
-  currentCode = val;
+// ── RESET ALL ──
+function resetAll() {
   soldSizes = [];
   salePrice = null;
-  document.getElementById('scanInput').value = '';
+  overlayHidden = false;
   document.getElementById('priceInput').value = '';
-
+  document.getElementById('btnHide').textContent = '👁 ซ่อน Overlay';
+  document.getElementById('btnHide').classList.remove('hidden');
   updateCurrentUI();
   renderSizePills();
+  updatePreview();
   pushState();
-  showToast(`เปลี่ยนเป็น ${val} แล้วค่ะ`);
+  showToast('รีเซ็ตทั้งหมดแล้วค่ะ');
+}
 
-  // auto-focus for next scan
+// ── SEARCH ──
+function doSearch(q) {
+  const res = document.getElementById('searchResults');
+  if (!q || q.length < 1) { res.style.display = 'none'; return; }
+  const lower = q.toLowerCase();
+  const matches = Object.values(products).filter(p =>
+    p.code.toLowerCase().includes(lower) || p.name.toLowerCase().includes(lower)
+  ).slice(0, 8);
+  if (matches.length === 0) { res.style.display = 'none'; return; }
+  res.innerHTML = matches.map(p => `
+    <div class="search-result-item" onclick="selectProduct('${p.code}')">
+      <div>
+        <div class="search-result-code">${p.code}</div>
+        <div class="search-result-name">${p.name}</div>
+      </div>
+      <div class="search-result-price">฿${Number(p.price).toLocaleString()}</div>
+    </div>`).join('');
+  res.style.display = 'block';
+}
+
+function selectProduct(code) {
+  document.getElementById('searchInput').value = '';
+  document.getElementById('searchResults').style.display = 'none';
+  currentCode = code;
+  soldSizes = [];
+  salePrice = null;
+  document.getElementById('priceInput').value = '';
+  addToHistory(code);
+  updateCurrentUI();
+  renderSizePills();
+  updatePreview();
+  pushState();
+  showToast(`เปลี่ยนเป็น ${code} แล้วค่ะ`);
   document.getElementById('scanInput').focus();
 }
 
-function updateCurrentUI() {
-  const p = products[currentCode];
+// ── BARCODE ──
+function applyCode() {
+  const val = document.getElementById('scanInput').value.trim().toUpperCase();
+  if (!val) return;
+  if (!products[val]) { showToast(`ไม่พบรหัส ${val} ค่ะ`); return; }
+  selectProduct(val);
+  document.getElementById('scanInput').value = '';
+}
+
+// ── HISTORY ──
+function addToHistory(code) {
+  const p = products[code];
   if (!p) return;
-  document.getElementById('curCode').textContent = p.code;
-  document.getElementById('curName').textContent = p.name;
-  document.getElementById('curPrice').textContent = salePrice
-    ? `฿${Number(p.price).toLocaleString()} → ฿${Number(salePrice).toLocaleString()}`
-    : `฿${Number(p.price).toLocaleString()}`;
+  history = history.filter(h => h.code !== code);
+  history.unshift({ code, name: p.name, price: p.price, time: new Date().toLocaleTimeString('th-TH', {hour:'2-digit', minute:'2-digit'}) });
+  if (history.length > 20) history.pop();
+}
+
+function renderHistory() {
+  const list = document.getElementById('historyList');
+  if (history.length === 0) { list.innerHTML = '<div class="history-empty">ยังไม่มีประวัติค่ะ</div>'; return; }
+  list.innerHTML = history.map(h => `
+    <div class="history-item ${h.code === currentCode ? 'current' : ''}" onclick="selectProduct('${h.code}')">
+      <div class="history-code">${h.code}</div>
+      <div class="history-info">
+        <div class="history-name">${h.name}</div>
+        <div class="history-price">฿${Number(h.price).toLocaleString()}</div>
+      </div>
+      <div class="history-time">${h.time}</div>
+    </div>`).join('');
 }
 
 // ── SIZE PILLS ──
 function renderSizePills() {
   const container = document.getElementById('sizesPills');
   const p = products[currentCode];
-
   if (!p || p.type === 'misc' || !p.sizes || p.sizes.length === 0) {
-    container.innerHTML = '<span class="sizes-empty">ไม่มีข้อมูลไซส์</span>';
-    return;
+    container.innerHTML = '<span class="sizes-empty">ไม่มีข้อมูลไซส์</span>'; return;
   }
-
   container.innerHTML = '';
   p.sizes.forEach(s => {
     const pill = document.createElement('div');
     pill.className = 'size-pill' + (soldSizes.includes(s.size) ? ' sold' : '');
     pill.textContent = s.size;
     pill.onclick = () => {
-      if (soldSizes.includes(s.size)) {
-        soldSizes = soldSizes.filter(x => x !== s.size);
-      } else {
-        soldSizes.push(s.size);
-      }
+      if (soldSizes.includes(s.size)) soldSizes = soldSizes.filter(x => x !== s.size);
+      else soldSizes.push(s.size);
       renderSizePills();
+      updatePreview();
       pushState();
       showToast(soldSizes.includes(s.size) ? `${s.size} — หมดแล้ว` : `${s.size} — กลับมาแล้ว`);
     };
@@ -301,6 +579,7 @@ function applyPrice() {
   if (!val || !currentCode) return;
   salePrice = val;
   updateCurrentUI();
+  updatePreview();
   pushState();
   showToast(`ลดราคาเป็น ฿${Number(val).toLocaleString()} แล้วค่ะ`);
 }
@@ -309,41 +588,207 @@ function resetPrice() {
   salePrice = null;
   document.getElementById('priceInput').value = '';
   updateCurrentUI();
+  updatePreview();
   pushState();
   showToast('รีเซ็ตราคาแล้วค่ะ');
 }
 
-// ── LOAD STOCK — รองรับหลายไฟล์ + ตรวจ format อัตโนมัติ ──
+// ── CURRENT UI ──
+function updateCurrentUI() {
+  const p = products[currentCode];
+  if (!p) return;
+  document.getElementById('curCode').textContent = p.code;
+  document.getElementById('curName').textContent = p.name;
+  document.getElementById('curPrice').textContent = salePrice
+    ? `฿${Number(p.price).toLocaleString()} → ฿${Number(salePrice).toLocaleString()}`
+    : `฿${Number(p.price).toLocaleString()}`;
+}
+
+// ── PREVIEW ──
+function buildOV(p, sold, sale) {
+  if (!p) return '';
+  const av = (p.sizes||[]).filter(s => !(sold||[]).includes(s.size));
+  const lb = av.map(s => s.size).filter(Boolean);
+  const co = p.activeCols || [];
+  const fmt2 = v => { const n=Number(v); return isNaN(n)?v:n.toLocaleString(); };
+  const ph = sale
+    ? `<div class="OV-price"><div class="OV-price-lbl">ราคา</div><div class="OV-price-sale"><div class="OV-price-original">${fmt2(p.price)}</div><div class="OV-price-new">${fmt2(sale)}</div></div></div>`
+    : `<div class="OV-price"><div class="OV-price-lbl">ราคา</div><div class="OV-price-num">${fmt2(p.price)}</div></div>`;
+
+  if (p.type === 'misc') {
+    return `<div class="OV">
+      <div class="OV-brand">C H I C C O C O</div>
+      <div class="OV-toprow">
+        <div class="OV-box" style="flex:1.1"><div class="OV-box-lbl">รหัสสินค้า</div><div class="OV-box-code">${p.code}</div></div>
+        ${ph.replace('class="OV-price"','class="OV-price" style="flex:1"')}
+      </div>
+      <div class="OV-name">${p.name}</div>
+      <div class="OV-inforow">
+        ${p.color?`<div class="OV-info"><div class="OV-info-lbl">สี</div><div class="OV-info-val">${p.color}</div></div>`:''}
+        ${p.size?`<div class="OV-info"><div class="OV-info-lbl">ขนาดสินค้า</div><div class="OV-info-val" style="font-size:32px">${p.size}</div></div>`:''}
+      </div></div>`;
+  }
+  const rows = av.map(s=>`<tr><td>${s.size}</td>${co.map(c=>`<td>${s[c]||'—'}</td>`).join('')}</tr>`).join('');
+  return `<div class="OV">
+    <div class="OV-brand">C H I C C O C O</div>
+    <div class="OV-toprow">
+      <div class="OV-box"><div class="OV-box-lbl">รหัสสินค้า</div><div class="OV-box-code">${p.code}</div></div>
+      <div class="OV-box"><div class="OV-box-lbl">ไซส์</div><div class="OV-box-sizes">${lb.join(', ')||'—'}</div></div>
+    </div>
+    ${ph}
+    <div class="OV-name">${p.name}</div>
+    <div class="OV-inforow">
+      ${p.color?`<div class="OV-info"><div class="OV-info-lbl">สี</div><div class="OV-info-val">${p.color}</div></div>`:''}
+      ${p.material?`<div class="OV-info"><div class="OV-info-lbl">วัสดุ</div><div class="OV-info-val" style="font-size:28px">${p.material}</div></div>`:''}
+    </div>
+    ${rows?`<table class="OV-table"><thead><tr><th>ไซส์</th>${co.map(c=>`<th>${c}</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table>`:''}
+  </div>`;
+}
+
+function updatePreview() {
+  const p = products[currentCode];
+  const section = document.getElementById('previewSection');
+  const wrap = document.getElementById('previewWrap');
+  if (!p) { section.style.display = 'none'; return; }
+  section.style.display = 'block';
+  wrap.innerHTML = buildOV(p, soldSizes, salePrice);
+}
+
+// ── TIMER ──
+function setTimer(minutes) {
+  timerSeconds = minutes * 60;
+  timerRunning = false;
+  clearInterval(timerInterval);
+  updateTimerDisplay();
+  document.getElementById('btnTimerStart').style.display = '';
+  document.getElementById('btnTimerPause').style.display = 'none';
+}
+
+function startTimer() {
+  if (timerSeconds <= 0) return;
+  timerRunning = true;
+  document.getElementById('btnTimerStart').style.display = 'none';
+  document.getElementById('btnTimerPause').style.display = '';
+  timerInterval = setInterval(() => {
+    timerSeconds--;
+    updateTimerDisplay();
+    if (db) db.ref('chiccoco/timer').set({
+      seconds: timerSeconds,
+      label: document.getElementById('timerLabel').value,
+      running: true,
+      ts: Date.now()
+    });
+    if (timerSeconds <= 0) {
+      clearInterval(timerInterval);
+      timerRunning = false;
+      document.getElementById('btnTimerStart').style.display = '';
+      document.getElementById('btnTimerPause').style.display = 'none';
+      showToast('⏰ หมดเวลาแล้วค่ะ!');
+    }
+  }, 1000);
+}
+
+function pauseTimer() {
+  clearInterval(timerInterval);
+  timerRunning = false;
+  document.getElementById('btnTimerStart').style.display = '';
+  document.getElementById('btnTimerPause').style.display = 'none';
+  if (db) db.ref('chiccoco/timer').set({ seconds: timerSeconds, running: false, ts: Date.now() });
+}
+
+function resetTimer() {
+  clearInterval(timerInterval);
+  timerRunning = false;
+  timerSeconds = 0;
+  updateTimerDisplay();
+  document.getElementById('btnTimerStart').style.display = '';
+  document.getElementById('btnTimerPause').style.display = 'none';
+  if (db) db.ref('chiccoco/timer').set({ seconds: 0, running: false, ts: Date.now() });
+}
+
+function updateTimerDisplay() {
+  const m = Math.floor(timerSeconds / 60);
+  const s = timerSeconds % 60;
+  const txt = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  const el = document.getElementById('timerDisplay');
+  el.textContent = txt;
+  el.classList.toggle('warning', timerSeconds > 0 && timerSeconds <= 30);
+}
+
+// ── CF ──
+function addCF() {
+  const name = document.getElementById('cfNameInput').value.trim();
+  if (!name) { showToast('กรุณากรอกชื่อลูกค้าค่ะ'); return; }
+  const p = products[currentCode];
+  cfList.push({
+    id: Date.now(),
+    name,
+    code: currentCode || '—',
+    productName: p ? p.name : '—',
+    price: p ? p.price : '—',
+    time: new Date().toLocaleTimeString('th-TH', {hour:'2-digit', minute:'2-digit'})
+  });
+  document.getElementById('cfNameInput').value = '';
+  renderCF();
+  showToast(`CF ${name} แล้วค่ะ`);
+}
+
+function removeCF(id) {
+  cfList = cfList.filter(c => c.id !== id);
+  renderCF();
+}
+
+function clearCF() {
+  if (cfList.length === 0) return;
+  cfList = [];
+  renderCF();
+  showToast('ล้างรายการ CF แล้วค่ะ');
+}
+
+function renderCF() {
+  const list = document.getElementById('cfList');
+  const summary = document.getElementById('cfSummary');
+  if (cfList.length === 0) {
+    list.innerHTML = '<div class="history-empty">ยังไม่มีรายการ CF ค่ะ</div>';
+    summary.textContent = '';
+    return;
+  }
+  list.innerHTML = cfList.map((c, i) => `
+    <div class="cf-item">
+      <div class="cf-num">${i+1}</div>
+      <div class="cf-info">
+        <div class="cf-buyer">${c.name}</div>
+        <div class="cf-product">${c.code} — ${c.productName} (฿${Number(c.price).toLocaleString()})</div>
+        <div class="cf-time">${c.time}</div>
+      </div>
+      <button class="btn-cf-del" onclick="removeCF(${c.id})">✕</button>
+    </div>`).join('');
+  summary.textContent = `รวม ${cfList.length} CF`;
+}
+
+// ── LOAD STOCK ──
 function loadStock(input) {
   const files = input.files;
   if (!files || files.length === 0) return;
-
-  let allProducts = {};
-  let totalCount = 0;
-  let filesRead = 0;
-
+  let allProducts = {}, totalCount = 0, filesRead = 0;
   Array.from(files).forEach(file => {
     const reader = new FileReader();
     reader.onload = e => {
       const wb = XLSX.read(e.target.result, { type:'array' });
       const ws = wb.Sheets[wb.SheetNames[0]];
       const rows = XLSX.utils.sheet_to_json(ws, { header:1, defval:'' });
-
       if (rows.length >= 2) {
         const hdr = rows[0].map(x => String(x||'').trim());
-        // auto-detect: ถ้ามี "รหัสสต็อก" หรือ "รหัสขาย" = V Rich, นอกนั้น = custom
         const isVRich = hdr.includes('รหัสสต็อก') || hdr.includes('รหัสขาย');
         const parsed = isVRich ? parseVRich(rows) : parseCustom(rows);
         parsed.forEach(p => { allProducts[p.code] = p; });
         totalCount += parsed.length;
       }
-
       filesRead++;
       if (filesRead === files.length) {
-        // ทุกไฟล์อ่านแล้ว
         products = allProducts;
-        document.getElementById('stockInfo').textContent = `โหลดแล้ว ${totalCount} รายการ (${files.length} ไฟล์)`;
-        showToast(`โหลดสต๊อกสำเร็จ ${totalCount} รายการค่ะ`);
+        document.getElementById('stockInfo').textContent = `${totalCount} รายการ (${files.length} ไฟล์)`;
+        showToast(`โหลดสำเร็จ ${totalCount} รายการค่ะ`);
         if (db) db.ref('chiccoco/products').set(products);
       }
     };
@@ -365,7 +810,22 @@ function parseCustom(rows) {
     mCols.forEach(col=>{if(hdr.includes(col)){const v=o[col];if(v&&v!=='-'&&v!=='0')sr[col]=v;}});
     if(sr.size) map[code].sizes.push(sr);
   }
-  return order.map(c=>{const p=map[c];p.activeCols=mCols.filter(f=>p.sizes.some(s=>s[f]));return p;});
+  return order.map(c => {
+    const p = map[c];
+    const nl = p.name.toLowerCase();
+    const isPants = /กางเกง|กระโปรง|วอร์ม|เล็กกิ้ง|legging|ยีนส์|jeans/.test(nl);
+    const isDress = /เดรส|dress/.test(nl);
+    const isUnderwear = /ชุดชั้นใน|ชั้นใน|lingerie|underwear/.test(nl);
+    const hasWaist = p.sizes.some(s=>s['เอว']), hasCrotch = p.sizes.some(s=>s['เป้า']);
+    const hasChest = p.sizes.some(s=>s['อก']), hasHip = p.sizes.some(s=>s['สะโพก']);
+    let co;
+    if (isPants||(hasWaist&&hasCrotch)) co=['เอว','สะโพก','เป้า','ยาว'];
+    else if (isUnderwear||isDress||(hasChest&&hasWaist&&hasHip)) co=['อก','เอว','สะโพก','ยาว'];
+    else co=['คัฟอก','อก','ยาว','วงแขน','บ่า','เอว','สะโพก','เป้า'];
+    p.activeCols = co.filter(f=>p.sizes.some(s=>s[f]));
+    if (!p.activeCols.length) p.type='misc';
+    return p;
+  });
 }
 
 function parseVRich(rows) {
@@ -381,7 +841,7 @@ function parseVRich(rows) {
     'เป้า':/เป้า\s*([\d.]+(?:-[\d.]+)?|[Ff]ree|ฟรี)/,
     'คัฟอก':/คัฟอก\s*([\d.]+(?:-[\d.]+)?|[Ff]ree|ฟรี)/,
   };
-  const SIZE_ORDER=['xxs','xs','s','m','l','xl','xxl','2xl'];
+  const SIZE_ORDER=['xxs','xs','s','m','l','xl','xxl','2xl','3xl'];
   const sizeRank=sz=>{const s=sz.toLowerCase().replace(/\s+/g,'');const i=SIZE_ORDER.indexOf(s);if(i!==-1)return i;const n=parseFloat(s.replace(/[^\d.]/g,''));return isNaN(n)?999:100+n;};
 
   for (let i = 1; i < rows.length; i++) {
@@ -391,11 +851,9 @@ function parseVRich(rows) {
     const note=o['หมายเหตุ']||''; const size=o['ไซส์']||''; const color=o['สี']||'';
     const price=o['ราคา']||''; const fullPrice=o['ราคาเต็ม']||'';
     const hasMeasure=Object.values(mPat).some(r=>r.test(note));
-
-    let name = o['รายละเอียด']||'';
-    const noteMatch = note.match(/^([^*]+?)(?:\s*\*|=)/);
-    if(noteMatch) name = noteMatch[1].trim();
-    if(!name) name = o['รายละเอียด']||sellCode;
+    let name=o['รายละเอียด']||'';
+    const nm=note.match(/^([^*]+?)(?:\s*\*|=)/); if(nm) name=nm[1].trim();
+    if(!name) name=sellCode;
 
     if(!map[sellCode]){
       map[sellCode]={type:hasMeasure?'clothing':'misc',code:sellCode,name,price:fullPrice||price,color,material:'',sizes:[],size:''};
@@ -408,7 +866,7 @@ function parseVRich(rows) {
       Object.entries(mPat).forEach(([col,re])=>{const m=note.match(re);if(m&&m[1])sr[col]=m[1];});
       if(!p.sizes.find(s=>s.size===size)) p.sizes.push(sr);
     } else if(!hasMeasure&&size&&size!=='-'){
-      p.size=size;
+      p.size=p.size||size;
     }
   }
   return order.map(c=>{
@@ -418,8 +876,12 @@ function parseVRich(rows) {
       const nl=p.name.toLowerCase();
       const isPants=/กางเกง|กระโปรง|วอร์ม|เล็กกิ้ง|legging|ยีนส์|jeans/.test(nl);
       const isDress=/เดรส|dress/.test(nl);
-      p.activeCols=isPants?['เอว','สะโพก','เป้า','ยาว']:isDress?['อก','เอว','สะโพก','ยาว']:['คัฟอก','อก','ยาว','วงแขน','บ่า'];
-      p.activeCols=p.activeCols.filter(f=>p.sizes.some(s=>s[f]));
+      const isUnderwear=/ชุดชั้นใน|ชั้นใน|lingerie|underwear/.test(nl);
+      let co;
+      if(isPants) co=['เอว','สะโพก','เป้า','ยาว'];
+      else if(isUnderwear||isDress) co=['อก','เอว','สะโพก','ยาว'];
+      else co=['คัฟอก','อก','ยาว','วงแขน','บ่า'];
+      p.activeCols=co.filter(f=>p.sizes.some(s=>s[f]));
     }
     return p;
   });
@@ -427,24 +889,20 @@ function parseVRich(rows) {
 
 // ── UI HELPERS ──
 function setStatus(type, msg) {
-  const dot = document.getElementById('statusDot');
-  const txt = document.getElementById('statusTxt');
-  dot.className = 'status-dot ' + type;
-  txt.textContent = msg;
+  document.getElementById('statusDot').className = 'status-dot ' + type;
+  document.getElementById('statusTxt').textContent = msg;
 }
 
 let toastTimer;
 function showToast(msg) {
   const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
+  t.textContent = msg; t.classList.add('show');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), 2000);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
 }
 
-// ── AUTO FOCUS SCAN INPUT ──
+// ── INIT ──
 document.addEventListener('DOMContentLoaded', () => {
-  // restore Firebase config
   try {
     const cfg = JSON.parse(localStorage.getItem('chiccoco_fb'));
     if (cfg) {
@@ -454,8 +912,9 @@ document.addEventListener('DOMContentLoaded', () => {
       initFirebase(cfg.apiKey, cfg.projectId, cfg.dbUrl);
     }
   } catch(e) {}
-
   document.getElementById('scanInput').focus();
+  updateTimerDisplay();
+  renderCF();
 });
 </script>
 </body>
