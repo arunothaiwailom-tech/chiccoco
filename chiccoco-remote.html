@@ -519,10 +519,14 @@ function selectProduct(code) {
 
 // ── BARCODE ──
 function applyCode() {
-  const val = document.getElementById('scanInput').value.trim().toUpperCase();
+  const val = document.getElementById('scanInput').value.trim();
   if (!val) return;
-  if (!products[val]) { showToast(`ไม่พบรหัส ${val} ค่ะ`); return; }
-  selectProduct(val);
+
+  // ค้นหาแบบ case-insensitive
+  const found = Object.keys(products).find(k => k.toLowerCase() === val.toLowerCase());
+  if (!found) { showToast(`ไม่พบรหัส ${val} ค่ะ`); return; }
+
+  selectProduct(found);
   document.getElementById('scanInput').value = '';
 }
 
