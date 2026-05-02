@@ -9,37 +9,34 @@
 * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
 body { font-family:'Sarabun',sans-serif; background:#f0ede8; min-height:100vh; padding:16px 14px 100px; color:#111; }
 
-/* ── HEADER ── */
 .app-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
 .app-title { font-family:'Kanit',sans-serif; font-size:20px; font-weight:800; letter-spacing:4px; }
 .app-sub { font-size:10px; color:#aaa; letter-spacing:2px; }
 .btn-screen-on { padding:6px 12px; border:none; border-radius:8px; font-family:'Kanit',sans-serif; font-size:11px; font-weight:700; cursor:pointer; background:#f0ece6; color:#5c7a6b; border:1.5px solid #b5cdbf; }
 .btn-screen-on.active { background:#5c7a6b; color:white; border-color:#5c7a6b; }
 
-/* ── SECTION BASE ── */
 .sec { background:white; border-radius:16px; padding:14px 16px; margin-bottom:12px; box-shadow:0 1px 6px rgba(0,0,0,.06); }
 .sec-lbl { font-size:10px; font-weight:700; color:#aaa; letter-spacing:1px; text-transform:uppercase; margin-bottom:10px; font-family:'Kanit',sans-serif; }
+.sec-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+.sec-header .sec-lbl { margin:0; }
 
-/* ── STATUS ── */
 .status-bar { display:flex; align-items:center; gap:10px; }
 .status-dot { width:10px; height:10px; border-radius:50%; background:#ccc; flex-shrink:0; transition:background .3s; }
 .status-dot.connected { background:#5c7a6b; }
 .status-dot.error { background:#e63946; }
 .status-txt { font-size:12px; font-weight:600; color:#555; flex:1; }
+.status-device { font-size:10px; color:#aaa; }
 
-/* ── FIREBASE CONFIG ── */
 .config-section { background:#fff8e1; border:1.5px solid #f5c842; border-radius:14px; padding:16px; margin-bottom:12px; }
 .config-lbl { font-size:11px; font-weight:700; color:#b8860b; letter-spacing:1px; text-transform:uppercase; margin-bottom:10px; font-family:'Kanit',sans-serif; }
 .config-input { width:100%; padding:8px 12px; border:1.5px solid #e0d0a0; border-radius:8px; font-size:12px; margin-bottom:6px; outline:none; font-family:monospace; background:white; }
 .btn-connect { width:100%; padding:10px; background:#f5c842; color:#333; border:none; border-radius:8px; font-family:'Kanit',sans-serif; font-size:13px; font-weight:700; cursor:pointer; margin-top:4px; }
 
-/* ── STOCK ── */
 .stock-row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
 .btn-load-stock { padding:10px 16px; background:#111; color:white; border:none; border-radius:8px; font-family:'Kanit',sans-serif; font-size:12px; font-weight:700; cursor:pointer; position:relative; overflow:hidden; }
 .btn-load-stock input { position:absolute; inset:0; opacity:0; cursor:pointer; }
 .stock-info { font-size:12px; color:#888; }
 
-/* ── CURRENT PRODUCT ── */
 .current-card { border-left:4px solid #5c7a6b; }
 .current-code { font-size:36px; font-weight:800; color:#8b1a1a; line-height:1; font-family:'Kanit',sans-serif; }
 .current-name { font-size:13px; color:#555; margin-top:4px; }
@@ -49,7 +46,6 @@ body { font-family:'Sarabun',sans-serif; background:#f0ede8; min-height:100vh; p
 .btn-hide-overlay.hidden { background:#5c7a6b; color:white; }
 .btn-reset-all { flex:1; padding:10px; background:#fee; border:2px solid #f5b8b8; border-radius:10px; font-family:'Kanit',sans-serif; font-size:13px; font-weight:700; color:#c0392b; cursor:pointer; }
 
-/* ── SEARCH ── */
 .search-wrap { position:relative; margin-bottom:8px; }
 .search-input { width:100%; padding:12px 16px 12px 40px; border:2px solid #e0e0e0; border-radius:10px; font-size:16px; font-family:'Sarabun',sans-serif; outline:none; }
 .search-input:focus { border-color:#5c7a6b; }
@@ -62,13 +58,12 @@ body { font-family:'Sarabun',sans-serif; background:#f0ede8; min-height:100vh; p
 .search-result-name { font-size:12px; color:#888; margin-top:2px; }
 .search-result-price { font-family:'Kanit',sans-serif; font-weight:700; color:#2c2c2c; font-size:13px; flex-shrink:0; margin-left:8px; }
 
-/* ── SCAN ── */
 .scan-input-wrap { display:flex; gap:8px; }
 .scan-input { flex:1; padding:14px 16px; border:2px solid #e0e0e0; border-radius:10px; font-size:22px; font-family:'Kanit',sans-serif; font-weight:700; color:#111; outline:none; text-transform:uppercase; }
 .scan-input:focus { border-color:#5c7a6b; }
 .btn-scan { padding:14px 20px; background:#5c7a6b; color:white; border:none; border-radius:10px; font-family:'Kanit',sans-serif; font-size:14px; font-weight:700; cursor:pointer; }
 
-/* ── PREVIEW ── */
+/* PREVIEW */
 .preview-wrap { background:#f0ece6; border-radius:12px; overflow:hidden; }
 .preview-wrap .OV { width:100% !important; padding:14px 12px; gap:7px; opacity:1 !important; border-radius:12px; }
 .preview-wrap .OV-brand { font-size:9px; letter-spacing:5px; }
@@ -90,26 +85,38 @@ body { font-family:'Sarabun',sans-serif; background:#f0ede8; min-height:100vh; p
 .preview-wrap .OV-table thead th { font-size:11px; padding:5px 4px; }
 .preview-wrap .OV-table tbody td { font-size:12px; padding:4px; }
 .preview-wrap .OV-table tbody td:first-child { font-size:13px; }
+.preview-edited-badge { display:inline-block; background:#c8a96e; color:white; font-size:9px; font-family:'Kanit',sans-serif; font-weight:700; padding:2px 6px; border-radius:4px; margin-left:6px; vertical-align:middle; }
 
-/* ── SIZE PILLS ── */
+/* EDIT MODAL */
+.modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:200; display:none; align-items:flex-end; }
+.modal-overlay.open { display:flex; }
+.modal-sheet { background:white; border-radius:20px 20px 0 0; padding:20px 16px 40px; width:100%; max-height:85vh; overflow-y:auto; }
+.modal-title { font-family:'Kanit',sans-serif; font-size:16px; font-weight:700; margin-bottom:16px; display:flex; align-items:center; justify-content:space-between; }
+.modal-close { padding:6px 12px; background:#f5f5f5; border:none; border-radius:8px; font-size:13px; cursor:pointer; }
+.edit-field { margin-bottom:12px; }
+.edit-label { font-size:11px; font-weight:700; color:#888; font-family:'Kanit',sans-serif; letter-spacing:1px; text-transform:uppercase; margin-bottom:5px; }
+.edit-input { width:100%; padding:10px 14px; border:1.5px solid #e0e0e0; border-radius:10px; font-size:15px; outline:none; font-family:'Sarabun',sans-serif; }
+.edit-input:focus { border-color:#5c7a6b; }
+.edit-table-row { display:grid; gap:6px; margin-bottom:8px; background:#f9f9f9; border-radius:10px; padding:10px; }
+.edit-table-row .edit-input { font-size:13px; padding:8px 10px; }
+.btn-edit-save { width:100%; padding:14px; background:#5c7a6b; color:white; border:none; border-radius:12px; font-family:'Kanit',sans-serif; font-size:15px; font-weight:700; cursor:pointer; margin-top:8px; }
+.btn-edit-reset { width:100%; padding:10px; background:#fee; color:#c0392b; border:none; border-radius:12px; font-family:'Kanit',sans-serif; font-size:13px; font-weight:700; cursor:pointer; margin-top:8px; }
+
 .sizes-pills { display:flex; flex-wrap:wrap; gap:8px; }
 .size-pill { padding:12px 20px; border-radius:10px; font-family:'Kanit',sans-serif; font-size:18px; font-weight:800; cursor:pointer; border:2px solid #e0e0e0; background:#f5f5f5; color:#333; transition:all .15s; user-select:none; min-width:70px; text-align:center; }
 .size-pill.sold { background:#fee; border-color:#f5b8b8; color:#c0392b; text-decoration:line-through; }
 .sizes-empty { font-size:13px; color:#aaa; }
 
-/* ── PRICE ── */
 .price-row { display:flex; gap:8px; align-items:center; }
 .price-input { flex:1; padding:12px 14px; border:2px solid #e0e0e0; border-radius:10px; font-size:20px; font-family:'Kanit',sans-serif; font-weight:700; outline:none; }
 .price-input:focus { border-color:#c8a96e; }
 .btn-price { padding:12px 16px; background:#8b1a1a; color:white; border:none; border-radius:10px; font-family:'Kanit',sans-serif; font-size:13px; font-weight:700; cursor:pointer; }
 .btn-price-reset { padding:12px 14px; background:#f5f5f5; color:#888; border:none; border-radius:10px; font-family:'Kanit',sans-serif; font-size:13px; font-weight:700; cursor:pointer; }
 
-/* ── TIMER ── */
 .timer-display { text-align:center; font-size:52px; font-weight:800; color:#2c2c2c; font-family:'Kanit',sans-serif; line-height:1; margin:8px 0; }
 .timer-display.warning { color:#e63946; }
 .timer-presets { display:flex; gap:6px; margin-bottom:10px; flex-wrap:wrap; }
 .timer-preset { padding:8px 14px; background:#f0f0f0; border:none; border-radius:8px; font-family:'Kanit',sans-serif; font-size:12px; font-weight:700; cursor:pointer; }
-.timer-preset:active { background:#e0e0e0; }
 .timer-controls { display:flex; gap:8px; }
 .btn-timer { flex:1; padding:12px; border:none; border-radius:10px; font-family:'Kanit',sans-serif; font-size:14px; font-weight:700; cursor:pointer; }
 .btn-timer-start { background:#5c7a6b; color:white; }
@@ -118,10 +125,8 @@ body { font-family:'Sarabun',sans-serif; background:#f0ede8; min-height:100vh; p
 .timer-label-row { display:flex; gap:8px; margin-top:8px; }
 .timer-label-input { flex:1; padding:8px 12px; border:1.5px solid #e0e0e0; border-radius:8px; font-size:13px; outline:none; }
 
-/* ── HISTORY ── */
-.history-list { display:flex; flex-direction:column; gap:6px; max-height:220px; overflow-y:auto; }
+.history-list { display:flex; flex-direction:column; gap:6px; max-height:260px; overflow-y:auto; }
 .history-item { display:flex; align-items:center; gap:10px; padding:10px 12px; background:#f9f9f9; border-radius:10px; cursor:pointer; border:1.5px solid transparent; transition:all .15s; }
-.history-item:active { background:#f0f0f0; }
 .history-item.current { border-color:#5c7a6b; background:#eaf0ec; }
 .history-code { font-family:'Kanit',sans-serif; font-weight:800; color:#8b1a1a; font-size:16px; min-width:55px; }
 .history-info { flex:1; }
@@ -130,12 +135,11 @@ body { font-family:'Sarabun',sans-serif; background:#f0ede8; min-height:100vh; p
 .history-time { font-size:10px; color:#bbb; flex-shrink:0; }
 .history-empty { font-size:13px; color:#aaa; text-align:center; padding:12px; }
 
-/* ── CF LIST ── */
 .cf-input-row { display:flex; gap:8px; margin-bottom:10px; }
 .cf-name-input { flex:1; padding:10px 14px; border:2px solid #e0e0e0; border-radius:10px; font-size:15px; outline:none; }
 .cf-name-input:focus { border-color:#5c7a6b; }
 .btn-cf-add { padding:10px 16px; background:#5c7a6b; color:white; border:none; border-radius:10px; font-family:'Kanit',sans-serif; font-size:13px; font-weight:700; cursor:pointer; white-space:nowrap; }
-.cf-list { max-height:250px; overflow-y:auto; }
+.cf-list { max-height:280px; overflow-y:auto; }
 .cf-item { display:flex; align-items:center; gap:8px; padding:10px 12px; background:#f9f9f9; border-radius:10px; margin-bottom:6px; }
 .cf-num { font-family:'Kanit',sans-serif; font-weight:800; color:#aaa; font-size:13px; min-width:24px; }
 .cf-info { flex:1; }
@@ -144,24 +148,20 @@ body { font-family:'Sarabun',sans-serif; background:#f0ede8; min-height:100vh; p
 .cf-time { font-size:10px; color:#bbb; }
 .btn-cf-del { padding:4px 8px; background:#fee; border:none; border-radius:6px; color:#e63946; font-size:12px; cursor:pointer; }
 .cf-summary { font-size:11px; color:#888; margin-top:6px; }
-.btn-cf-clear { padding:6px 12px; background:#f5f5f5; color:#888; border:none; border-radius:8px; font-family:'Kanit',sans-serif; font-size:11px; font-weight:700; cursor:pointer; margin-top:6px; }
-.cf-section-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+.btn-cf-clear { padding:6px 12px; background:#f5f5f5; color:#888; border:none; border-radius:8px; font-family:'Kanit',sans-serif; font-size:11px; font-weight:700; cursor:pointer; }
 
-/* ── TOAST ── */
-.toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:#111; color:white; padding:10px 20px; border-radius:20px; font-size:13px; font-weight:600; font-family:'Kanit',sans-serif; opacity:0; transition:opacity .3s; pointer-events:none; z-index:999; white-space:nowrap; }
+.toast { position:fixed; bottom:110px; left:50%; transform:translateX(-50%); background:#111; color:white; padding:10px 20px; border-radius:20px; font-size:13px; font-weight:600; font-family:'Kanit',sans-serif; opacity:0; transition:opacity .3s; pointer-events:none; z-index:999; white-space:nowrap; max-width:90vw; text-align:center; }
 .toast.show { opacity:1; }
 
-/* ── BOTTOM NAV ── */
 .bottom-nav { position:fixed; bottom:0; left:0; right:0; background:white; border-top:1px solid #eee; display:flex; padding:8px 0 env(safe-area-inset-bottom); box-shadow:0 -2px 12px rgba(0,0,0,.08); z-index:100; }
 .nav-btn { flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; padding:6px 4px; border:none; background:transparent; cursor:pointer; font-family:'Kanit',sans-serif; font-size:9px; font-weight:700; color:#aaa; }
 .nav-btn.active { color:#5c7a6b; }
 .nav-btn .icon { font-size:22px; line-height:1; }
 
-/* ── PAGES ── */
 .page { display:none; }
 .page.active { display:block; }
 
-/* OV styles for preview */
+/* OV base styles */
 .OV { width:100%; background:#f0ece6; padding:32px 28px 36px; display:flex; flex-direction:column; gap:16px; border-radius:32px; }
 .OV-brand { text-align:center; font-family:'Kanit',sans-serif; font-size:15px; font-weight:400; letter-spacing:10px; color:#5c7a6b; }
 .OV-toprow { display:flex; gap:14px; }
@@ -192,7 +192,6 @@ body { font-family:'Sarabun',sans-serif; background:#f0ede8; min-height:100vh; p
 </head>
 <body>
 
-<!-- HEADER -->
 <div class="app-header">
   <div>
     <div class="app-title">chiccoco</div>
@@ -201,15 +200,14 @@ body { font-family:'Sarabun',sans-serif; background:#f0ede8; min-height:100vh; p
   <button class="btn-screen-on" id="btnScreenOn" onclick="toggleScreenOn()">☀️ กันจอดับ</button>
 </div>
 
-<!-- STATUS -->
 <div class="sec" style="padding:12px 16px;">
   <div class="status-bar">
     <div class="status-dot" id="statusDot"></div>
     <span class="status-txt" id="statusTxt">ยังไม่ได้เชื่อมต่อ Firebase</span>
+    <span class="status-device" id="statusDevice"></span>
   </div>
 </div>
 
-<!-- FIREBASE CONFIG -->
 <div class="config-section" id="configSection">
   <div class="config-lbl">⚙️ ตั้งค่า Firebase (ทำครั้งเดียว)</div>
   <input class="config-input" id="cfg-apiKey" placeholder="apiKey">
@@ -218,12 +216,9 @@ body { font-family:'Sarabun',sans-serif; background:#f0ede8; min-height:100vh; p
   <button class="btn-connect" onclick="connectFirebase()">🔌 เชื่อมต่อ Firebase</button>
 </div>
 
-<!-- PAGES -->
-
-<!-- PAGE: LIVE (หน้าหลัก) -->
+<!-- PAGE: LIVE -->
 <div class="page active" id="page-live">
 
-  <!-- STOCK -->
   <div class="sec">
     <div class="sec-lbl">📂 โหลดสต๊อก</div>
     <div class="stock-row">
@@ -236,7 +231,6 @@ body { font-family:'Sarabun',sans-serif; background:#f0ede8; min-height:100vh; p
     <div style="font-size:11px;color:#aaa;margin-top:6px;">รองรับ Excel ทำเอง และ V Rich อัตโนมัติ</div>
   </div>
 
-  <!-- CURRENT PRODUCT -->
   <div class="sec current-card">
     <div class="sec-lbl">สินค้าที่แสดงอยู่ตอนนี้</div>
     <div class="current-code" id="curCode">—</div>
@@ -248,7 +242,6 @@ body { font-family:'Sarabun',sans-serif; background:#f0ede8; min-height:100vh; p
     </div>
   </div>
 
-  <!-- SEARCH -->
   <div class="sec">
     <div class="sec-lbl">🔍 ค้นหาสินค้า</div>
     <div class="search-wrap">
@@ -258,7 +251,6 @@ body { font-family:'Sarabun',sans-serif; background:#f0ede8; min-height:100vh; p
     <div class="search-results" id="searchResults"></div>
   </div>
 
-  <!-- SCAN -->
   <div class="sec">
     <div class="sec-lbl">🔫 สแกนบาร์โค้ด / พิมพ์รหัส</div>
     <div class="scan-input-wrap">
@@ -267,19 +259,19 @@ body { font-family:'Sarabun',sans-serif; background:#f0ede8; min-height:100vh; p
     </div>
   </div>
 
-  <!-- PREVIEW -->
   <div class="sec" id="previewSection" style="display:none;">
-    <div class="sec-lbl">👁 ตัวอย่าง Overlay</div>
+    <div class="sec-header">
+      <div class="sec-lbl" style="margin:0;">👁 ตัวอย่าง Overlay <span id="editedBadge" class="preview-edited-badge" style="display:none;">แก้ไขแล้ว</span></div>
+      <button onclick="openEditModal()" style="padding:6px 12px;background:#f0ece6;border:1.5px solid #c8a96e;border-radius:8px;font-family:'Kanit',sans-serif;font-size:11px;font-weight:700;color:#8b6f3e;cursor:pointer;">✏️ แก้ไขข้อมูล</button>
+    </div>
     <div class="preview-wrap" id="previewWrap"></div>
   </div>
 
-  <!-- SIZE PILLS -->
   <div class="sec">
     <div class="sec-lbl">📦 ติ๊กไซส์ที่หมด</div>
     <div class="sizes-pills" id="sizesPills"><span class="sizes-empty">โหลดสินค้าก่อนค่ะ</span></div>
   </div>
 
-  <!-- PRICE -->
   <div class="sec">
     <div class="sec-lbl">💰 แก้ราคา</div>
     <div class="price-row">
@@ -305,7 +297,7 @@ body { font-family:'Sarabun',sans-serif; background:#f0ede8; min-height:100vh; p
     </div>
     <div class="timer-display" id="timerDisplay">00:00</div>
     <div class="timer-label-row">
-      <input class="timer-label-input" id="timerLabel" placeholder="ข้อความ เช่น Flash Sale! ลด 50%">
+      <input class="timer-label-input" id="timerLabel" placeholder="เช่น Flash Sale! ลด 50%">
     </div>
     <div class="timer-controls" style="margin-top:10px;">
       <button class="btn-timer btn-timer-start" id="btnTimerStart" onclick="startTimer()">▶ เริ่ม</button>
@@ -328,7 +320,7 @@ body { font-family:'Sarabun',sans-serif; background:#f0ede8; min-height:100vh; p
 <!-- PAGE: CF -->
 <div class="page" id="page-cf">
   <div class="sec">
-    <div class="cf-section-header">
+    <div class="sec-header">
       <div class="sec-lbl" style="margin:0;">📋 รายการ CF</div>
       <button class="btn-cf-clear" onclick="clearCF()">ล้างทั้งหมด</button>
     </div>
@@ -343,18 +335,23 @@ body { font-family:'Sarabun',sans-serif; background:#f0ede8; min-height:100vh; p
 
 <!-- BOTTOM NAV -->
 <div class="bottom-nav">
-  <button class="nav-btn active" id="nav-live" onclick="switchPage('live')">
-    <span class="icon">📡</span>ไลฟ์
-  </button>
-  <button class="nav-btn" id="nav-timer" onclick="switchPage('timer')">
-    <span class="icon">⏱</span>Timer
-  </button>
-  <button class="nav-btn" id="nav-history" onclick="switchPage('history')">
-    <span class="icon">🕐</span>ประวัติ
-  </button>
-  <button class="nav-btn" id="nav-cf" onclick="switchPage('cf')">
-    <span class="icon">📋</span>CF
-  </button>
+  <button class="nav-btn active" id="nav-live" onclick="switchPage('live')"><span class="icon">📡</span>ไลฟ์</button>
+  <button class="nav-btn" id="nav-timer" onclick="switchPage('timer')"><span class="icon">⏱</span>Timer</button>
+  <button class="nav-btn" id="nav-history" onclick="switchPage('history')"><span class="icon">🕐</span>ประวัติ</button>
+  <button class="nav-btn" id="nav-cf" onclick="switchPage('cf')"><span class="icon">📋</span>CF</button>
+</div>
+
+<!-- EDIT MODAL -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal-sheet">
+    <div class="modal-title">
+      ✏️ แก้ไขข้อมูลสินค้า <span id="editModalCode" style="color:#8b1a1a;font-family:'Kanit',sans-serif;"></span>
+      <button class="modal-close" onclick="closeEditModal()">ปิด</button>
+    </div>
+    <div id="editFields"></div>
+    <button class="btn-edit-save" onclick="saveEdit()">💾 บันทึกลง Firebase (ถาวร)</button>
+    <button class="btn-edit-reset" onclick="resetEdit()">↺ คืนข้อมูลจาก Excel เดิม</button>
+  </div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -363,22 +360,41 @@ body { font-family:'Sarabun',sans-serif; background:#f0ede8; min-height:100vh; p
 <script>
 // ── STATE ──
 let db = null;
-let products = {};
+let products = {};      // ข้อมูลจาก Excel
+let edits = {};         // ข้อมูลที่แก้ไขแล้ว (จาก Firebase)
 let currentCode = null;
 let soldSizes = [];
 let salePrice = null;
-let salePriceMap = {};   // จำราคาลดต่อรหัส
-let soldSizesMap = {};   // จำไซส์หมดต่อรหัส — แก้ bug #2 และ #4
+let salePriceMap = {};
+let soldSizesMap = {};
 let overlayHidden = false;
-let history = [];
+let liveHistory = [];
 let cfList = [];
 let timerInterval = null;
 let timerSeconds = 0;
 let timerRunning = false;
 let wakeLock = null;
-let fbConnected = false; // track connection state — แก้ bug #5
+let fbConnected = false;
+const DEVICE_ID = 'dev_' + Math.random().toString(36).slice(2,7);
 
-// ── PAGE NAVIGATION ──
+// ── MERGE: รวม Excel + edits ──
+function getProduct(code) {
+  if (!code || !products[code]) return null;
+  const p = { ...products[code] };
+  const e = edits[code];
+  if (e) {
+    if (e.name)     p.name = e.name;
+    if (e.color)    p.color = e.color;
+    if (e.material) p.material = e.material;
+    if (e.size)     p.size = e.size;
+    if (e.price)    p.price = e.price;
+    if (e.sizes)    p.sizes = e.sizes;
+    p._edited = true;
+  }
+  return p;
+}
+
+// ── PAGE NAV ──
 function switchPage(page) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -392,19 +408,14 @@ function switchPage(page) {
 async function toggleScreenOn() {
   const btn = document.getElementById('btnScreenOn');
   if (wakeLock) {
-    wakeLock.release();
-    wakeLock = null;
-    btn.classList.remove('active');
-    showToast('ปิดกันจอดับแล้วค่ะ');
+    wakeLock.release(); wakeLock = null;
+    btn.classList.remove('active'); showToast('ปิดกันจอดับแล้วค่ะ');
   } else {
     try {
       wakeLock = await navigator.wakeLock.request('screen');
-      btn.classList.add('active');
-      showToast('เปิดกันจอดับแล้วค่ะ จอจะไม่ดับค่ะ');
+      btn.classList.add('active'); showToast('เปิดกันจอดับแล้วค่ะ');
       wakeLock.addEventListener('release', () => { wakeLock = null; btn.classList.remove('active'); });
-    } catch(e) {
-      showToast('ไม่รองรับในอุปกรณ์นี้ค่ะ');
-    }
+    } catch(e) { showToast('ไม่รองรับในอุปกรณ์นี้ค่ะ'); }
   }
 }
 
@@ -437,51 +448,159 @@ function doInit(apiKey, projectId, dbUrl) {
     if (!firebase.apps.length) firebase.initializeApp({ apiKey, projectId, databaseURL: dbUrl });
     db = firebase.database();
 
-    // ── แก้ bug #5: ตรวจ disconnect/reconnect ──
+    // connection monitor
     db.ref('.info/connected').on('value', snap => {
       fbConnected = snap.val() === true;
       if (fbConnected) {
-        setStatus('connected', '✅ เชื่อมต่อ Firebase สำเร็จ');
+        setStatus('connected', '✅ เชื่อมต่อแล้ว');
+        // บอก Firebase ว่าเครื่องนี้ online
+        db.ref('chiccoco/devices/' + DEVICE_ID).set({ ts: Date.now(), alive: true });
       } else {
-        setStatus('error', '⚠️ Firebase หลุดการเชื่อมต่อ... รอสักครู่');
+        setStatus('error', '⚠️ หลุดการเชื่อมต่อ...');
       }
     });
 
     document.getElementById('configSection').style.display = 'none';
+
+    // listen state
     db.ref('chiccoco/state').on('value', snap => { const d = snap.val(); if (d) syncFromRemote(d); });
+
+    // listen edits จาก Firebase — sync ข้ามเครื่อง
+    db.ref('chiccoco/edits').on('value', snap => {
+      const d = snap.val();
+      edits = d || {};
+      updatePreview();
+    });
+
+    // นับเครื่องที่ online
+    db.ref('chiccoco/devices').on('value', snap => {
+      const d = snap.val();
+      const count = d ? Object.keys(d).length : 0;
+      document.getElementById('statusDevice').textContent = count > 1 ? `${count} เครื่อง` : '';
+    });
+
     showToast('เชื่อมต่อสำเร็จ!');
   } catch(e) {
     setStatus('error', '❌ เชื่อมต่อไม่สำเร็จ');
   }
 }
 
-// ── แก้ bug #1: เพิ่ม updatePreview และ updateCurrentUI ใน syncFromRemote ──
 function syncFromRemote(d) {
   if (d.code && d.code !== currentCode) {
     currentCode = d.code;
-    soldSizes = soldSizesMap[currentCode] || [];
+    soldSizes = soldSizesMap[currentCode] ? [...soldSizesMap[currentCode]] : [];
     salePrice = salePriceMap[currentCode] || null;
+    document.getElementById('priceInput').value = salePrice || '';
     updateCurrentUI();
+    renderSizePills();
   }
   if (d.soldSizes) soldSizes = d.soldSizes;
   if (d.salePrice !== undefined) salePrice = d.salePrice;
   renderSizePills();
-  updatePreview(); // แก้ bug #1
+  updatePreview();
 }
 
-// ── แก้ bug #3: guard ถ้าไม่มี db หรือ currentCode ──
 function pushState() {
-  if (!db || !fbConnected) {
-    showToast('⚠️ Firebase ยังไม่เชื่อมต่อค่ะ');
-    return;
-  }
+  if (!db || !fbConnected) { showToast('⚠️ Firebase ยังไม่เชื่อมต่อค่ะ'); return; }
   if (!currentCode || !products[currentCode]) return;
   db.ref('chiccoco/state').set({
-    code: currentCode,
-    soldSizes: soldSizes,
-    salePrice: salePrice,
-    hidden: overlayHidden,
-    ts: Date.now()
+    code: currentCode, soldSizes, salePrice, hidden: overlayHidden, ts: Date.now()
+  });
+}
+
+// ── EDIT PRODUCT DATA ──
+function openEditModal() {
+  if (!currentCode) { showToast('กรุณาเลือกสินค้าก่อนค่ะ'); return; }
+  const p = getProduct(currentCode);
+  if (!p) return;
+
+  document.getElementById('editModalCode').textContent = currentCode;
+  const fields = document.getElementById('editFields');
+
+  let html = `
+    <div class="edit-field"><div class="edit-label">ชื่อสินค้า</div>
+      <input class="edit-input" id="ef-name" value="${p.name||''}"></div>
+    <div class="edit-field"><div class="edit-label">สี</div>
+      <input class="edit-input" id="ef-color" value="${p.color||''}"></div>
+    <div class="edit-field"><div class="edit-label">วัสดุ / เนื้อผ้า</div>
+      <input class="edit-input" id="ef-material" value="${p.material||''}"></div>
+    <div class="edit-field"><div class="edit-label">ขนาดสินค้า (เบ็ดเตล็ด)</div>
+      <input class="edit-input" id="ef-size" value="${p.size||''}"></div>
+    <div class="edit-field"><div class="edit-label">ราคา</div>
+      <input class="edit-input" id="ef-price" type="number" value="${p.price||''}"></div>`;
+
+  // ถ้ามีตารางไซส์ — แสดงให้แก้ไขได้
+  if (p.type === 'clothing' && p.sizes && p.sizes.length > 0) {
+    const cols = p.activeCols || [];
+    html += `<div class="edit-field"><div class="edit-label">ตารางสัดส่วน</div>`;
+    p.sizes.forEach((s, i) => {
+      const colCount = cols.length + 1;
+      html += `<div class="edit-table-row" style="grid-template-columns: 60px ${cols.map(()=>'1fr').join(' ')}">
+        <div><div style="font-size:10px;color:#aaa;margin-bottom:3px;">ไซส์</div>
+          <input class="edit-input" id="ef-sz-${i}" value="${s.size||''}"></div>`;
+      cols.forEach(c => {
+        html += `<div><div style="font-size:10px;color:#aaa;margin-bottom:3px;">${c}</div>
+          <input class="edit-input" id="ef-${c}-${i}" value="${s[c]||''}"></div>`;
+      });
+      html += `</div>`;
+    });
+    html += `</div>`;
+  }
+
+  fields.innerHTML = html;
+  document.getElementById('editModal').classList.add('open');
+}
+
+function closeEditModal() {
+  document.getElementById('editModal').classList.remove('open');
+}
+
+function saveEdit() {
+  if (!currentCode || !db || !fbConnected) { showToast('ไม่สามารถบันทึกได้ค่ะ'); return; }
+  const p = getProduct(currentCode);
+  const cols = p.activeCols || [];
+
+  const edit = {
+    name:     document.getElementById('ef-name')?.value.trim() || '',
+    color:    document.getElementById('ef-color')?.value.trim() || '',
+    material: document.getElementById('ef-material')?.value.trim() || '',
+    size:     document.getElementById('ef-size')?.value.trim() || '',
+    price:    document.getElementById('ef-price')?.value.trim() || '',
+    ts:       Date.now()
+  };
+
+  // บันทึกตารางไซส์ถ้ามี
+  if (p.type === 'clothing' && p.sizes && p.sizes.length > 0) {
+    edit.sizes = p.sizes.map((s, i) => {
+      const ns = { size: document.getElementById(`ef-sz-${i}`)?.value.trim() || s.size };
+      cols.forEach(c => { ns[c] = document.getElementById(`ef-${c}-${i}`)?.value.trim() || ''; });
+      return ns;
+    });
+  }
+
+  // ลบ key ที่ว่างออก
+  Object.keys(edit).forEach(k => { if (edit[k] === '' && k !== 'ts') delete edit[k]; });
+
+  db.ref('chiccoco/edits/' + currentCode).set(edit).then(() => {
+    edits[currentCode] = edit;
+    closeEditModal();
+    updateCurrentUI();
+    updatePreview();
+    pushState();
+    showToast(`✅ บันทึกข้อมูล ${currentCode} ลง Firebase แล้วค่ะ`);
+    document.getElementById('scanInput').focus(); // กลับช่องสแกนทันที
+  }).catch(() => showToast('บันทึกไม่สำเร็จค่ะ'));
+}
+
+function resetEdit() {
+  if (!currentCode || !db || !fbConnected) return;
+  db.ref('chiccoco/edits/' + currentCode).remove().then(() => {
+    delete edits[currentCode];
+    closeEditModal();
+    updateCurrentUI();
+    updatePreview();
+    showToast(`คืนข้อมูลเดิมของ ${currentCode} แล้วค่ะ`);
+    document.getElementById('scanInput').focus(); // กลับช่องสแกนทันที
   });
 }
 
@@ -501,8 +620,8 @@ function resetAll() {
   salePrice = null;
   overlayHidden = false;
   if (currentCode) {
-    delete soldSizesMap[currentCode]; // ล้างไซส์หมดของรหัสนี้
-    delete salePriceMap[currentCode]; // ล้างราคาลดของรหัสนี้
+    delete soldSizesMap[currentCode];
+    delete salePriceMap[currentCode];
   }
   document.getElementById('priceInput').value = '';
   document.getElementById('btnHide').textContent = '👁 ซ่อน Overlay';
@@ -519,18 +638,21 @@ function doSearch(q) {
   const res = document.getElementById('searchResults');
   if (!q || q.length < 1) { res.style.display = 'none'; return; }
   const lower = q.toLowerCase();
-  const matches = Object.values(products).filter(p =>
-    p.code.toLowerCase().includes(lower) || p.name.toLowerCase().includes(lower)
-  ).slice(0, 8);
-  if (matches.length === 0) { res.style.display = 'none'; return; }
-  res.innerHTML = matches.map(p => `
-    <div class="search-result-item" onclick="selectProduct('${p.code}')">
+  const matches = Object.keys(products).filter(code => {
+    const p = getProduct(code);
+    return p && (code.toLowerCase().includes(lower) || p.name.toLowerCase().includes(lower));
+  }).slice(0, 8);
+  if (!matches.length) { res.style.display = 'none'; return; }
+  res.innerHTML = matches.map(code => {
+    const p = getProduct(code);
+    return `<div class="search-result-item" onclick="selectProduct('${code}')">
       <div>
-        <div class="search-result-code">${p.code}</div>
+        <div class="search-result-code">${code}${edits[code]?'✏️':''}</div>
         <div class="search-result-name">${p.name}</div>
       </div>
       <div class="search-result-price">฿${Number(p.price).toLocaleString()}</div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
   res.style.display = 'block';
 }
 
@@ -538,7 +660,6 @@ function selectProduct(code) {
   document.getElementById('searchInput').value = '';
   document.getElementById('searchResults').style.display = 'none';
   currentCode = code;
-  // ── แก้ bug #2 และ #4: โหลด soldSizes และ salePrice ต่อรหัส ──
   soldSizes = soldSizesMap[code] ? [...soldSizesMap[code]] : [];
   salePrice = salePriceMap[code] || null;
   document.getElementById('priceInput').value = salePrice || '';
@@ -547,8 +668,9 @@ function selectProduct(code) {
   renderSizePills();
   updatePreview();
   pushState();
+  const p = getProduct(code);
   const msg = salePrice
-    ? `${code} — ราคาลดเหลือ ฿${Number(salePrice).toLocaleString()} (จำไว้)`
+    ? `${code} — ราคาลดเหลือ ฿${Number(salePrice).toLocaleString()}`
     : `เปลี่ยนเป็น ${code} แล้วค่ะ`;
   showToast(msg);
   document.getElementById('scanInput').focus();
@@ -558,29 +680,26 @@ function selectProduct(code) {
 function applyCode() {
   const val = document.getElementById('scanInput').value.trim();
   if (!val) return;
-
-  // ค้นหาแบบ case-insensitive
   const found = Object.keys(products).find(k => k.toLowerCase() === val.toLowerCase());
   if (!found) { showToast(`ไม่พบรหัส ${val} ค่ะ`); return; }
-
   selectProduct(found);
   document.getElementById('scanInput').value = '';
 }
 
 // ── HISTORY ──
 function addToHistory(code) {
-  const p = products[code];
+  const p = getProduct(code);
   if (!p) return;
-  history = history.filter(h => h.code !== code);
-  history.unshift({ code, name: p.name, price: p.price, time: new Date().toLocaleTimeString('th-TH', {hour:'2-digit', minute:'2-digit'}) });
-  if (history.length > 20) history.pop();
+  liveHistory = liveHistory.filter(h => h.code !== code);
+  liveHistory.unshift({ code, name: p.name, price: p.price, time: new Date().toLocaleTimeString('th-TH', {hour:'2-digit', minute:'2-digit'}) });
+  if (liveHistory.length > 20) liveHistory.pop();
 }
 
 function renderHistory() {
   const list = document.getElementById('historyList');
-  if (history.length === 0) { list.innerHTML = '<div class="history-empty">ยังไม่มีประวัติค่ะ</div>'; return; }
-  list.innerHTML = history.map(h => `
-    <div class="history-item ${h.code === currentCode ? 'current' : ''}" onclick="selectProduct('${h.code}')">
+  if (!liveHistory.length) { list.innerHTML = '<div class="history-empty">ยังไม่มีประวัติค่ะ</div>'; return; }
+  list.innerHTML = liveHistory.map(h => `
+    <div class="history-item ${h.code===currentCode?'current':''}" onclick="selectProduct('${h.code}')">
       <div class="history-code">${h.code}</div>
       <div class="history-info">
         <div class="history-name">${h.name}</div>
@@ -593,8 +712,8 @@ function renderHistory() {
 // ── SIZE PILLS ──
 function renderSizePills() {
   const container = document.getElementById('sizesPills');
-  const p = products[currentCode];
-  if (!p || p.type === 'misc' || !p.sizes || p.sizes.length === 0) {
+  const p = getProduct(currentCode);
+  if (!p || p.type==='misc' || !p.sizes || !p.sizes.length) {
     container.innerHTML = '<span class="sizes-empty">ไม่มีข้อมูลไซส์</span>'; return;
   }
   container.innerHTML = '';
@@ -603,9 +722,9 @@ function renderSizePills() {
     pill.className = 'size-pill' + (soldSizes.includes(s.size) ? ' sold' : '');
     pill.textContent = s.size;
     pill.onclick = () => {
-      if (soldSizes.includes(s.size)) soldSizes = soldSizes.filter(x => x !== s.size);
+      if (soldSizes.includes(s.size)) soldSizes = soldSizes.filter(x => x!==s.size);
       else soldSizes.push(s.size);
-      soldSizesMap[currentCode] = [...soldSizes]; // บันทึกต่อรหัส
+      soldSizesMap[currentCode] = [...soldSizes];
       renderSizePills();
       updatePreview();
       pushState();
@@ -625,7 +744,7 @@ function applyPrice() {
   updatePreview();
   pushState();
   showToast(`ลดราคา ${currentCode} เป็น ฿${Number(val).toLocaleString()} แล้วค่ะ`);
-  document.getElementById('scanInput').focus(); // กลับไปช่องสแกนทันที
+  document.getElementById('scanInput').focus();
 }
 
 function resetPrice() {
@@ -636,15 +755,15 @@ function resetPrice() {
   updatePreview();
   pushState();
   showToast('รีเซ็ตราคาแล้วค่ะ');
-  document.getElementById('scanInput').focus(); // กลับไปช่องสแกนทันที
+  document.getElementById('scanInput').focus();
 }
 
 // ── CURRENT UI ──
 function updateCurrentUI() {
-  const p = products[currentCode];
+  const p = getProduct(currentCode);
   if (!p) return;
   document.getElementById('curCode').textContent = p.code;
-  document.getElementById('curName').textContent = p.name;
+  document.getElementById('curName').textContent = p.name + (p._edited ? ' ✏️' : '');
   document.getElementById('curPrice').textContent = salePrice
     ? `฿${Number(p.price).toLocaleString()} → ฿${Number(salePrice).toLocaleString()}`
     : `฿${Number(p.price).toLocaleString()}`;
@@ -662,7 +781,7 @@ function buildOV(p, sold, sale) {
     : `<div class="OV-price"><div class="OV-price-lbl">ราคา</div><div class="OV-price-num">${fmt2(p.price)}</div></div>`;
 
   if (p.type === 'misc') {
-    const miscSize = p.size || (p.sizes&&p.sizes.length>0 ? p.sizes.map(s=>s.size).filter(Boolean).join(', ') : '');
+    const miscSize = p.size || (p.sizes&&p.sizes.length ? p.sizes.map(s=>s.size).filter(Boolean).join(', ') : '');
     return `<div class="OV">
       <div class="OV-brand">C H I C C O C O</div>
       <div class="OV-toprow">
@@ -695,125 +814,83 @@ function buildOV(p, sold, sale) {
 }
 
 function updatePreview() {
-  const p = products[currentCode];
+  const p = getProduct(currentCode);
   const section = document.getElementById('previewSection');
   const wrap = document.getElementById('previewWrap');
-  if (!p) { section.style.display = 'none'; return; }
+  const badge = document.getElementById('editedBadge');
+  if (!p) { section.style.display='none'; return; }
   section.style.display = 'block';
   wrap.innerHTML = buildOV(p, soldSizes, salePrice);
+  badge.style.display = p._edited ? 'inline-block' : 'none';
 }
 
 // ── TIMER ──
-function setTimer(minutes) {
-  timerSeconds = minutes * 60;
-  timerRunning = false;
-  clearInterval(timerInterval);
-  updateTimerDisplay();
-  document.getElementById('btnTimerStart').style.display = '';
-  document.getElementById('btnTimerPause').style.display = 'none';
-}
+function setTimer(m) { timerSeconds=m*60; timerRunning=false; clearInterval(timerInterval); updateTimerDisplay(); document.getElementById('btnTimerStart').style.display=''; document.getElementById('btnTimerPause').style.display='none'; }
 
 function startTimer() {
-  if (timerSeconds <= 0) return;
-  timerRunning = true;
-  document.getElementById('btnTimerStart').style.display = 'none';
-  document.getElementById('btnTimerPause').style.display = '';
+  if (timerSeconds<=0) return;
+  timerRunning=true;
+  document.getElementById('btnTimerStart').style.display='none';
+  document.getElementById('btnTimerPause').style.display='';
+  const label = document.getElementById('timerLabel').value||'';
+  if (db&&fbConnected) db.ref('chiccoco/timer').set({seconds:timerSeconds,label,running:true,ts:Date.now()});
   timerInterval = setInterval(() => {
     timerSeconds--;
     updateTimerDisplay();
-    // ── แก้ bug #6: sync timer ไป Firebase ทุก 5 วินาที (ไม่ทุกวิ เพื่อลด load) ──
-    if (timerSeconds % 5 === 0 || timerSeconds <= 10) {
-      if (db && fbConnected) db.ref('chiccoco/timer').set({
-        seconds: timerSeconds,
-        label: document.getElementById('timerLabel').value || '',
-        running: true,
-        ts: Date.now()
-      });
+    if (timerSeconds%5===0||timerSeconds<=10) {
+      if (db&&fbConnected) db.ref('chiccoco/timer').set({seconds:timerSeconds,label,running:true,ts:Date.now()});
     }
-    if (timerSeconds <= 0) {
-      clearInterval(timerInterval);
-      timerRunning = false;
-      document.getElementById('btnTimerStart').style.display = '';
-      document.getElementById('btnTimerPause').style.display = 'none';
-      if (db && fbConnected) db.ref('chiccoco/timer').set({ seconds: 0, running: false, ts: Date.now() });
+    if (timerSeconds<=0) {
+      clearInterval(timerInterval); timerRunning=false;
+      document.getElementById('btnTimerStart').style.display='';
+      document.getElementById('btnTimerPause').style.display='none';
+      if (db&&fbConnected) db.ref('chiccoco/timer').set({seconds:0,running:false,ts:Date.now()});
       showToast('⏰ หมดเวลาแล้วค่ะ!');
     }
-  }, 1000);
-  // sync ทันทีเมื่อเริ่ม
-  if (db && fbConnected) db.ref('chiccoco/timer').set({
-    seconds: timerSeconds,
-    label: document.getElementById('timerLabel').value || '',
-    running: true,
-    ts: Date.now()
-  });
+  },1000);
 }
 
 function pauseTimer() {
-  clearInterval(timerInterval);
-  timerRunning = false;
-  document.getElementById('btnTimerStart').style.display = '';
-  document.getElementById('btnTimerPause').style.display = 'none';
-  if (db && fbConnected) db.ref('chiccoco/timer').set({ seconds: timerSeconds, running: false, ts: Date.now() });
+  clearInterval(timerInterval); timerRunning=false;
+  document.getElementById('btnTimerStart').style.display='';
+  document.getElementById('btnTimerPause').style.display='none';
+  if (db&&fbConnected) db.ref('chiccoco/timer').set({seconds:timerSeconds,running:false,ts:Date.now()});
 }
 
 function resetTimer() {
-  clearInterval(timerInterval);
-  timerRunning = false;
-  timerSeconds = 0;
-  updateTimerDisplay();
-  document.getElementById('btnTimerStart').style.display = '';
-  document.getElementById('btnTimerPause').style.display = 'none';
-  if (db && fbConnected) db.ref('chiccoco/timer').set({ seconds: 0, running: false, ts: Date.now() });
+  clearInterval(timerInterval); timerRunning=false; timerSeconds=0; updateTimerDisplay();
+  document.getElementById('btnTimerStart').style.display='';
+  document.getElementById('btnTimerPause').style.display='none';
+  if (db&&fbConnected) db.ref('chiccoco/timer').set({seconds:0,running:false,ts:Date.now()});
 }
 
 function updateTimerDisplay() {
-  const m = Math.floor(timerSeconds / 60);
-  const s = timerSeconds % 60;
-  const txt = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-  const el = document.getElementById('timerDisplay');
-  el.textContent = txt;
-  el.classList.toggle('warning', timerSeconds > 0 && timerSeconds <= 30);
+  const m=Math.floor(timerSeconds/60), s=timerSeconds%60;
+  const el=document.getElementById('timerDisplay');
+  el.textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  el.classList.toggle('warning',timerSeconds>0&&timerSeconds<=30);
 }
 
 // ── CF ──
 function addCF() {
-  const name = document.getElementById('cfNameInput').value.trim();
-  if (!name) { showToast('กรุณากรอกชื่อลูกค้าค่ะ'); return; }
-  const p = products[currentCode];
-  cfList.push({
-    id: Date.now(),
-    name,
-    code: currentCode || '—',
-    productName: p ? p.name : '—',
-    price: p ? p.price : '—',
-    time: new Date().toLocaleTimeString('th-TH', {hour:'2-digit', minute:'2-digit'})
-  });
-  document.getElementById('cfNameInput').value = '';
+  const name=document.getElementById('cfNameInput').value.trim();
+  if (!name){showToast('กรุณากรอกชื่อลูกค้าค่ะ');return;}
+  const p=getProduct(currentCode);
+  cfList.push({id:Date.now(),name,code:currentCode||'—',productName:p?p.name:'—',price:p?p.price:'—',time:new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'})});
+  document.getElementById('cfNameInput').value='';
   renderCF();
   showToast(`CF ${name} แล้วค่ะ`);
+  document.getElementById('cfNameInput').focus();
 }
 
-function removeCF(id) {
-  cfList = cfList.filter(c => c.id !== id);
-  renderCF();
-}
+function removeCF(id){cfList=cfList.filter(c=>c.id!==id);renderCF();}
 
-function clearCF() {
-  if (cfList.length === 0) return;
-  cfList = [];
-  renderCF();
-  showToast('ล้างรายการ CF แล้วค่ะ');
-}
+function clearCF(){if(!cfList.length)return;cfList=[];renderCF();showToast('ล้างรายการ CF แล้วค่ะ');}
 
-function renderCF() {
-  const list = document.getElementById('cfList');
-  const summary = document.getElementById('cfSummary');
-  if (cfList.length === 0) {
-    list.innerHTML = '<div class="history-empty">ยังไม่มีรายการ CF ค่ะ</div>';
-    summary.textContent = '';
-    return;
-  }
-  list.innerHTML = cfList.map((c, i) => `
+function renderCF(){
+  const list=document.getElementById('cfList'),sum=document.getElementById('cfSummary');
+  if(!cfList.length){list.innerHTML='<div class="history-empty">ยังไม่มีรายการ CF ค่ะ</div>';sum.textContent='';return;}
+  list.innerHTML=cfList.map((c,i)=>`
     <div class="cf-item">
       <div class="cf-num">${i+1}</div>
       <div class="cf-info">
@@ -823,123 +900,99 @@ function renderCF() {
       </div>
       <button class="btn-cf-del" onclick="removeCF(${c.id})">✕</button>
     </div>`).join('');
-  summary.textContent = `รวม ${cfList.length} CF`;
+  sum.textContent=`รวม ${cfList.length} CF`;
 }
 
 // ── LOAD STOCK ──
 function loadStock(input) {
-  const files = input.files;
-  if (!files || files.length === 0) return;
-  let allProducts = {}, totalCount = 0, filesRead = 0;
-  Array.from(files).forEach(file => {
-    const reader = new FileReader();
-    reader.onload = e => {
-      const wb = XLSX.read(e.target.result, { type:'array' });
-      const ws = wb.Sheets[wb.SheetNames[0]];
-      const rows = XLSX.utils.sheet_to_json(ws, { header:1, defval:'' });
-      if (rows.length >= 2) {
-        const hdr = rows[0].map(x => String(x||'').trim());
-        const isVRich = hdr.includes('รหัสสต็อก') || hdr.includes('รหัสขาย');
-        const parsed = isVRich ? parseVRich(rows) : parseCustom(rows);
-        parsed.forEach(p => { allProducts[p.code] = p; });
-        totalCount += parsed.length;
+  const files=input.files; if(!files||!files.length) return;
+  let allProducts={},total=0,done=0;
+  Array.from(files).forEach(file=>{
+    const r=new FileReader();
+    r.onload=e=>{
+      const wb=XLSX.read(e.target.result,{type:'array'});
+      const ws=wb.Sheets[wb.SheetNames[0]];
+      const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
+      if(rows.length>=2){
+        const hdr=rows[0].map(x=>String(x||'').trim());
+        const isVR=hdr.includes('รหัสสต็อก')||hdr.includes('รหัสขาย');
+        const parsed=isVR?parseVRich(rows):parseCustom(rows);
+        parsed.forEach(p=>{allProducts[p.code]=p;}); total+=parsed.length;
       }
-      filesRead++;
-      if (filesRead === files.length) {
-        products = allProducts;
-        document.getElementById('stockInfo').textContent = `${totalCount} รายการ (${files.length} ไฟล์)`;
-        showToast(`โหลดสำเร็จ ${totalCount} รายการค่ะ`);
-        if (db) db.ref('chiccoco/products').set(products);
+      done++;
+      if(done===files.length){
+        products=allProducts;
+        document.getElementById('stockInfo').textContent=`${total} รายการ (${files.length} ไฟล์)`;
+        showToast(`โหลดสำเร็จ ${total} รายการค่ะ`);
+        if(db&&fbConnected) db.ref('chiccoco/products').set(products);
       }
     };
-    reader.readAsArrayBuffer(file);
+    r.readAsArrayBuffer(file);
   });
 }
 
 // ── PARSERS ──
-function parseCustom(rows) {
-  const hdr = rows[0].map(x => String(x||'').trim());
-  const map = {}, order = [];
-  const mCols = ['อก','ยาว','วงแขน','บ่า','เอว','สะโพก','เป้า','คัฟอก'];
-  for (let i = 1; i < rows.length; i++) {
-    const row = rows[i]; if (!row||!row[0]) continue;
-    const o = {}; hdr.forEach((h,idx) => o[h] = String(row[idx]!=null?row[idx]:'').trim());
-    const code = o['รหัส']; if (!code) continue;
-    if (!map[code]) { map[code]={type:'clothing',code,name:o['รายละเอียด']||'',price:o['ราคา']||'',color:o['สี']||'',material:o['เนื้อผ้า']||'',sizes:[]}; order.push(code); }
+function parseCustom(rows){
+  const hdr=rows[0].map(x=>String(x||'').trim()),map={},order=[];
+  const mCols=['อก','ยาว','วงแขน','บ่า','เอว','สะโพก','เป้า','คัฟอก'];
+  for(let i=1;i<rows.length;i++){
+    const row=rows[i];if(!row||!row[0])continue;
+    const o={};hdr.forEach((h,idx)=>o[h]=String(row[idx]!=null?row[idx]:'').trim());
+    const code=o['รหัส'];if(!code)continue;
+    if(!map[code]){map[code]={type:'clothing',code,name:o['รายละเอียด']||'',price:o['ราคา']||'',color:o['สี']||'',material:o['เนื้อผ้า']||'',sizes:[]};order.push(code);}
     const sr={size:o['ไซส์']||''};
     mCols.forEach(col=>{if(hdr.includes(col)){const v=o[col];if(v&&v!=='-'&&v!=='0')sr[col]=v;}});
-    if(sr.size) map[code].sizes.push(sr);
+    if(sr.size)map[code].sizes.push(sr);
   }
-  return order.map(c => {
-    const p = map[c];
-    const nl = p.name.toLowerCase();
-    const isPants = /กางเกง|กระโปรง|วอร์ม|เล็กกิ้ง|legging|ยีนส์|jeans/.test(nl);
-    const isDress = /เดรส|dress/.test(nl);
-    const isUnderwear = /ชุดชั้นใน|ชั้นใน|lingerie|underwear/.test(nl);
-    const hasWaist = p.sizes.some(s=>s['เอว']), hasCrotch = p.sizes.some(s=>s['เป้า']);
-    const hasChest = p.sizes.some(s=>s['อก']), hasHip = p.sizes.some(s=>s['สะโพก']);
+  return order.map(c=>{
+    const p=map[c];
+    const nl=p.name.toLowerCase();
+    const isPants=/กางเกง|กระโปรง|วอร์ม|เล็กกิ้ง|legging|ยีนส์|jeans/.test(nl);
+    const isDress=/เดรส|dress/.test(nl);
+    const isUnderwear=/ชุดชั้นใน|ชั้นใน|lingerie|underwear/.test(nl);
+    const hasW=p.sizes.some(s=>s['เอว']),hasC=p.sizes.some(s=>s['เป้า']);
+    const hasA=p.sizes.some(s=>s['อก']),hasH=p.sizes.some(s=>s['สะโพก']);
     let co;
-    if (isPants||(hasWaist&&hasCrotch)) co=['เอว','สะโพก','เป้า','ยาว'];
-    else if (isUnderwear||isDress||(hasChest&&hasWaist&&hasHip)) co=['อก','เอว','สะโพก','ยาว'];
+    if(isPants||(hasW&&hasC))co=['เอว','สะโพก','เป้า','ยาว'];
+    else if(isUnderwear||isDress||(hasA&&hasW&&hasH))co=['อก','เอว','สะโพก','ยาว'];
     else co=['คัฟอก','อก','ยาว','วงแขน','บ่า','เอว','สะโพก','เป้า'];
-    p.activeCols = co.filter(f=>p.sizes.some(s=>s[f]));
-    if (!p.activeCols.length) p.type='misc';
+    p.activeCols=co.filter(f=>p.sizes.some(s=>s[f]));
+    if(!p.activeCols.length)p.type='misc';
     return p;
   });
 }
 
-function parseVRich(rows) {
-  const hdr = rows[0].map(x => String(x||'').trim());
-  const map = {}, order = [];
-  const mPat = {
-    'อก':/(?:อกยืด|อก)\s*([\d.]+(?:-[\d.]+)?)/,
-    'ยาว':/ยาว\s*([\d.]+(?:-[\d.]+)?)/,
-    'วงแขน':/วงแขน\s*([\d.]+(?:-[\d.]+)?)/,
-    'บ่า':/บ่า\s*([\d.]+(?:-[\d.]+)?)/,
-    'เอว':/(?:เอวยืด|เอว)\s*([\d.]+(?:-[\d.]+)?|[Ff]ree|ฟรี)/,
-    'สะโพก':/(?:สะโพกยืด|สะโพก)\s*([\d.]+(?:-[\d.]+)?|[Ff]ree|ฟรี)/,
-    'เป้า':/เป้า\s*([\d.]+(?:-[\d.]+)?|[Ff]ree|ฟรี)/,
-    'คัฟอก':/คัฟอก\s*([\d.]+(?:-[\d.]+)?|[Ff]ree|ฟรี)/,
-  };
-  const SIZE_ORDER=['xxs','xs','s','m','l','xl','xxl','2xl','3xl'];
-  const sizeRank=sz=>{const s=sz.toLowerCase().replace(/\s+/g,'');const i=SIZE_ORDER.indexOf(s);if(i!==-1)return i;const n=parseFloat(s.replace(/[^\d.]/g,''));return isNaN(n)?999:100+n;};
-
-  for (let i = 1; i < rows.length; i++) {
-    const row = rows[i]; if(!row||!row[0]) continue;
-    const o={}; hdr.forEach((h,idx)=>o[h]=String(row[idx]!=null?row[idx]:'').trim());
-    const sellCode=o['รหัสขาย']||''; if(!sellCode) continue;
-    const note=o['หมายเหตุ']||''; const size=o['ไซส์']||''; const color=o['สี']||'';
-    const price=o['ราคา']||''; const fullPrice=o['ราคาเต็ม']||'';
-    const hasMeasure=Object.values(mPat).some(r=>r.test(note));
+function parseVRich(rows){
+  const hdr=rows[0].map(x=>String(x||'').trim()),map={},order=[];
+  const mPat={'อก':/(?:อกยืด|อก)\s*([\d.]+(?:-[\d.]+)?)/, 'ยาว':/ยาว\s*([\d.]+(?:-[\d.]+)?)/, 'วงแขน':/วงแขน\s*([\d.]+(?:-[\d.]+)?)/, 'บ่า':/บ่า\s*([\d.]+(?:-[\d.]+)?)/, 'เอว':/(?:เอวยืด|เอว)\s*([\d.]+(?:-[\d.]+)?|[Ff]ree|ฟรี)/, 'สะโพก':/(?:สะโพกยืด|สะโพก)\s*([\d.]+(?:-[\d.]+)?|[Ff]ree|ฟรี)/, 'เป้า':/เป้า\s*([\d.]+(?:-[\d.]+)?|[Ff]ree|ฟรี)/, 'คัฟอก':/คัฟอก\s*([\d.]+(?:-[\d.]+)?|[Ff]ree|ฟรี)/};
+  const SO=['xxs','xs','s','m','l','xl','xxl','2xl','3xl'];
+  const sR=sz=>{const s=sz.toLowerCase().replace(/\s+/g,'');const i=SO.indexOf(s);if(i!==-1)return i;const n=parseFloat(s.replace(/[^\d.]/g,''));return isNaN(n)?999:100+n;};
+  for(let i=1;i<rows.length;i++){
+    const row=rows[i];if(!row||!row[0])continue;
+    const o={};hdr.forEach((h,idx)=>o[h]=String(row[idx]!=null?row[idx]:'').trim());
+    const sc=o['รหัสขาย']||'';if(!sc)continue;
+    const note=o['หมายเหตุ']||'',size=o['ไซส์']||'',color=o['สี']||'';
+    const price=o['ราคา']||'',fp=o['ราคาเต็ม']||'';
+    const hasM=Object.values(mPat).some(r=>r.test(note));
     let name=o['รายละเอียด']||'';
-    const nm=note.match(/^([^*]+?)(?:\s*\*|=)/); if(nm) name=nm[1].trim();
-    if(!name) name=sellCode;
-
-    if(!map[sellCode]){
-      map[sellCode]={type:hasMeasure?'clothing':'misc',code:sellCode,name,price:fullPrice||price,color,material:'',sizes:[],size:''};
-      if(price&&fullPrice&&Number(price)<Number(fullPrice)){map[sellCode].salePrice=price;}
-      order.push(sellCode);
-    }
-    const p=map[sellCode];
-    if(hasMeasure&&size){
-      const sr={size};
-      Object.entries(mPat).forEach(([col,re])=>{const m=note.match(re);if(m&&m[1])sr[col]=m[1];});
-      if(!p.sizes.find(s=>s.size===size)) p.sizes.push(sr);
-    } else if(!hasMeasure&&size&&size!=='-'){
-      p.size=p.size||size;
-    }
+    const nm=note.match(/^([^*]+?)(?:\s*\*|=)/);if(nm)name=nm[1].trim();
+    if(!name)name=sc;
+    if(!map[sc]){map[sc]={type:hasM?'clothing':'misc',code:sc,name,price:fp||price,color,material:'',sizes:[],size:''};if(price&&fp&&Number(price)<Number(fp))map[sc].salePrice=price;order.push(sc);}
+    const p=map[sc];
+    if(hasM&&size){const sr={size};Object.entries(mPat).forEach(([col,re])=>{const m=note.match(re);if(m&&m[1])sr[col]=m[1];});if(!p.sizes.find(s=>s.size===size))p.sizes.push(sr);}
+    else if(!hasM&&size&&size!=='-')p.size=p.size||size;
   }
   return order.map(c=>{
     const p=map[c];
     if(p.type==='clothing'){
-      p.sizes=[...p.sizes].sort((a,b)=>sizeRank(a.size)-sizeRank(b.size));
+      p.sizes=[...p.sizes].sort((a,b)=>sR(a.size)-sR(b.size));
       const nl=p.name.toLowerCase();
       const isPants=/กางเกง|กระโปรง|วอร์ม|เล็กกิ้ง|legging|ยีนส์|jeans/.test(nl);
       const isDress=/เดรส|dress/.test(nl);
       const isUnderwear=/ชุดชั้นใน|ชั้นใน|lingerie|underwear/.test(nl);
       let co;
-      if(isPants) co=['เอว','สะโพก','เป้า','ยาว'];
-      else if(isUnderwear||isDress) co=['อก','เอว','สะโพก','ยาว'];
+      if(isPants)co=['เอว','สะโพก','เป้า','ยาว'];
+      else if(isUnderwear||isDress)co=['อก','เอว','สะโพก','ยาว'];
       else co=['คัฟอก','อก','ยาว','วงแขน','บ่า'];
       p.activeCols=co.filter(f=>p.sizes.some(s=>s[f]));
     }
@@ -948,33 +1001,31 @@ function parseVRich(rows) {
 }
 
 // ── UI HELPERS ──
-function setStatus(type, msg) {
-  document.getElementById('statusDot').className = 'status-dot ' + type;
-  document.getElementById('statusTxt').textContent = msg;
-}
-
+function setStatus(type,msg){document.getElementById('statusDot').className='status-dot '+type;document.getElementById('statusTxt').textContent=msg;}
 let toastTimer;
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
-}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),2500);}
 
 // ── INIT ──
-document.addEventListener('DOMContentLoaded', () => {
-  try {
-    const cfg = JSON.parse(localStorage.getItem('chiccoco_fb'));
-    if (cfg) {
-      document.getElementById('cfg-apiKey').value = cfg.apiKey;
-      document.getElementById('cfg-projectId').value = cfg.projectId;
-      document.getElementById('cfg-dbUrl').value = cfg.dbUrl;
-      initFirebase(cfg.apiKey, cfg.projectId, cfg.dbUrl);
+document.addEventListener('DOMContentLoaded',()=>{
+  try{
+    const cfg=JSON.parse(localStorage.getItem('chiccoco_fb'));
+    if(cfg){
+      document.getElementById('cfg-apiKey').value=cfg.apiKey;
+      document.getElementById('cfg-projectId').value=cfg.projectId;
+      document.getElementById('cfg-dbUrl').value=cfg.dbUrl;
+      initFirebase(cfg.apiKey,cfg.projectId,cfg.dbUrl);
     }
-  } catch(e) {}
+  }catch(e){}
   document.getElementById('scanInput').focus();
   updateTimerDisplay();
   renderCF();
+  // ปิด modal เมื่อกดพื้นหลัง
+  document.getElementById('editModal').addEventListener('click',function(e){if(e.target===this)closeEditModal();});
+  // Enter ใน modal = บันทึกเลย
+  document.getElementById('editModal').addEventListener('keydown', function(e){
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); saveEdit(); }
+    if (e.key === 'Escape') closeEditModal();
+  });
 });
 </script>
 </body>
