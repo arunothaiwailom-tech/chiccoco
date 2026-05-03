@@ -204,7 +204,10 @@ body { font-family:'Sarabun',sans-serif; background:#f0ede8; min-height:100vh; p
     <div class="app-sub">REMOTE CONTROL</div>
   </div>
   <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
-    <button class="btn-screen-on" id="btnScreenOn" onclick="toggleScreenOn()">☀️ กันจอดับ</button>
+    <div style="display:flex;gap:6px;">
+      <button class="btn-screen-on" id="btnScreenOn" onclick="toggleScreenOn()">☀️ กันจอดับ</button>
+      <button onclick="logOut()" style="padding:6px 12px;border:none;border-radius:8px;font-family:'Kanit',sans-serif;font-size:11px;font-weight:700;cursor:pointer;background:#fee;color:#c0392b;border:1.5px solid #f5b8b8;">🚪 ออกจากระบบ</button>
+    </div>
     <div style="display:flex;gap:6px;">
       <button class="btn-template" onclick="dlTemplate('clothing')">📥 เสื้อผ้า
         <span class="tooltip">ดาวน์โหลด Template Excel สำหรับ<br>สินค้าประเภทเสื้อผ้า<br>กรอกข้อมูลแล้วอัปโหลดเข้าระบบได้เลยค่ะ</span>
@@ -245,7 +248,8 @@ body { font-family:'Sarabun',sans-serif; background:#f0ede8; min-height:100vh; p
       <button class="btn-manual-open" onclick="openManualModal()">✏️ เพิ่มเอง</button>
       <span class="stock-info" id="stockInfo">ยังไม่มีสต๊อก</span>
     </div>
-    <div style="font-size:11px;color:#aaa;margin-top:6px;">รองรับ Excel ทำเอง และ Excel ที่ Export จาก V Rich หรือแอป CF สินค้าอื่นๆ</div>
+    <div style="font-size:11px;color:#aaa;margin-top:6px;">รองรับ Excel ทำเอง และ Excel ที่ Export มาจากโปรแกรม CF สินค้า หรือระบบดูด CF ไลฟ์สด</div>
+    <div style="font-size:11px;color:#c0392b;margin-top:6px;background:#fee;border-radius:8px;padding:8px 10px;">⚠️ อัปโหลดเฉพาะสินค้าที่มีสต๊อกอยู่เท่านั้นนะคะ เพื่อป้องกัน overlay แสดงสินค้าผิดพลาด</div>
   </div>
 
   <div class="sec current-card">
@@ -469,6 +473,15 @@ function switchPage(page) {
   document.getElementById('nav-' + page).classList.add('active');
   if (page === 'history') renderHistory();
   if (page === 'cf') renderCF();
+}
+
+// ── LOGOUT ──
+function logOut() {
+  if (!window.firebase || !firebase.auth) { showToast('ยังไม่ได้เชื่อมต่อค่ะ'); return; }
+  firebase.auth().signOut().then(() => {
+    showToast('ออกจากระบบแล้วค่ะ');
+    setTimeout(() => location.reload(), 1000);
+  }).catch(e => showToast('ออกจากระบบไม่สำเร็จค่ะ'));
 }
 
 // ── SCREEN WAKE LOCK ──
