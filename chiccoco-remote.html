@@ -549,12 +549,8 @@ function doInit(apiKey, projectId, dbUrl) {
       }
     });
 
-    // นับเครื่องที่ online
-    db.ref('chiccoco/devices').on('value', snap => {
-      const d = snap.val();
-      const count = d ? Object.keys(d).length : 0;
-      document.getElementById('statusDevice').textContent = count > 1 ? `${count} เครื่อง` : '';
-    });
+    // นับเครื่องที่ online — ไม่แสดงแล้ว
+    db.ref('chiccoco/devices').off();
 
     showToast('เชื่อมต่อสำเร็จ!');
   } catch(e) {
