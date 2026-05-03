@@ -477,11 +477,10 @@ function switchPage(page) {
 
 // ── LOGOUT ──
 function logOut() {
-  if (!window.firebase || !firebase.auth) { showToast('ยังไม่ได้เชื่อมต่อค่ะ'); return; }
-  firebase.auth().signOut().then(() => {
-    showToast('ออกจากระบบแล้วค่ะ');
-    setTimeout(() => location.reload(), 1000);
-  }).catch(e => showToast('ออกจากระบบไม่สำเร็จค่ะ'));
+  // ล้าง sessionStorage แล้วไปหน้า login
+  sessionStorage.clear();
+  showToast('ออกจากระบบแล้วค่ะ');
+  setTimeout(() => { window.location.href = 'chiccoco-login.html'; }, 800);
 }
 
 // ── SCREEN WAKE LOCK ──
@@ -1298,6 +1297,18 @@ function dlTemplate(type) {
 
 // ── INIT ──
 document.addEventListener('DOMContentLoaded',()=>{
+  // เช็ค session — ถ้าไม่ได้ login ให้ไปหน้า login
+  const uid = sessionStorage.getItem('uid');
+  if (!uid) {
+    window.location.href = 'chiccoco-login.html';
+    return;
+  }
+
+  // แสดงชื่อร้านใน header ถ้ามี
+  const shopName = sessionStorage.getItem('shopName');
+  if (shopName) {
+    document.querySelector('.app-sub').textContent = shopName.toUpperCase();
+  }
   try{
     const cfg=JSON.parse(localStorage.getItem('chiccoco_fb'));
     if(cfg){
