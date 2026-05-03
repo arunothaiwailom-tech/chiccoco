@@ -186,12 +186,15 @@
 
   <div class="form-group">
     <label>อีเมล</label>
-    <input type="email" id="emailInput" placeholder="กรอกอีเมลของคุณ" autocomplete="email"/>
+    <input type="text" id="emailInput" placeholder="กรอกอีเมลของคุณ" autocomplete="email" inputmode="email"/>
   </div>
 
   <div class="form-group">
     <label>รหัสผ่าน</label>
-    <input type="password" id="passwordInput" placeholder="กรอกรหัสผ่าน" autocomplete="current-password"/>
+    <div style="position:relative;">
+      <input type="password" id="passwordInput" placeholder="กรอกรหัสผ่าน" autocomplete="current-password" style="padding-right:48px;"/>
+      <button type="button" id="togglePass" onclick="togglePassword()" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:18px;color:#888;padding:4px;">👁</button>
+    </div>
   </div>
 
   <button class="btn" id="loginBtn" onclick="handleLogin()">เข้าสู่ระบบ</button>
@@ -220,6 +223,18 @@
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db = getFirestore(app);
+
+  window.togglePassword = function() {
+    const input = document.getElementById('passwordInput');
+    const btn = document.getElementById('togglePass');
+    if (input.type === 'password') {
+      input.type = 'text';
+      btn.textContent = '🙈';
+    } else {
+      input.type = 'password';
+      btn.textContent = '👁';
+    }
+  };
 
   window.handleLogin = async function() {
     const email = document.getElementById('emailInput').value.trim();
