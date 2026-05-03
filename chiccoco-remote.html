@@ -14,6 +14,10 @@ body { font-family:'Sarabun',sans-serif; background:#f0ede8; min-height:100vh; p
 .app-sub { font-size:10px; color:#aaa; letter-spacing:2px; }
 .btn-screen-on { padding:6px 12px; border:none; border-radius:8px; font-family:'Kanit',sans-serif; font-size:11px; font-weight:700; cursor:pointer; background:#f0ece6; color:#5c7a6b; border:1.5px solid #b5cdbf; }
 .btn-screen-on.active { background:#5c7a6b; color:white; border-color:#5c7a6b; }
+.btn-template { padding:6px 10px; border:1.5px solid #c8a96e; border-radius:8px; font-family:'Kanit',sans-serif; font-size:11px; font-weight:700; cursor:pointer; background:#f0ece6; color:#8b6f3e; position:relative; }
+.btn-template .tooltip { position:absolute; right:0; top:calc(100% + 6px); background:#111; color:white; font-size:11px; font-family:'Sarabun',sans-serif; font-weight:400; padding:7px 10px; border-radius:8px; white-space:nowrap; opacity:0; pointer-events:none; transition:opacity .2s; z-index:999; min-width:220px; line-height:1.5; }
+.btn-template:hover .tooltip,
+.btn-template:active .tooltip { opacity:1; }
 
 .sec { background:white; border-radius:16px; padding:14px 16px; margin-bottom:12px; box-shadow:0 1px 6px rgba(0,0,0,.06); }
 .sec-lbl { font-size:10px; font-weight:700; color:#aaa; letter-spacing:1px; text-transform:uppercase; margin-bottom:10px; font-family:'Kanit',sans-serif; }
@@ -35,7 +39,8 @@ body { font-family:'Sarabun',sans-serif; background:#f0ede8; min-height:100vh; p
 .stock-row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
 .btn-load-stock { padding:10px 16px; background:#111; color:white; border:none; border-radius:8px; font-family:'Kanit',sans-serif; font-size:12px; font-weight:700; cursor:pointer; position:relative; overflow:hidden; }
 .btn-load-stock input { position:absolute; inset:0; opacity:0; cursor:pointer; }
-.stock-info { font-size:12px; color:#888; }
+.btn-manual-open { padding:10px 14px; background:#f0ece6; border:1.5px solid #c8a96e; border-radius:8px; font-family:'Kanit',sans-serif; font-size:12px; font-weight:700; cursor:pointer; color:#8b6f3e; white-space:nowrap; }
+.btn-manual-open:active { background:#e8e0d4; }
 
 .current-card { border-left:4px solid #5c7a6b; }
 .current-code { font-size:36px; font-weight:800; color:#8b1a1a; line-height:1; font-family:'Kanit',sans-serif; }
@@ -101,6 +106,7 @@ body { font-family:'Sarabun',sans-serif; background:#f0ede8; min-height:100vh; p
 .edit-table-row .edit-input { font-size:13px; padding:8px 10px; }
 .btn-edit-save { width:100%; padding:14px; background:#5c7a6b; color:white; border:none; border-radius:12px; font-family:'Kanit',sans-serif; font-size:15px; font-weight:700; cursor:pointer; margin-top:8px; }
 .btn-edit-reset { width:100%; padding:10px; background:#fee; color:#c0392b; border:none; border-radius:12px; font-family:'Kanit',sans-serif; font-size:13px; font-weight:700; cursor:pointer; margin-top:8px; }
+.subtype-option:hover { background:#f5f5f5; }
 
 .sizes-pills { display:flex; flex-wrap:wrap; gap:8px; }
 .size-pill { padding:12px 20px; border-radius:10px; font-family:'Kanit',sans-serif; font-size:18px; font-weight:800; cursor:pointer; border:2px solid #e0e0e0; background:#f5f5f5; color:#333; transition:all .15s; user-select:none; min-width:70px; text-align:center; }
@@ -197,7 +203,17 @@ body { font-family:'Sarabun',sans-serif; background:#f0ede8; min-height:100vh; p
     <div class="app-title">chiccoco</div>
     <div class="app-sub">REMOTE CONTROL</div>
   </div>
-  <button class="btn-screen-on" id="btnScreenOn" onclick="toggleScreenOn()">☀️ กันจอดับ</button>
+  <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
+    <button class="btn-screen-on" id="btnScreenOn" onclick="toggleScreenOn()">☀️ กันจอดับ</button>
+    <div style="display:flex;gap:6px;">
+      <button class="btn-template" onclick="dlTemplate('clothing')">📥 เสื้อผ้า
+        <span class="tooltip">ดาวน์โหลด Template Excel สำหรับ<br>สินค้าประเภทเสื้อผ้า<br>กรอกข้อมูลแล้วอัปโหลดเข้าระบบได้เลยค่ะ</span>
+      </button>
+      <button class="btn-template" onclick="dlTemplate('misc')">📥 เบ็ดเตล็ด
+        <span class="tooltip">ดาวน์โหลด Template Excel สำหรับ<br>สินค้าเบ็ดเตล็ด เช่น กระเป๋า หมวก ต่างหู<br>กรอกข้อมูลแล้วอัปโหลดเข้าระบบได้เลยค่ะ</span>
+      </button>
+    </div>
+  </div>
 </div>
 
 <div class="sec" style="padding:12px 16px;">
@@ -223,12 +239,13 @@ body { font-family:'Sarabun',sans-serif; background:#f0ede8; min-height:100vh; p
     <div class="sec-lbl">📂 โหลดสต๊อก</div>
     <div class="stock-row">
       <button class="btn-load-stock">
-        เลือกไฟล์ Excel (หลายไฟล์ได้)
+        📂 อัปโหลดสต๊อก (หลายไฟล์ได้)
         <input type="file" id="stockFile" accept=".xlsx,.xls" multiple onchange="loadStock(this)">
       </button>
+      <button class="btn-manual-open" onclick="openManualModal()">✏️ เพิ่มเอง</button>
       <span class="stock-info" id="stockInfo">ยังไม่มีสต๊อก</span>
     </div>
-    <div style="font-size:11px;color:#aaa;margin-top:6px;">รองรับ Excel ทำเอง และ V Rich อัตโนมัติ</div>
+    <div style="font-size:11px;color:#aaa;margin-top:6px;">รองรับ Excel ทำเอง และ Excel ที่ Export จาก V Rich หรือแอป CF สินค้าอื่นๆ</div>
   </div>
 
   <div class="sec current-card">
@@ -339,6 +356,56 @@ body { font-family:'Sarabun',sans-serif; background:#f0ede8; min-height:100vh; p
   <button class="nav-btn" id="nav-timer" onclick="switchPage('timer')"><span class="icon">⏱</span>Timer</button>
   <button class="nav-btn" id="nav-history" onclick="switchPage('history')"><span class="icon">🕐</span>ประวัติ</button>
   <button class="nav-btn" id="nav-cf" onclick="switchPage('cf')"><span class="icon">📋</span>CF</button>
+</div>
+
+<!-- MANUAL MODAL -->
+<div class="modal-overlay" id="manualModal">
+  <div class="modal-sheet">
+    <div class="modal-title">
+      ✏️ เพิ่มสินค้าใหม่ด้วยตัวเอง
+      <button class="modal-close" onclick="closeManualModal()">ปิด</button>
+    </div>
+
+    <div class="edit-field">
+      <div class="edit-label">ประเภทสินค้า</div>
+      <select id="mn-type" onchange="renderManualSizes()" style="width:100%;padding:10px 14px;border:1.5px solid #e0e0e0;border-radius:10px;font-size:15px;font-family:'Sarabun',sans-serif;outline:none;">
+        <option value="misc">เบ็ดเตล็ด (กระเป๋า หมวก ต่างหู ฯลฯ)</option>
+        <option value="clothing">เสื้อผ้า (มีตารางไซส์)</option>
+      </select>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <div class="edit-field">
+        <div class="edit-label">รหัสสินค้า *</div>
+        <input class="edit-input" id="mn-code" placeholder="เช่น B999" style="text-transform:uppercase" oninput="this.value=this.value.toUpperCase()">
+      </div>
+      <div class="edit-field">
+        <div class="edit-label">ราคา *</div>
+        <input class="edit-input" id="mn-price" type="number" placeholder="เช่น 299">
+      </div>
+    </div>
+
+    <div class="edit-field">
+      <div class="edit-label">ชื่อสินค้า *</div>
+      <input class="edit-input" id="mn-name" placeholder="เช่น กระเป๋า COS รุ่นพับได้">
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <div class="edit-field">
+        <div class="edit-label">สี</div>
+        <input class="edit-input" id="mn-color" placeholder="เช่น ดำ">
+      </div>
+      <div class="edit-field">
+        <div class="edit-label">วัสดุ / เนื้อผ้า (ถ้ามี)</div>
+        <input class="edit-input" id="mn-material" placeholder="เช่น Cotton 95%">
+      </div>
+    </div>
+
+    <!-- dynamic section -->
+    <div id="mn-size-section"></div>
+
+    <button class="btn-edit-save" onclick="saveManual()">💾 บันทึกสินค้า (ยิงบาร์โค้ดเพื่อแสดง)</button>
+  </div>
 </div>
 
 <!-- EDIT MODAL -->
@@ -470,6 +537,16 @@ function doInit(apiKey, projectId, dbUrl) {
       const d = snap.val();
       edits = d || {};
       updatePreview();
+    });
+
+    // โหลด products จาก Firebase อัตโนมัติตอนเปิดแอป
+    db.ref('chiccoco/products').once('value', snap => {
+      const d = snap.val();
+      if (d && Object.keys(d).length > 0) {
+        products = d;
+        document.getElementById('stockInfo').textContent = `${Object.keys(products).length} รายการ (โหลดจาก Firebase)`;
+        showToast(`📦 โหลดสต๊อก ${Object.keys(products).length} รายการจากครั้งที่แล้วแล้วค่ะ`);
+      }
     });
 
     // นับเครื่องที่ online
@@ -743,7 +820,7 @@ function applyPrice() {
   updateCurrentUI();
   updatePreview();
   pushState();
-  showToast(`ลดราคา ${currentCode} เป็น ฿${Number(val).toLocaleString()} แล้วค่ะ`);
+  showToast(`✅ ลดราคา ${currentCode} → ฿${Number(val).toLocaleString()} แล้วค่ะ  ⚠️ อย่าลืมแก้ใน V Rich ด้วยนะคะ`);
   document.getElementById('scanInput').focus();
 }
 
@@ -1004,7 +1081,206 @@ function parseVRich(rows){
 // ── UI HELPERS ──
 function setStatus(type,msg){document.getElementById('statusDot').className='status-dot '+type;document.getElementById('statusTxt').textContent=msg;}
 let toastTimer;
-function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),2500);}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastTimer);const dur=msg.includes('V Rich')?5000:2500;toastTimer=setTimeout(()=>t.classList.remove('show'),dur);}
+
+
+// ── MANUAL PRODUCT ──
+const MANUAL_COLS = {
+  shirt:  ['อก','ยาว','วงแขน','บ่า'],
+  pants:  ['เอว','สะโพก','เป้า','ยาว'],
+  dress:  ['อก','เอว','สะโพก','ยาว'],
+  set:    ['อก','เอว','สะโพก','เป้า'],
+  bra:    ['อก','ยาว','วงแขน'],
+  misc:   []
+};
+let manualSizeRows = 1;
+
+function openManualModal() {
+  manualSizeRows = 1;
+  document.getElementById('mn-code').value = '';
+  document.getElementById('mn-price').value = '';
+  document.getElementById('mn-name').value = '';
+  document.getElementById('mn-color').value = '';
+  document.getElementById('mn-material').value = '';
+  document.getElementById('mn-type').value = 'misc';
+  renderManualSizes();
+  document.getElementById('manualModal').classList.add('open');
+  setTimeout(() => document.getElementById('mn-code').focus(), 300);
+}
+
+function closeManualModal() {
+  document.getElementById('manualModal').classList.remove('open');
+}
+
+function renderManualSizes() {
+  const type = document.getElementById('mn-type').value;
+  const sec = document.getElementById('mn-size-section');
+
+  if (type === 'misc') {
+    sec.innerHTML = `
+      <div class="edit-field">
+        <div class="edit-label">ขนาดสินค้า / ไซส์</div>
+        <input class="edit-input" id="mn-size" placeholder="เช่น 24x11x24 cm หรือ ฟรีไซส์">
+      </div>`;
+    return;
+  }
+
+  // clothing — sub-type selector + size rows
+  sec.innerHTML = `
+    <div class="edit-field">
+      <div class="edit-label">ประเภทเสื้อผ้า</div>
+    <div class="edit-field">
+      <div class="edit-label">ประเภทเสื้อผ้า</div>
+      <div id="mn-subtype-dropdown" style="position:relative;">
+        <div id="mn-subtype-selected" onclick="toggleSubtypeDropdown()" style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border:1.5px solid #e0e0e0;border-radius:10px;cursor:pointer;background:white;">
+          <div>
+            <div style="font-family:'Kanit',sans-serif;font-size:14px;font-weight:700;color:#2c2c2c;" id="mn-subtype-name">เสื้อ</div>
+            <div style="font-size:11px;color:#aaa;margin-top:2px;" id="mn-subtype-cols">อก / ยาว / วงแขน / บ่า</div>
+          </div>
+          <span style="color:#aaa;font-size:12px;">▼</span>
+        </div>
+        <div id="mn-subtype-list" style="display:none;position:absolute;left:0;right:0;top:calc(100% + 4px);background:white;border:1.5px solid #e0e0e0;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,.12);z-index:300;overflow:hidden;">
+          <div class="subtype-option" onclick="selectSubtype('shirt','เสื้อ','อก / ยาว / วงแขน / บ่า')" style="padding:12px 16px;border-bottom:1px solid #f0f0f0;cursor:pointer;">
+            <div style="font-family:'Kanit',sans-serif;font-size:14px;font-weight:700;color:#2c2c2c;">เสื้อ</div>
+            <div style="font-size:11px;color:#aaa;margin-top:2px;">อก / ยาว / วงแขน / บ่า</div>
+          </div>
+          <div class="subtype-option" onclick="selectSubtype('pants','กางเกง / กระโปรง / เลกกิ้ง / วอร์ม / กางเกงใน','เอว / สะโพก / เป้า / ยาว')" style="padding:12px 16px;border-bottom:1px solid #f0f0f0;cursor:pointer;">
+            <div style="font-family:'Kanit',sans-serif;font-size:14px;font-weight:700;color:#2c2c2c;">กางเกง / กระโปรง / เลกกิ้ง / วอร์ม / กางเกงใน</div>
+            <div style="font-size:11px;color:#aaa;margin-top:2px;">เอว / สะโพก / เป้า / ยาว</div>
+          </div>
+          <div class="subtype-option" onclick="selectSubtype('dress','เดรส','อก / เอว / สะโพก / ยาว')" style="padding:12px 16px;border-bottom:1px solid #f0f0f0;cursor:pointer;">
+            <div style="font-family:'Kanit',sans-serif;font-size:14px;font-weight:700;color:#2c2c2c;">เดรส</div>
+            <div style="font-size:11px;color:#aaa;margin-top:2px;">อก / เอว / สะโพก / ยาว</div>
+          </div>
+          <div class="subtype-option" onclick="selectSubtype('set','ชุดเซท','อก / เอว / สะโพก / เป้า')" style="padding:12px 16px;border-bottom:1px solid #f0f0f0;cursor:pointer;">
+            <div style="font-family:'Kanit',sans-serif;font-size:14px;font-weight:700;color:#2c2c2c;">ชุดเซท</div>
+            <div style="font-size:11px;color:#aaa;margin-top:2px;">อก / เอว / สะโพก / เป้า</div>
+          </div>
+          <div class="subtype-option" onclick="selectSubtype('bra','สปอร์ตบรา / บรา','อก / ยาว / วงแขน')" style="padding:12px 16px;cursor:pointer;">
+            <div style="font-family:'Kanit',sans-serif;font-size:14px;font-weight:700;color:#2c2c2c;">สปอร์ตบรา / บรา</div>
+            <div style="font-size:11px;color:#aaa;margin-top:2px;">อก / ยาว / วงแขน</div>
+          </div>
+        </div>
+      </div>
+      <input type="hidden" id="mn-subtype" value="shirt">
+    </div>
+    </div>
+    <div class="edit-field">
+      <div class="edit-label">ตารางไซส์</div>
+      <div id="mn-size-rows"></div>
+      <button type="button" onclick="addManualSizeRow()" style="width:100%;padding:8px;background:#f0ede8;border:none;border-radius:8px;font-family:'Kanit',sans-serif;font-size:12px;font-weight:700;color:#888;cursor:pointer;margin-top:6px;">+ เพิ่มไซส์</button>
+    </div>`;
+  manualSizeRows = 0;
+  addManualSizeRow();
+}
+
+function toggleSubtypeDropdown() {
+  const list = document.getElementById('mn-subtype-list');
+  list.style.display = list.style.display === 'none' ? 'block' : 'none';
+}
+
+function selectSubtype(value, name, cols) {
+  document.getElementById('mn-subtype').value = value;
+  document.getElementById('mn-subtype-name').textContent = name;
+  document.getElementById('mn-subtype-cols').textContent = cols;
+  document.getElementById('mn-subtype-list').style.display = 'none';
+  manualSizeRows = 0;
+  document.getElementById('mn-size-rows').innerHTML = '';
+  addManualSizeRow();
+}
+
+function renderSizeTable() {
+  const subtype = document.getElementById('mn-subtype')?.value || 'shirt';
+  manualSizeRows = 0;
+  document.getElementById('mn-size-rows').innerHTML = '';
+  addManualSizeRow();
+}
+
+function addManualSizeRow() {
+  const subtype = document.getElementById('mn-subtype')?.value || 'shirt';
+  const cols = MANUAL_COLS[subtype];
+  const container = document.getElementById('mn-size-rows');
+  const idx = manualSizeRows++;
+  const div = document.createElement('div');
+  div.id = `mn-sr-${idx}`;
+  div.style.cssText = 'display:grid;gap:6px;margin-bottom:8px;background:#f9f9f9;border-radius:10px;padding:10px;grid-template-columns:60px ' + cols.map(()=>'1fr').join(' ') + ' 32px';
+  div.innerHTML = `
+    <div><div style="font-size:10px;color:#aaa;margin-bottom:3px;">ไซส์</div>
+      <input class="edit-input" id="mn-sz-${idx}" placeholder="M" style="text-transform:uppercase" oninput="this.value=this.value.toUpperCase()"></div>
+    ${cols.map(c=>`<div><div style="font-size:10px;color:#aaa;margin-bottom:3px;">${c}</div>
+      <input class="edit-input" id="mn-${c}-${idx}" placeholder="—"></div>`).join('')}
+    <div style="display:flex;align-items:flex-end;padding-bottom:2px;">
+      <button type="button" onclick="document.getElementById('mn-sr-${idx}').remove()" style="padding:4px 6px;background:#fee;border:none;border-radius:6px;color:#e63946;font-size:11px;cursor:pointer;">✕</button>
+    </div>`;
+  container.appendChild(div);
+}
+
+function saveManual() {
+  const code  = document.getElementById('mn-code').value.trim().toUpperCase();
+  const price = document.getElementById('mn-price').value.trim();
+  const name  = document.getElementById('mn-name').value.trim();
+  const color = document.getElementById('mn-color').value.trim();
+  const mat   = document.getElementById('mn-material').value.trim();
+  const type  = document.getElementById('mn-type').value;
+
+  if (!code || !price || !name) { showToast('กรุณากรอก รหัส ราคา และชื่อสินค้าค่ะ'); return; }
+
+  let p = { code, price, name, color, material: mat };
+
+  if (type === 'misc') {
+    p.type = 'misc';
+    p.size = document.getElementById('mn-size')?.value.trim() || '';
+    p.sizes = [];
+  } else {
+    const subtype = document.getElementById('mn-subtype')?.value || 'shirt';
+    const cols = MANUAL_COLS[subtype];
+    const rows = document.querySelectorAll('[id^="mn-sr-"]');
+    const sizes = [];
+    rows.forEach((row, i) => {
+      const sz = document.getElementById(`mn-sz-${i}`)?.value.trim();
+      if (!sz) return;
+      const sr = { size: sz };
+      cols.forEach(c => { const v = document.getElementById(`mn-${c}-${i}`)?.value.trim(); if(v) sr[c]=v; });
+      sizes.push(sr);
+    });
+    p.type = 'clothing';
+    p.sizes = sizes;
+    p.activeCols = cols.filter(f => sizes.some(s => s[f]));
+  }
+
+  // เพิ่มเข้า products โดยไม่ทับของเดิม
+  products[code] = p;
+  document.getElementById('stockInfo').textContent = `${Object.keys(products).length} รายการ`;
+
+  // บันทึกเฉพาะสินค้าใหม่ลง Firebase ไม่ต้อง push ทั้งหมด
+  if (db && fbConnected) {
+    db.ref('chiccoco/products/' + code).set(p).then(() => {
+      showToast(`✅ บันทึก ${code} แล้วค่ะ ยิงบาร์โค้ดเพื่อแสดง overlay ค่ะ`);
+    });
+  } else {
+    showToast(`✅ บันทึก ${code} แล้วค่ะ (offline) ยิงบาร์โค้ดเพื่อแสดง overlay ค่ะ`);
+  }
+  closeManualModal();
+  document.getElementById('scanInput').focus();
+}
+
+
+function dlTemplate(type) {
+  const templates = {
+    clothing: { b64: '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', name: 'chiccoco-template-เสื้อผ้า.xlsx' },
+    misc:     { b64: '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', name: 'chiccoco-template-เบ็ดเตล็ด.xlsx' }
+  };
+  const t = templates[type];
+  const bin = atob(t.b64);
+  const bytes = new Uint8Array(bin.length);
+  for (let i=0;i<bin.length;i++) bytes[i]=bin.charCodeAt(i);
+  const blob = new Blob([bytes],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = t.name;
+  a.click();
+  showToast('\ud83d\udce5 ดาวน์โหลด ' + t.name + ' แล้วค่ะ');
+}
 
 // ── INIT ──
 document.addEventListener('DOMContentLoaded',()=>{
@@ -1022,10 +1298,19 @@ document.addEventListener('DOMContentLoaded',()=>{
   renderCF();
   // ปิด modal เมื่อกดพื้นหลัง
   document.getElementById('editModal').addEventListener('click',function(e){if(e.target===this)closeEditModal();});
-  // Enter ใน modal = บันทึกเลย
   document.getElementById('editModal').addEventListener('keydown', function(e){
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); saveEdit(); }
     if (e.key === 'Escape') closeEditModal();
+  });
+  document.getElementById('manualModal').addEventListener('click',function(e){if(e.target===this)closeManualModal();});
+  document.getElementById('manualModal').addEventListener('keydown',function(e){if(e.key==='Escape')closeManualModal();});
+  // ปิด subtype dropdown เมื่อกดนอก
+  document.addEventListener('click', function(e){
+    const dd = document.getElementById('mn-subtype-dropdown');
+    if (dd && !dd.contains(e.target)) {
+      const list = document.getElementById('mn-subtype-list');
+      if (list) list.style.display = 'none';
+    }
   });
 });
 </script>
