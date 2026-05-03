@@ -837,7 +837,8 @@ function startTimer() {
   timerInterval = setInterval(() => {
     timerSeconds--;
     updateTimerDisplay();
-    if (timerSeconds%5===0||timerSeconds<=10) {
+    // sync ทุก 10 วินาที overlay คำนวณเองจาก ts
+    if (timerSeconds%10===0 || timerSeconds<=5) {
       if (db&&fbConnected) db.ref('chiccoco/timer').set({seconds:timerSeconds,label,running:true,ts:Date.now()});
     }
     if (timerSeconds<=0) {
