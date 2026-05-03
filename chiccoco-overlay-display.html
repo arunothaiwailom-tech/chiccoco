@@ -9,6 +9,26 @@
 html { background:transparent !important; width:720px; }
 body { background:transparent !important; width:720px; overflow:visible; font-family:'Sarabun',sans-serif; margin:0; padding:0; }
 
+/* TIMER BAR */
+.OV-timer {
+  width:720px;
+  background:linear-gradient(135deg, #8b1a1a, #c0392b);
+  border-radius:24px;
+  padding:18px 28px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  margin-bottom:12px;
+  box-shadow:0 4px 16px rgba(139,26,26,.3);
+  opacity:0;
+  transition:opacity .4s;
+}
+.OV-timer.visible { opacity:1; }
+.OV-timer-label { font-family:'Kanit',sans-serif; font-size:32px; font-weight:700; color:rgba(255,255,255,.9); flex:1; }
+.OV-timer-count { font-family:'Kanit',sans-serif; font-size:72px; font-weight:800; color:white; line-height:1; letter-spacing:2px; }
+.OV-timer-count.warning { color:#ffd700; }
+
 .OV {
   width:720px;
   background:#f0ece6;
@@ -179,9 +199,42 @@ body { background:transparent !important; width:720px; overflow:visible; font-fa
 </style>
 </head>
 <body>
+<div class="OV-timer" id="OV-timer">
+  <div class="OV-timer-label" id="OV-timer-label">Flash Sale!</div>
+  <div class="OV-timer-count" id="OV-timer-count">00:00</div>
+</div>
 <div class="OV" id="OV"></div>
 <script>
-var _db=null, _state=null, _prod={};
+var _db=null, _state=null, _prod={}, _edits={};
+
+// merge product + edits
+function getP(code) {
+  var p=_prod[code]; if(!p) return null;
+  var p2=Object.assign({},p);
+  var e=_edits[code];
+  if(e){
+    if(e.name)     p2.name=e.name;
+    if(e.color)    p2.color=e.color;
+    if(e.material) p2.material=e.material;
+    if(e.size)     p2.size=e.size;
+    if(e.price)    p2.price=e.price;
+    if(e.sizes)    p2.sizes=e.sizes;
+  }
+  return p2;
+}
+
+// ── TIMER ──
+function drawTimer(d) {
+  var el=document.getElementById('OV-timer');
+  var lbl=document.getElementById('OV-timer-label');
+  var cnt=document.getElementById('OV-timer-count');
+  if(!d||!d.running||d.seconds<=0){ el.classList.remove('visible'); return; }
+  var m=Math.floor(d.seconds/60), s=d.seconds%60;
+  cnt.textContent=(m<10?'0':'')+m+':'+(s<10?'0':'')+s;
+  cnt.className='OV-timer-count'+(d.seconds<=30?' warning':'');
+  lbl.textContent=d.label||'Flash Sale!';
+  el.classList.add('visible');
+}
 
 // Firebase config ฝังไว้เลย
 var API_KEY    = "AIzaSyBwIlvqugbNYNbFd44DtgKSZWsQrXNnSuI";
@@ -206,6 +259,10 @@ function startDB(){
     _db = firebase.database();
     _db.ref('chiccoco/products').on('value', function(s){ var d=s.val(); if(d){_prod=d; draw();} });
     _db.ref('chiccoco/state').on('value',   function(s){ var d=s.val(); if(d){_state=d; draw();} });
+    // listen timer
+    _db.ref('chiccoco/timer').on('value',   function(s){ var d=s.val(); drawTimer(d); });
+    // listen edits
+    _db.ref('chiccoco/edits').on('value',   function(s){ _edits=s.val()||{}; draw(); });
   } catch(e){ console.error('Firebase error', e); }
 }
 
@@ -213,7 +270,7 @@ function fmt(v){ var n=Number(v); return isNaN(n)?v:n.toLocaleString(); }
 
 function draw(){
   if(!_state || !_state.code) return;
-  var p = _prod[_state.code];
+  var p = getP(_state.code);
   if(!p) return;
 
   var sold  = _state.soldSizes || [];
