@@ -224,16 +224,59 @@ function getP(code) {
 }
 
 // ── TIMER ──
+var _timerLocal = 0;
+var _timerInterval = null;
+var _timerLabel = '';
+
 function drawTimer(d) {
-  var el=document.getElementById('OV-timer');
-  var lbl=document.getElementById('OV-timer-label');
-  var cnt=document.getElementById('OV-timer-count');
-  if(!d||!d.running||d.seconds<=0){ el.classList.remove('visible'); return; }
-  var m=Math.floor(d.seconds/60), s=d.seconds%60;
-  cnt.textContent=(m<10?'0':'')+m+':'+(s<10?'0':'')+s;
-  cnt.className='OV-timer-count'+(d.seconds<=30?' warning':'');
-  lbl.textContent=d.label||'Flash Sale!';
+  var el  = document.getElementById('OV-timer');
+  var lbl = document.getElementById('OV-timer-label');
+  var cnt = document.getElementById('OV-timer-count');
+
+  // หยุด interval เดิมก่อนเสมอ
+  if (_timerInterval) { clearInterval(_timerInterval); _timerInterval = null; }
+
+  if (!d || d.seconds <= 0) {
+    el.classList.remove('visible');
+    return;
+  }
+
+  _timerLabel = d.label || 'Flash Sale!';
+  lbl.textContent = _timerLabel;
+
+  if (!d.running) {
+    // หยุดอยู่ — แค่แสดงเวลาปัจจุบัน ไม่นับ
+    _timerLocal = d.seconds;
+    renderTimerCount(cnt, _timerLocal);
+    el.classList.add('visible');
+    return;
+  }
+
+  // คำนวณเวลาที่เหลือจริงจาก timestamp
+  var elapsed = Math.floor((Date.now() - d.ts) / 1000);
+  _timerLocal = Math.max(0, d.seconds - elapsed);
+
+  if (_timerLocal <= 0) { el.classList.remove('visible'); return; }
+
+  renderTimerCount(cnt, _timerLocal);
   el.classList.add('visible');
+
+  // นับถอยหลังเองทีละ 1 วินาที
+  _timerInterval = setInterval(function() {
+    _timerLocal--;
+    renderTimerCount(cnt, _timerLocal);
+    if (_timerLocal <= 0) {
+      clearInterval(_timerInterval);
+      _timerInterval = null;
+      el.classList.remove('visible');
+    }
+  }, 1000);
+}
+
+function renderTimerCount(el, sec) {
+  var m = Math.floor(sec / 60), s = sec % 60;
+  el.textContent = (m<10?'0':'')+m+':'+(s<10?'0':'')+s;
+  el.className = 'OV-timer-count' + (sec <= 30 ? ' warning' : '');
 }
 
 // Firebase config ฝังไว้เลย
