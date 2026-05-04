@@ -14,17 +14,20 @@ body { font-family:'Sarabun',sans-serif; background:#f0ede8; min-height:100vh; p
 .header p { font-size:10px; color:#aaa; letter-spacing:2px; }
 .btn-logout { padding:6px 14px; background:#fee; color:#c0392b; border:1.5px solid #f5b8b8; border-radius:8px; font-family:'Kanit',sans-serif; font-size:11px; font-weight:700; cursor:pointer; }
 
-/* Stats */
+.tabs { display:flex; background:white; border-radius:14px; padding:4px; margin-bottom:16px; box-shadow:0 1px 6px rgba(0,0,0,.06); gap:4px; }
+.tab { flex:1; padding:10px; text-align:center; border:none; background:transparent; font-family:'Kanit',sans-serif; font-size:13px; font-weight:700; color:#aaa; cursor:pointer; border-radius:10px; transition:all .2s; }
+.tab.active { background:#5c7a6b; color:white; }
+.tab-badge { display:inline-block; background:#e63946; color:white; border-radius:10px; font-size:10px; padding:1px 6px; margin-left:4px; }
+
 .stats { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:16px; }
 .stat-card { background:white; border-radius:14px; padding:14px; text-align:center; box-shadow:0 1px 6px rgba(0,0,0,.06); }
 .stat-num { font-family:'Kanit',sans-serif; font-size:28px; font-weight:800; color:#5c7a6b; }
 .stat-num.red { color:#e63946; }
-.stat-num.yellow { color:#f5c842; }
+.stat-num.orange { color:#f39c12; }
 .stat-label { font-size:10px; color:#aaa; font-family:'Kanit',sans-serif; margin-top:2px; }
 
-/* Search */
-.search-box { background:white; border-radius:14px; padding:12px 16px; margin-bottom:12px; box-shadow:0 1px 6px rgba(0,0,0,.06); display:flex; gap:8px; }
-.search-input { flex:1; border:1.5px solid #e0e0e0; border-radius:8px; padding:8px 12px; font-size:14px; outline:none; font-family:'Sarabun',sans-serif; }
+.search-box { background:white; border-radius:14px; padding:12px 16px; margin-bottom:12px; box-shadow:0 1px 6px rgba(0,0,0,.06); }
+.search-input { width:100%; border:1.5px solid #e0e0e0; border-radius:8px; padding:8px 12px; font-size:14px; outline:none; font-family:'Sarabun',sans-serif; }
 .search-input:focus { border-color:#5c7a6b; }
 
 /* User cards */
@@ -33,7 +36,6 @@ body { font-family:'Sarabun',sans-serif; background:#f0ede8; min-height:100vh; p
 .user-card.expired { border-left-color:#e63946; }
 .user-card.warning { border-left-color:#f5c842; }
 .user-card.suspended { border-left-color:#aaa; }
-
 .user-top { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:10px; }
 .user-name { font-family:'Kanit',sans-serif; font-size:16px; font-weight:700; color:#2c2c2c; }
 .user-email { font-size:11px; color:#aaa; margin-top:2px; }
@@ -42,13 +44,10 @@ body { font-family:'Sarabun',sans-serif; background:#f0ede8; min-height:100vh; p
 .badge-expired { background:#fee; color:#e63946; }
 .badge-warning { background:#fff8e1; color:#b8860b; }
 .badge-suspended { background:#f5f5f5; color:#888; }
-
 .user-info { display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:12px; }
 .info-item { background:#f9f9f9; border-radius:8px; padding:8px 10px; }
 .info-label { font-size:10px; color:#aaa; font-family:'Kanit',sans-serif; }
-.info-value { font-size:13px; font-weight:700; color:#2c2c2c; margin-top:2px; }
-
-/* Actions */
+.info-value { font-size:13px; font-weight:700; color:#2c2c2c; }
 .user-actions { display:flex; gap:6px; flex-wrap:wrap; }
 .btn-action { padding:7px 12px; border:none; border-radius:8px; font-family:'Kanit',sans-serif; font-size:11px; font-weight:700; cursor:pointer; }
 .btn-renew { background:#5c7a6b; color:white; }
@@ -56,68 +55,85 @@ body { font-family:'Sarabun',sans-serif; background:#f0ede8; min-height:100vh; p
 .btn-activate { background:#eaf5ee; color:#5c7a6b; }
 .btn-edit-date { background:#f0ece6; color:#8b6f3e; border:1.5px solid #c8a96e; }
 
+/* Payment cards */
+.payment-card { background:white; border-radius:16px; padding:16px; margin-bottom:10px; box-shadow:0 1px 6px rgba(0,0,0,.06); border-left:4px solid #f5c842; }
+.payment-card.approved { border-left-color:#5c7a6b; opacity:.7; }
+.payment-card.rejected { border-left-color:#e63946; opacity:.7; }
+.payment-top { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px; }
+.payment-shop { font-family:'Kanit',sans-serif; font-size:15px; font-weight:700; }
+.payment-time { font-size:11px; color:#aaa; }
+.payment-amount { font-family:'Kanit',sans-serif; font-size:20px; font-weight:800; color:#5c7a6b; }
+.slip-img { width:100%; border-radius:10px; margin:10px 0; cursor:pointer; max-height:180px; object-fit:contain; background:#f5f5f5; }
+.payment-dates { display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:12px; }
+.payment-actions { display:flex; gap:8px; }
+.btn-approve { flex:1; padding:10px; background:#5c7a6b; color:white; border:none; border-radius:10px; font-family:'Kanit',sans-serif; font-size:13px; font-weight:700; cursor:pointer; }
+.btn-reject { flex:1; padding:10px; background:#fee; color:#c0392b; border:1.5px solid #f5b8b8; border-radius:10px; font-family:'Kanit',sans-serif; font-size:13px; font-weight:700; cursor:pointer; }
+.approved-badge { text-align:center; padding:10px; background:#eaf5ee; border-radius:10px; font-family:'Kanit',sans-serif; font-size:13px; color:#5c7a6b; font-weight:700; }
+.rejected-badge { text-align:center; padding:10px; background:#fee; border-radius:10px; font-family:'Kanit',sans-serif; font-size:13px; color:#c0392b; font-weight:700; }
+
 /* Modal */
 .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:200; display:none; align-items:center; justify-content:center; padding:20px; }
 .modal-overlay.open { display:flex; }
 .modal-box { background:white; border-radius:20px; padding:24px; width:100%; max-width:360px; }
 .modal-title { font-family:'Kanit',sans-serif; font-size:16px; font-weight:700; margin-bottom:16px; }
-.modal-label { font-size:12px; color:#aaa; font-family:'Kanit',sans-serif; margin-bottom:6px; }
-.modal-input { width:100%; padding:10px 14px; border:1.5px solid #e0e0e0; border-radius:10px; font-size:15px; outline:none; margin-bottom:14px; }
+.modal-input { width:100%; padding:10px 14px; border:1.5px solid #e0e0e0; border-radius:10px; font-size:15px; outline:none; margin-bottom:14px; font-family:'Sarabun',sans-serif; }
 .modal-input:focus { border-color:#5c7a6b; }
 .modal-actions { display:flex; gap:8px; }
 .btn-confirm { flex:1; padding:12px; background:#5c7a6b; color:white; border:none; border-radius:10px; font-family:'Kanit',sans-serif; font-size:14px; font-weight:700; cursor:pointer; }
 .btn-cancel { flex:1; padding:12px; background:#f5f5f5; color:#888; border:none; border-radius:10px; font-family:'Kanit',sans-serif; font-size:14px; font-weight:700; cursor:pointer; }
 
-/* Add user */
-.btn-add { width:100%; padding:14px; background:#5c7a6b; color:white; border:none; border-radius:14px; font-family:'Kanit',sans-serif; font-size:15px; font-weight:700; cursor:pointer; margin-bottom:16px; }
+/* Image modal */
+.img-modal { position:fixed; inset:0; background:rgba(0,0,0,.9); z-index:300; display:none; align-items:center; justify-content:center; padding:20px; }
+.img-modal.open { display:flex; }
+.img-modal img { max-width:100%; max-height:90vh; border-radius:10px; }
 
+.empty { text-align:center; padding:40px; color:#aaa; font-family:'Kanit',sans-serif; }
 .toast { position:fixed; bottom:30px; left:50%; transform:translateX(-50%); background:#111; color:white; padding:10px 20px; border-radius:20px; font-size:13px; font-family:'Kanit',sans-serif; opacity:0; transition:opacity .3s; pointer-events:none; z-index:999; white-space:nowrap; }
 .toast.show { opacity:1; }
-
-.loading { text-align:center; padding:40px; color:#aaa; font-family:'Kanit',sans-serif; }
+.tab-content { display:none; }
+.tab-content.active { display:block; }
 </style>
 </head>
 <body>
 
 <div class="header">
-  <div>
-    <h1>chiccoco</h1>
-    <p>ADMIN PANEL</p>
-  </div>
-  <button class="btn-logout" onclick="doLogout()">🚪 ออกจากระบบ</button>
+  <div><h1>chiccoco</h1><p>ADMIN PANEL</p></div>
+  <button class="btn-logout" onclick="doLogout()">🚪 ออก</button>
 </div>
 
-<!-- Stats -->
 <div class="stats">
-  <div class="stat-card">
-    <div class="stat-num" id="countAll">—</div>
-    <div class="stat-label">ร้านทั้งหมด</div>
-  </div>
-  <div class="stat-card">
-    <div class="stat-num" id="countActive">—</div>
-    <div class="stat-label">ใช้งานอยู่</div>
-  </div>
-  <div class="stat-card">
-    <div class="stat-num red" id="countExpired">—</div>
-    <div class="stat-label">หมดอายุ</div>
-  </div>
+  <div class="stat-card"><div class="stat-num" id="countAll">—</div><div class="stat-label">ร้านทั้งหมด</div></div>
+  <div class="stat-card"><div class="stat-num red" id="countExpired">—</div><div class="stat-label">หมดอายุ</div></div>
+  <div class="stat-card"><div class="stat-num orange" id="countPending">—</div><div class="stat-label">รอตรวจสลิป</div></div>
 </div>
 
-<!-- Search -->
-<div class="search-box">
-  <input class="search-input" id="searchInput" placeholder="🔍 ค้นหาชื่อร้าน หรืออีเมล" oninput="filterUsers(this.value)">
+<div class="tabs">
+  <button class="tab active" id="tab-payments" onclick="switchTab('payments')">
+    🧾 สลิปรอตรวจ<span class="tab-badge" id="pendingBadge" style="display:none;">0</span>
+  </button>
+  <button class="tab" id="tab-users" onclick="switchTab('users')">👥 ร้านค้าทั้งหมด</button>
 </div>
 
-<!-- User list -->
-<div id="userList"><div class="loading">⏳ กำลังโหลดข้อมูลค่ะ...</div></div>
+<!-- Payments tab -->
+<div class="tab-content active" id="content-payments">
+  <div id="paymentList"><div class="empty">⏳ กำลังโหลดค่ะ...</div></div>
+</div>
+
+<!-- Users tab -->
+<div class="tab-content" id="content-users">
+  <div class="search-box">
+    <input class="search-input" placeholder="🔍 ค้นหาชื่อร้านหรืออีเมล" oninput="filterUsers(this.value)">
+  </div>
+  <div id="userList"><div class="empty">⏳ กำลังโหลดค่ะ...</div></div>
+</div>
 
 <!-- Edit date modal -->
 <div class="modal-overlay" id="editModal">
   <div class="modal-box">
     <div class="modal-title" id="editModalTitle">✏️ แก้ไขวันหมดอายุ</div>
-    <div class="modal-label">วันหมดอายุใหม่</div>
+    <div style="font-size:12px;color:#aaa;margin-bottom:6px;">วันหมดอายุใหม่</div>
     <input type="date" class="modal-input" id="editDateInput">
-    <div class="modal-label">สถานะ</div>
+    <div style="font-size:12px;color:#aaa;margin-bottom:6px;">สถานะ</div>
     <select class="modal-input" id="editStatusInput" style="font-family:'Sarabun',sans-serif;">
       <option value="active">✅ active — ใช้งานได้</option>
       <option value="expired">❌ expired — หมดอายุ</option>
@@ -130,145 +146,201 @@ body { font-family:'Sarabun',sans-serif; background:#f0ede8; min-height:100vh; p
   </div>
 </div>
 
+<!-- Image modal -->
+<div class="img-modal" id="imgModal" onclick="document.getElementById('imgModal').classList.remove('open')">
+  <img id="imgModalSrc" src="">
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-  import { getFirestore, collection, getDocs, doc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getFirestore, collection, getDocs, doc, updateDoc, getDoc, query, orderBy, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
   const app = initializeApp({
     apiKey: "AIzaSyBwIlvqugbNYNbFd44DtgKSZWsQrXNnSuI",
     authDomain: "chiccoco-live.firebaseapp.com",
     projectId: "chiccoco-live",
-    storageBucket: "chiccoco-live.firebasestorage.app",
+    storageBucket: "chiccoco-live.appspot.com",
     messagingSenderId: "556795503566",
     appId: "1:556795503566:web:3aeab9daa3ae0352ad819f"
   });
   const auth = getAuth(app);
   const db = getFirestore(app);
 
-  let allUsers = [];
-  let editingUid = null;
+  let allUsers = [], allPayments = [], editingUid = null;
 
   function formatDate(d) {
     if (!d) return '—';
-    const [y,m,dd] = d.split('-');
-    const months = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
-    return `${parseInt(dd)} ${months[parseInt(m)-1]} ${parseInt(y)+543}`;
+    try {
+      const [y,m,dd] = d.split('-');
+      const months = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+      return `${parseInt(dd)} ${months[parseInt(m)-1]} ${parseInt(y)+543}`;
+    } catch(e) { return d; }
   }
 
-  function addMonths(dateStr, n) {
-    if (!dateStr) return '';
-    const d = new Date(dateStr);
-    const today = new Date().toISOString().split('T')[0];
-    const base = dateStr < today ? today : dateStr;
-    const bd = new Date(base);
-    bd.setMonth(bd.getMonth() + n);
-    return bd.toISOString().split('T')[0];
+  function formatDateTime(ts) {
+    if (!ts) return '—';
+    const d = ts.toDate ? ts.toDate() : new Date(ts);
+    return d.toLocaleDateString('th-TH') + ' ' + d.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
   }
 
-  function getStatusInfo(user) {
+  function getStatusInfo(u) {
     const today = new Date().toISOString().split('T')[0];
-    const expire = user.expireDate || '';
-    const status = user.status || 'active';
-    if (user.role === 'admin') return { label:'👑 admin', cls:'active', badgeCls:'badge-active' };
+    const expire = u.expireDate || '';
+    const status = u.status || 'active';
+    if (u.role === 'admin') return { label:'👑 admin', cls:'active', badgeCls:'badge-active' };
     if (status === 'suspended') return { label:'🚫 ระงับ', cls:'suspended', badgeCls:'badge-suspended' };
     if (status === 'expired' || expire < today) return { label:'❌ หมดอายุ', cls:'expired', badgeCls:'badge-expired' };
-    // warning ถ้าเหลือน้อยกว่า 7 วัน
     const daysLeft = Math.ceil((new Date(expire) - new Date(today)) / 86400000);
-    if (daysLeft <= 7) return { label:`⚠️ เหลือ ${daysLeft} วัน`, cls:'warning', badgeCls:'badge-warning' };
+    if (daysLeft <= 7) return { label:`⚠️ ${daysLeft} วัน`, cls:'warning', badgeCls:'badge-warning' };
     return { label:`✅ ${daysLeft} วัน`, cls:'active', badgeCls:'badge-active' };
+  }
+
+  function renderPayments(payments) {
+    const list = document.getElementById('paymentList');
+    if (!payments.length) { list.innerHTML = '<div class="empty">✅ ไม่มีสลิปรอตรวจค่ะ</div>'; return; }
+    list.innerHTML = payments.map(p => {
+      const isPending = p.status === 'pending';
+      return `
+      <div class="payment-card ${p.status}">
+        <div class="payment-top">
+          <div>
+            <div class="payment-shop">${p.shopName || '—'} <span style="font-size:11px;color:#aaa;">(${p.shopId||'—'})</span></div>
+            <div class="payment-time">📅 ${formatDateTime(p.submittedAt)}</div>
+            <div class="payment-time">📧 ${p.email||'—'}</div>
+          </div>
+          <div class="payment-amount">฿${p.amount||399}</div>
+        </div>
+        <img class="slip-img" src="${p.slipUrl}" onclick="openImg('${p.slipUrl}')" alt="สลิป">
+        <div class="payment-dates">
+          <div class="info-item">
+            <div style="font-size:10px;color:#aaa;">วันหมดอายุเดิม</div>
+            <div style="font-size:13px;font-weight:700;color:#e63946;">${formatDate(p.currentExpire)}</div>
+          </div>
+          <div class="info-item">
+            <div style="font-size:10px;color:#aaa;">ต่ออายุถึง</div>
+            <div style="font-size:13px;font-weight:700;color:#5c7a6b;">${formatDate(p.newExpire)}</div>
+          </div>
+        </div>
+        ${isPending
+          ? `<div class="payment-actions">
+              <button class="btn-approve" onclick="approvePayment('${p.id}','${p.uid}','${p.newExpire}','${p.shopName}')">✅ อนุมัติ +1 เดือน</button>
+              <button class="btn-reject" onclick="rejectPayment('${p.id}','${p.shopName}')">❌ ปฏิเสธ</button>
+             </div>`
+          : p.status === 'approved'
+            ? `<div class="approved-badge">✅ อนุมัติแล้ว</div>`
+            : `<div class="rejected-badge">❌ ปฏิเสธแล้ว</div>`
+        }
+      </div>`;
+    }).join('');
   }
 
   function renderUsers(users) {
     const list = document.getElementById('userList');
-    if (!users.length) { list.innerHTML = '<div class="loading">ไม่พบข้อมูลค่ะ</div>'; return; }
-
+    if (!users.length) { list.innerHTML = '<div class="empty">ไม่พบข้อมูลค่ะ</div>'; return; }
     list.innerHTML = users.map(u => {
       const si = getStatusInfo(u);
       return `
       <div class="user-card ${si.cls}">
         <div class="user-top">
           <div>
-            <div class="user-name">${u.shopName || '—'}</div>
-            <div class="user-email">${u.email || '—'}</div>
+            <div class="user-name">${u.shopName||'—'}</div>
+            <div class="user-email">${u.email||'—'}</div>
           </div>
           <span class="status-badge ${si.badgeCls}">${si.label}</span>
         </div>
         <div class="user-info">
-          <div class="info-item">
-            <div class="info-label">Shop ID</div>
-            <div class="info-value">${u.shopId || '—'}</div>
-          </div>
-          <div class="info-item">
-            <div class="info-label">หมดอายุ</div>
-            <div class="info-value">${formatDate(u.expireDate)}</div>
-          </div>
+          <div class="info-item"><div class="info-label">Shop ID</div><div class="info-value">${u.shopId||'—'}</div></div>
+          <div class="info-item"><div class="info-label">หมดอายุ</div><div class="info-value">${formatDate(u.expireDate)}</div></div>
         </div>
         ${u.role !== 'admin' ? `
         <div class="user-actions">
           <button class="btn-action btn-renew" onclick="renewUser('${u.uid}','${u.shopName}','${u.expireDate}')">+1 เดือน</button>
           <button class="btn-action btn-edit-date" onclick="openEdit('${u.uid}','${u.shopName}','${u.expireDate}','${u.status||'active'}')">✏️ แก้ไข</button>
-          ${u.status === 'suspended'
+          ${u.status==='suspended'
             ? `<button class="btn-action btn-activate" onclick="setStatus('${u.uid}','active','${u.shopName}')">✅ เปิดใช้</button>`
-            : `<button class="btn-action btn-suspend" onclick="setStatus('${u.uid}','suspended','${u.shopName}')">🚫 ระงับ</button>`
-          }
+            : `<button class="btn-action btn-suspend" onclick="setStatus('${u.uid}','suspended','${u.shopName}')">🚫 ระงับ</button>`}
         </div>` : '<div style="font-size:11px;color:#aaa;">👑 Admin account</div>'}
       </div>`;
     }).join('');
   }
 
-  function updateStats(users) {
+  function updateStats() {
     const today = new Date().toISOString().split('T')[0];
-    const nonAdmin = users.filter(u => u.role !== 'admin');
-    const active = nonAdmin.filter(u => u.status !== 'suspended' && u.status !== 'expired' && (u.expireDate||'') >= today);
+    const nonAdmin = allUsers.filter(u => u.role !== 'admin');
     const expired = nonAdmin.filter(u => u.status === 'expired' || (u.expireDate||'') < today);
+    const pending = allPayments.filter(p => p.status === 'pending');
     document.getElementById('countAll').textContent = nonAdmin.length;
-    document.getElementById('countActive').textContent = active.length;
     document.getElementById('countExpired').textContent = expired.length;
+    document.getElementById('countPending').textContent = pending.length;
+    const badge = document.getElementById('pendingBadge');
+    if (pending.length > 0) { badge.style.display='inline-block'; badge.textContent=pending.length; }
+    else badge.style.display='none';
   }
 
-  async function loadUsers() {
-    const snap = await getDocs(collection(db, 'users'));
-    allUsers = snap.docs.map(d => ({ uid: d.id, ...d.data() }));
+  async function loadAll() {
+    const [userSnap, paySnap] = await Promise.all([
+      getDocs(collection(db, 'users')),
+      getDocs(query(collection(db, 'payments'), orderBy('submittedAt', 'desc')))
+    ]);
+    allUsers = userSnap.docs.map(d => ({ uid:d.id, ...d.data() }));
     allUsers.sort((a,b) => (a.shopId||'').localeCompare(b.shopId||''));
-    updateStats(allUsers);
+    allPayments = paySnap.docs.map(d => ({ id:d.id, ...d.data() }));
+    updateStats();
+    // แสดง pending ก่อน
+    const pending = allPayments.filter(p => p.status === 'pending');
+    const others = allPayments.filter(p => p.status !== 'pending');
+    renderPayments([...pending, ...others]);
     renderUsers(allUsers);
   }
 
-  window.filterUsers = function(q) {
-    if (!q) { renderUsers(allUsers); return; }
-    const lower = q.toLowerCase();
-    renderUsers(allUsers.filter(u =>
-      (u.shopName||'').toLowerCase().includes(lower) ||
-      (u.email||'').toLowerCase().includes(lower) ||
-      (u.shopId||'').toLowerCase().includes(lower)
-    ));
+  window.approvePayment = async function(payId, uid, newExpire, shopName) {
+    try {
+      await Promise.all([
+        updateDoc(doc(db, 'payments', payId), { status: 'approved', approvedAt: new Date() }),
+        updateDoc(doc(db, 'users', uid), { expireDate: newExpire, status: 'active' })
+      ]);
+      showToast(`✅ อนุมัติ ${shopName} ถึง ${formatDate(newExpire)} แล้วค่ะ`);
+      await loadAll();
+    } catch(e) { showToast('❌ เกิดข้อผิดพลาดค่ะ'); }
+  };
+
+  window.rejectPayment = async function(payId, shopName) {
+    if (!confirm(`ปฏิเสธสลิปของ ${shopName} ใช่ไหมคะ?`)) return;
+    try {
+      await updateDoc(doc(db, 'payments', payId), { status: 'rejected', rejectedAt: new Date() });
+      showToast(`❌ ปฏิเสธสลิปของ ${shopName} แล้วค่ะ`);
+      await loadAll();
+    } catch(e) { showToast('❌ เกิดข้อผิดพลาดค่ะ'); }
   };
 
   window.renewUser = async function(uid, shopName, currentExpire) {
-    const newExpire = addMonths(currentExpire, 1);
+    const today = new Date().toISOString().split('T')[0];
+    const base = (!currentExpire || currentExpire < today) ? today : currentExpire;
+    const d = new Date(base); d.setMonth(d.getMonth()+1);
+    const newExpire = d.toISOString().split('T')[0];
     try {
-      await updateDoc(doc(db, 'users', uid), { expireDate: newExpire, status: 'active' });
+      await updateDoc(doc(db,'users',uid), { expireDate:newExpire, status:'active' });
       showToast(`✅ ต่ออายุ ${shopName} ถึง ${formatDate(newExpire)} แล้วค่ะ`);
-      await loadUsers();
+      await loadAll();
     } catch(e) { showToast('❌ เกิดข้อผิดพลาดค่ะ'); }
   };
 
   window.setStatus = async function(uid, status, shopName) {
     try {
-      await updateDoc(doc(db, 'users', uid), { status });
-      showToast(`✅ ${shopName}: ${status === 'suspended' ? 'ระงับแล้วค่ะ' : 'เปิดใช้งานแล้วค่ะ'}`);
-      await loadUsers();
+      await updateDoc(doc(db,'users',uid), { status });
+      showToast(`✅ ${shopName}: ${status==='suspended'?'ระงับแล้ว':'เปิดใช้งานแล้ว'}ค่ะ`);
+      await loadAll();
     } catch(e) { showToast('❌ เกิดข้อผิดพลาดค่ะ'); }
   };
 
   window.openEdit = function(uid, shopName, expireDate, status) {
     editingUid = uid;
     document.getElementById('editModalTitle').textContent = `✏️ ${shopName}`;
-    document.getElementById('editDateInput').value = expireDate || '';
-    document.getElementById('editStatusInput').value = status || 'active';
+    document.getElementById('editDateInput').value = expireDate||'';
+    document.getElementById('editStatusInput').value = status||'active';
     document.getElementById('editModal').classList.add('open');
   };
 
@@ -282,19 +354,41 @@ body { font-family:'Sarabun',sans-serif; background:#f0ede8; min-height:100vh; p
     const newDate = document.getElementById('editDateInput').value;
     const newStatus = document.getElementById('editStatusInput').value;
     try {
-      await updateDoc(doc(db, 'users', editingUid), { expireDate: newDate, status: newStatus });
+      await updateDoc(doc(db,'users',editingUid), { expireDate:newDate, status:newStatus });
       showToast('✅ บันทึกแล้วค่ะ');
       closeModal();
-      await loadUsers();
+      await loadAll();
     } catch(e) { showToast('❌ เกิดข้อผิดพลาดค่ะ'); }
+  };
+
+  window.filterUsers = function(q) {
+    if (!q) { renderUsers(allUsers); return; }
+    const lower = q.toLowerCase();
+    renderUsers(allUsers.filter(u =>
+      (u.shopName||'').toLowerCase().includes(lower) ||
+      (u.email||'').toLowerCase().includes(lower) ||
+      (u.shopId||'').toLowerCase().includes(lower)
+    ));
+  };
+
+  window.openImg = function(url) {
+    document.getElementById('imgModalSrc').src = url;
+    document.getElementById('imgModal').classList.add('open');
+  };
+
+  window.switchTab = function(tab) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.getElementById('tab-'+tab).classList.add('active');
+    document.getElementById('content-'+tab).classList.add('active');
   };
 
   let toastTimer;
   window.showToast = function(msg) {
     const t = document.getElementById('toast');
-    t.textContent = msg; t.classList.add('show');
+    t.textContent=msg; t.classList.add('show');
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+    toastTimer = setTimeout(()=>t.classList.remove('show'), 3000);
   };
 
   window.doLogout = async function() {
@@ -303,21 +397,18 @@ body { font-family:'Sarabun',sans-serif; background:#f0ede8; min-height:100vh; p
     window.location.href = 'login.html';
   };
 
-  // Auth check
-  onAuthStateChanged(auth, async (user) => {
-    if (!user) { window.location.href = 'login.html'; return; }
-    const snap = await getDoc(doc(db, 'users', user.uid));
-    if (!snap.exists() || snap.data().role !== 'admin') {
-      alert('คุณไม่มีสิทธิ์เข้าถึงหน้านี้ค่ะ');
-      window.location.href = 'chiccoco-remote.html';
-      return;
-    }
-    await loadUsers();
-  });
-
-  // Close modal on backdrop click
   document.getElementById('editModal').addEventListener('click', function(e) {
     if (e.target === this) closeModal();
+  });
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) { window.location.href = 'login.html'; return; }
+    const snap = await getDoc(doc(db,'users',user.uid));
+    if (!snap.exists() || snap.data().role !== 'admin') {
+      alert('คุณไม่มีสิทธิ์เข้าถึงหน้านี้ค่ะ');
+      window.location.href = 'chiccoco-remote.html'; return;
+    }
+    await loadAll();
   });
 </script>
 </body>
