@@ -305,19 +305,6 @@ body { font-family:'Sarabun',sans-serif; background:#f0ede8; min-height:100vh; p
   </div>
 </div>
 
-<div class="page" id="page-cf">
-  <div class="sec">
-    <div class="sec-header">
-      <div class="sec-lbl" style="margin:0;">📋 รายการ CF</div>
-      <button class="btn-cf-clear" onclick="clearCF()">ล้างทั้งหมด</button>
-    </div>
-    <div class="cf-input-row">
-      <input class="cf-name-input" id="cfNameInput" placeholder="ชื่อลูกค้า" onkeydown="if(event.key==='Enter')addCF()">
-      <button class="btn-cf-add" onclick="addCF()">+ CF</button>
-    </div>
-  </div>
-</div>
-
 <div class="bottom-nav">
   <button class="nav-btn active" id="nav-live" onclick="switchPage('live')"><span class="icon">📡</span>ไลฟ์</button>
   <button class="nav-btn" id="nav-timer" onclick="switchPage('timer')"><span class="icon">⏱</span>Timer</button>
@@ -865,12 +852,6 @@ function updateTimerDisplay() {
   const el=document.getElementById('timerDisplay');
   el.textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
   el.classList.toggle('warning',timerSeconds>0&&timerSeconds<=30);
-}
-
-  const p=getProduct(currentCode);
-
-  document.getElementById('cfNameInput').value='';
-  document.getElementById('cfNameInput').focus();
 }
 
 
