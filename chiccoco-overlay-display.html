@@ -18,7 +18,7 @@ body { background:transparent !important; width:720px; overflow:visible; font-fa
 .OV { width:720px; background:#f0ece6; padding:32px 28px 28px; display:inline-flex; flex-direction:column; gap:16px; opacity:0; transition:opacity .4s; border-radius:32px; vertical-align:top; }
 .OV.visible { opacity:1; }
 
-.OV-brand { text-align:center; font-family:'Kanit',sans-serif; font-size:15px; font-weight:600; letter-spacing:6px; color:#5c7a6b; text-transform:uppercase; }
+.OV-brand { text-align:center; font-family:'Kanit',sans-serif; font-size:40px; font-weight:700; letter-spacing:4px; color:#5c7a6b; text-transform:uppercase; }
 .OV-toprow { display:flex; gap:14px; }
 .OV-box { background:white; border-radius:20px; padding:18px 22px; text-align:center; flex:1; box-shadow:0 2px 12px rgba(0,0,0,.07); }
 .OV-box-lbl { font-size:40px; font-weight:400; color:#aaa8a0; margin-bottom:10px; font-family:'Sarabun',sans-serif; }
@@ -109,18 +109,19 @@ function startDB(){
     if(!firebase.apps.length) firebase.initializeApp({apiKey:API_KEY,projectId:PROJECT_ID,databaseURL:DB_URL});
     _db=firebase.database();
     var _fs=firebase.firestore();
-    // ดึงชื่อร้านจาก Firestore collection 'users' โดย query shopId
+    // ดึงชื่อร้านจาก Firestore
+    var _fs=firebase.firestore();
     _fs.collection('users').where('shopId','==',_shopId).limit(1).get().then(function(snap){
       if(!snap.empty){
         var data=snap.docs[0].data();
-        _shopName=data.shopName||_shopId;
+        _shopName=data.shopName||'CHICCOCO';
       } else {
-        _shopName=_shopId.replace('shop_','ร้านที่ ');
+        _shopName='CHICCOCO';
       }
       draw();
     }).catch(function(e){
       console.error('Firestore error',e);
-      _shopName=_shopId.replace('shop_','ร้านที่ ');
+      _shopName='CHICCOCO';
       draw();
     });
     _db.ref(_shopPath+'/products').on('value',function(s){ var d=s.val(); if(d){_prod=d; draw();} });
