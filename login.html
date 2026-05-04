@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Chiccoco – เข้าสู่ระบบ</title>
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600;700&family=Sarabun:wght@300;400&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --pink: #ff4d8d;
+      --pink-dark: #e0006b;
+      --bg: #0d0d0d;
+      --card: #1a1a1a;
+      --border: #2e2e2e;
+      --text: #f0f0f0;
+      --muted: #888;
+    }
+
+    body {
+      font-family: 'Courier New', Courier, monospace;
+      letter-spacing: 0.5px;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(ellipse at 20% 50%, rgba(255,77,141,0.08) 0%, transparent 60%),
+                  radial-gradient(ellipse at 80% 20%, rgba(255,77,141,0.05) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 48px 40px;
+      width: 100%;
+      max-width: 400px;
+      position: relative;
+      box-shadow: 0 0 60px rgba(255,77,141,0.08);
+      animation: fadeUp 0.5s ease both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .logo {
+      text-align: center;
+      margin-bottom: 36px;
+    }
+
+    .logo-icon {
+      width: 56px;
+      height: 56px;
+      background: linear-gradient(135deg, var(--pink), var(--pink-dark));
+      border-radius: 16px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      margin-bottom: 12px;
+      box-shadow: 0 8px 24px rgba(255,77,141,0.3);
+    }
+
+    .logo h1 {
+      font-family: 'Kanit', sans-serif;
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      background: linear-gradient(135deg, #fff 40%, var(--pink));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .logo p {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 4px;
+    }
+
+    .form-group { margin-bottom: 20px; }
+
+    label {
+      display: block;
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 8px;
+      font-family: 'Kanit', sans-serif;
+    }
+
+    input {
+      width: 100%;
+      background: #111;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      color: var(--text);
+      font-family: 'Courier New', Courier, monospace;
+      letter-spacing: 0.5px;
+      font-size: 15px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    input:focus {
+      border-color: var(--pink);
+      box-shadow: 0 0 0 3px rgba(255,77,141,0.12);
+    }
+
+    input::placeholder { color: #444; }
+
+    .btn {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, var(--pink), var(--pink-dark));
+      border: none;
+      border-radius: 10px;
+      color: #fff;
+      font-family: 'Kanit', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: opacity 0.2s, transform 0.1s;
+      letter-spacing: 1px;
+      box-shadow: 0 4px 20px rgba(255,77,141,0.3);
+    }
+
+    .btn:hover { opacity: 0.9; }
+    .btn:active { transform: scale(0.98); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .error-msg {
+      background: rgba(255,77,77,0.1);
+      border: 1px solid rgba(255,77,77,0.3);
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-size: 13px;
+      color: #ff6b6b;
+      margin-top: 16px;
+      display: none;
+    }
+
+    .error-msg.show { display: block; }
+
+    .loading {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .footer-text {
+      text-align: center;
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 28px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <div class="logo">
+    <div class="logo-icon">🎀</div>
+    <h1>CHICCOCO</h1>
+    <p>ระบบจัดการ Live Commerce</p>
+  </div>
+
+  <div class="form-group">
+    <label>อีเมล</label>
+    <input type="text" id="emailInput" placeholder="กรอกอีเมลของคุณ" autocomplete="email" inputmode="email"/>
+  </div>
+
+  <div class="form-group">
+    <label>รหัสผ่าน</label>
+    <div style="position:relative;">
+      <input type="password" id="passwordInput" placeholder="กรอกรหัสผ่าน" autocomplete="current-password" style="padding-right:48px;"/>
+      <button type="button" id="togglePass" onclick="togglePassword()" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:18px;color:#888;padding:4px;">👁</button>
+    </div>
+  </div>
+
+  <button class="btn" id="loginBtn" onclick="handleLogin()">เข้าสู่ระบบ</button>
+
+  <div class="error-msg" id="errorMsg"></div>
+
+  <div class="footer-text">Chiccoco Live © 2025</div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBwIlvqugbNYNbFd44DtgKSZWsQrXNnSuI",
+    authDomain: "chiccoco-live.firebaseapp.com",
+    databaseURL: "https://chiccoco-live-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "chiccoco-live",
+    storageBucket: "chiccoco-live.firebasestorage.app",
+    messagingSenderId: "556795503566",
+    appId: "1:556795503566:web:3aeab9daa3ae0352ad819f",
+    measurementId: "G-MH00WS86RG"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  window.togglePassword = function() {
+    const input = document.getElementById('passwordInput');
+    const btn = document.getElementById('togglePass');
+    if (input.type === 'password') {
+      input.type = 'text';
+      btn.textContent = '🙈';
+    } else {
+      input.type = 'password';
+      btn.textContent = '👁';
+    }
+  };
+
+  window.handleLogin = async function() {
+    const email = document.getElementById('emailInput').value.trim();
+    const password = document.getElementById('passwordInput').value;
+    const btn = document.getElementById('loginBtn');
+    const errorMsg = document.getElementById('errorMsg');
+
+    errorMsg.classList.remove('show');
+
+    if (!email || !password) {
+      showError('กรุณากรอกอีเมลและรหัสผ่าน');
+      return;
+    }
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="loading"></span>กำลังเข้าสู่ระบบ...';
+
+    try {
+      const userCred = await signInWithEmailAndPassword(auth, email, password);
+      const uid = userCred.user.uid;
+
+      const userDoc = await getDoc(doc(db, 'users', uid));
+
+      if (!userDoc.exists()) {
+        showError('ไม่พบข้อมูลผู้ใช้ กรุณาติดต่อผู้ดูแลระบบ');
+        btn.disabled = false;
+        btn.innerHTML = 'เข้าสู่ระบบ';
+        return;
+      }
+
+      const userData = userDoc.data();
+
+      // บันทึก session
+      sessionStorage.setItem('uid', uid);
+      sessionStorage.setItem('role', userData.role);
+      sessionStorage.setItem('shopId', userData.shopId || '');
+      sessionStorage.setItem('shopName', userData.shopName || '');
+
+      // ไปหน้าหลัก
+      window.location.href = 'chiccoco-remote.html';
+
+    } catch (err) {
+      let msg = 'เกิดข้อผิดพลาด กรุณาลองใหม่';
+      if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
+        msg = 'อีเมลหรือรหัสผ่านไม่ถูกต้อง';
+      } else if (err.code === 'auth/too-many-requests') {
+        msg = 'พยายามเข้าสู่ระบบหลายครั้งเกินไป กรุณารอสักครู่';
+      }
+      showError(msg);
+      btn.disabled = false;
+      btn.innerHTML = 'เข้าสู่ระบบ';
+    }
+  };
+
+  function showError(msg) {
+    const el = document.getElementById('errorMsg');
+    el.textContent = msg;
+    el.classList.add('show');
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter') handleLogin();
+  });
+</script>
+
+</body>
+</html>
