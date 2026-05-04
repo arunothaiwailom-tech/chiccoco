@@ -93,7 +93,12 @@ window.addEventListener('load',function(){
   s1.onload=function(){
     var s2=document.createElement('script');
     s2.src='https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js';
-    s2.onload=function(){ startDB(); };
+    s2.onload=function(){
+      var s3=document.createElement('script');
+      s3.src='https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js';
+      s3.onload=function(){ startDB(); };
+      document.head.appendChild(s3);
+    };
     document.head.appendChild(s2);
   };
   document.head.appendChild(s1);
@@ -103,9 +108,19 @@ function startDB(){
   try{
     if(!firebase.apps.length) firebase.initializeApp({apiKey:API_KEY,projectId:PROJECT_ID,databaseURL:DB_URL});
     _db=firebase.database();
-    // ดึงชื่อร้านจาก Firebase path: chiccoco/shops/{shopId}/info/shopName
-    _db.ref(_shopPath+'/info/shopName').once('value',function(s){
-      _shopName=s.val()||_shopId.replace('shop_','ร้านที่ ');
+    var _fs=firebase.firestore();
+    // ดึงชื่อร้านจาก Firestore collection 'users' โดย query shopId
+    _fs.collection('users').where('shopId','==',_shopId).limit(1).get().then(function(snap){
+      if(!snap.empty){
+        var data=snap.docs[0].data();
+        _shopName=data.shopName||_shopId;
+      } else {
+        _shopName=_shopId.replace('shop_','ร้านที่ ');
+      }
+      draw();
+    }).catch(function(e){
+      console.error('Firestore error',e);
+      _shopName=_shopId.replace('shop_','ร้านที่ ');
       draw();
     });
     _db.ref(_shopPath+'/products').on('value',function(s){ var d=s.val(); if(d){_prod=d; draw();} });
