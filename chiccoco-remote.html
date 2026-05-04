@@ -8,7 +8,6 @@
 <style>
 * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
 body { font-family:'Sarabun',sans-serif; background:#f0ede8; min-height:100vh; padding:16px 14px 100px; color:#111; }
-
 .app-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
 .app-title { font-family:'Kanit',sans-serif; font-size:20px; font-weight:800; letter-spacing:4px; }
 .app-sub { font-size:10px; color:#aaa; letter-spacing:2px; }
@@ -16,32 +15,26 @@ body { font-family:'Sarabun',sans-serif; background:#f0ede8; min-height:100vh; p
 .btn-screen-on.active { background:#5c7a6b; color:white; border-color:#5c7a6b; }
 .btn-template { padding:6px 10px; border:1.5px solid #c8a96e; border-radius:8px; font-family:'Kanit',sans-serif; font-size:11px; font-weight:700; cursor:pointer; background:#f0ece6; color:#8b6f3e; position:relative; }
 .btn-template .tooltip { position:absolute; right:0; top:calc(100% + 6px); background:#111; color:white; font-size:11px; font-family:'Sarabun',sans-serif; font-weight:400; padding:7px 10px; border-radius:8px; white-space:nowrap; opacity:0; pointer-events:none; transition:opacity .2s; z-index:999; min-width:220px; line-height:1.5; }
-.btn-template:hover .tooltip,
-.btn-template:active .tooltip { opacity:1; }
-
+.btn-template:hover .tooltip, .btn-template:active .tooltip { opacity:1; }
 .sec { background:white; border-radius:16px; padding:14px 16px; margin-bottom:12px; box-shadow:0 1px 6px rgba(0,0,0,.06); }
 .sec-lbl { font-size:10px; font-weight:700; color:#aaa; letter-spacing:1px; text-transform:uppercase; margin-bottom:10px; font-family:'Kanit',sans-serif; }
 .sec-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
 .sec-header .sec-lbl { margin:0; }
-
 .status-bar { display:flex; align-items:center; gap:10px; }
 .status-dot { width:10px; height:10px; border-radius:50%; background:#ccc; flex-shrink:0; transition:background .3s; }
 .status-dot.connected { background:#5c7a6b; }
 .status-dot.error { background:#e63946; }
 .status-txt { font-size:12px; font-weight:600; color:#555; flex:1; }
 .status-device { font-size:10px; color:#aaa; }
-
 .config-section { background:#fff8e1; border:1.5px solid #f5c842; border-radius:14px; padding:16px; margin-bottom:12px; }
 .config-lbl { font-size:11px; font-weight:700; color:#b8860b; letter-spacing:1px; text-transform:uppercase; margin-bottom:10px; font-family:'Kanit',sans-serif; }
 .config-input { width:100%; padding:8px 12px; border:1.5px solid #e0d0a0; border-radius:8px; font-size:12px; margin-bottom:6px; outline:none; font-family:monospace; background:white; }
 .btn-connect { width:100%; padding:10px; background:#f5c842; color:#333; border:none; border-radius:8px; font-family:'Kanit',sans-serif; font-size:13px; font-weight:700; cursor:pointer; margin-top:4px; }
-
 .stock-row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
 .btn-load-stock { padding:10px 16px; background:#111; color:white; border:none; border-radius:8px; font-family:'Kanit',sans-serif; font-size:12px; font-weight:700; cursor:pointer; position:relative; overflow:hidden; }
 .btn-load-stock input { position:absolute; inset:0; opacity:0; cursor:pointer; }
 .btn-manual-open { padding:10px 14px; background:#f0ece6; border:1.5px solid #c8a96e; border-radius:8px; font-family:'Kanit',sans-serif; font-size:12px; font-weight:700; cursor:pointer; color:#8b6f3e; white-space:nowrap; }
 .btn-manual-open:active { background:#e8e0d4; }
-
 .current-card { border-left:4px solid #5c7a6b; }
 .current-code { font-size:36px; font-weight:800; color:#8b1a1a; line-height:1; font-family:'Kanit',sans-serif; }
 .current-name { font-size:13px; color:#555; margin-top:4px; }
@@ -50,7 +43,6 @@ body { font-family:'Sarabun',sans-serif; background:#f0ede8; min-height:100vh; p
 .btn-hide-overlay { flex:1; padding:10px; background:#f0ece6; border:2px solid #5c7a6b; border-radius:10px; font-family:'Kanit',sans-serif; font-size:13px; font-weight:700; color:#5c7a6b; cursor:pointer; }
 .btn-hide-overlay.hidden { background:#5c7a6b; color:white; }
 .btn-reset-all { flex:1; padding:10px; background:#fee; border:2px solid #f5b8b8; border-radius:10px; font-family:'Kanit',sans-serif; font-size:13px; font-weight:700; color:#c0392b; cursor:pointer; }
-
 .search-wrap { position:relative; margin-bottom:8px; }
 .search-input { width:100%; padding:12px 16px 12px 40px; border:2px solid #e0e0e0; border-radius:10px; font-size:16px; font-family:'Sarabun',sans-serif; outline:none; }
 .search-input:focus { border-color:#5c7a6b; }
@@ -62,13 +54,10 @@ body { font-family:'Sarabun',sans-serif; background:#f0ede8; min-height:100vh; p
 .search-result-code { font-family:'Kanit',sans-serif; font-weight:700; color:#8b1a1a; font-size:15px; }
 .search-result-name { font-size:12px; color:#888; margin-top:2px; }
 .search-result-price { font-family:'Kanit',sans-serif; font-weight:700; color:#2c2c2c; font-size:13px; flex-shrink:0; margin-left:8px; }
-
 .scan-input-wrap { display:flex; gap:8px; }
 .scan-input { flex:1; padding:14px 16px; border:2px solid #e0e0e0; border-radius:10px; font-size:22px; font-family:'Kanit',sans-serif; font-weight:700; color:#111; outline:none; text-transform:uppercase; }
 .scan-input:focus { border-color:#5c7a6b; }
 .btn-scan { padding:14px 20px; background:#5c7a6b; color:white; border:none; border-radius:10px; font-family:'Kanit',sans-serif; font-size:14px; font-weight:700; cursor:pointer; }
-
-/* PREVIEW */
 .preview-wrap { background:#f0ece6; border-radius:12px; overflow:hidden; }
 .preview-wrap .OV { width:100% !important; padding:14px 12px; gap:7px; opacity:1 !important; border-radius:12px; }
 .preview-wrap .OV-brand { font-size:9px; letter-spacing:5px; }
@@ -91,8 +80,6 @@ body { font-family:'Sarabun',sans-serif; background:#f0ede8; min-height:100vh; p
 .preview-wrap .OV-table tbody td { font-size:12px; padding:4px; }
 .preview-wrap .OV-table tbody td:first-child { font-size:13px; }
 .preview-edited-badge { display:inline-block; background:#c8a96e; color:white; font-size:9px; font-family:'Kanit',sans-serif; font-weight:700; padding:2px 6px; border-radius:4px; margin-left:6px; vertical-align:middle; }
-
-/* EDIT MODAL */
 .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:200; display:none; align-items:flex-end; }
 .modal-overlay.open { display:flex; }
 .modal-sheet { background:white; border-radius:20px 20px 0 0; padding:20px 16px 40px; width:100%; max-height:85vh; overflow-y:auto; }
@@ -107,18 +94,15 @@ body { font-family:'Sarabun',sans-serif; background:#f0ede8; min-height:100vh; p
 .btn-edit-save { width:100%; padding:14px; background:#5c7a6b; color:white; border:none; border-radius:12px; font-family:'Kanit',sans-serif; font-size:15px; font-weight:700; cursor:pointer; margin-top:8px; }
 .btn-edit-reset { width:100%; padding:10px; background:#fee; color:#c0392b; border:none; border-radius:12px; font-family:'Kanit',sans-serif; font-size:13px; font-weight:700; cursor:pointer; margin-top:8px; }
 .subtype-option:hover { background:#f5f5f5; }
-
 .sizes-pills { display:flex; flex-wrap:wrap; gap:8px; }
 .size-pill { padding:12px 20px; border-radius:10px; font-family:'Kanit',sans-serif; font-size:18px; font-weight:800; cursor:pointer; border:2px solid #e0e0e0; background:#f5f5f5; color:#333; transition:all .15s; user-select:none; min-width:70px; text-align:center; }
 .size-pill.sold { background:#fee; border-color:#f5b8b8; color:#c0392b; text-decoration:line-through; }
 .sizes-empty { font-size:13px; color:#aaa; }
-
 .price-row { display:flex; gap:8px; align-items:center; }
 .price-input { flex:1; padding:12px 14px; border:2px solid #e0e0e0; border-radius:10px; font-size:20px; font-family:'Kanit',sans-serif; font-weight:700; outline:none; }
 .price-input:focus { border-color:#c8a96e; }
 .btn-price { padding:12px 16px; background:#8b1a1a; color:white; border:none; border-radius:10px; font-family:'Kanit',sans-serif; font-size:13px; font-weight:700; cursor:pointer; }
 .btn-price-reset { padding:12px 14px; background:#f5f5f5; color:#888; border:none; border-radius:10px; font-family:'Kanit',sans-serif; font-size:13px; font-weight:700; cursor:pointer; }
-
 .timer-display { text-align:center; font-size:52px; font-weight:800; color:#2c2c2c; font-family:'Kanit',sans-serif; line-height:1; margin:8px 0; }
 .timer-display.warning { color:#e63946; }
 .timer-presets { display:flex; gap:6px; margin-bottom:10px; flex-wrap:wrap; }
@@ -130,7 +114,6 @@ body { font-family:'Sarabun',sans-serif; background:#f0ede8; min-height:100vh; p
 .btn-timer-reset { background:#f5f5f5; color:#888; }
 .timer-label-row { display:flex; gap:8px; margin-top:8px; }
 .timer-label-input { flex:1; padding:8px 12px; border:1.5px solid #e0e0e0; border-radius:8px; font-size:13px; outline:none; }
-
 .history-list { display:flex; flex-direction:column; gap:6px; max-height:260px; overflow-y:auto; }
 .history-item { display:flex; align-items:center; gap:10px; padding:10px 12px; background:#f9f9f9; border-radius:10px; cursor:pointer; border:1.5px solid transparent; transition:all .15s; }
 .history-item.current { border-color:#5c7a6b; background:#eaf0ec; }
@@ -140,7 +123,6 @@ body { font-family:'Sarabun',sans-serif; background:#f0ede8; min-height:100vh; p
 .history-price { font-size:11px; color:#888; }
 .history-time { font-size:10px; color:#bbb; flex-shrink:0; }
 .history-empty { font-size:13px; color:#aaa; text-align:center; padding:12px; }
-
 .cf-input-row { display:flex; gap:8px; margin-bottom:10px; }
 .cf-name-input { flex:1; padding:10px 14px; border:2px solid #e0e0e0; border-radius:10px; font-size:15px; outline:none; }
 .cf-name-input:focus { border-color:#5c7a6b; }
@@ -155,19 +137,14 @@ body { font-family:'Sarabun',sans-serif; background:#f0ede8; min-height:100vh; p
 .btn-cf-del { padding:4px 8px; background:#fee; border:none; border-radius:6px; color:#e63946; font-size:12px; cursor:pointer; }
 .cf-summary { font-size:11px; color:#888; margin-top:6px; }
 .btn-cf-clear { padding:6px 12px; background:#f5f5f5; color:#888; border:none; border-radius:8px; font-family:'Kanit',sans-serif; font-size:11px; font-weight:700; cursor:pointer; }
-
 .toast { position:fixed; bottom:110px; left:50%; transform:translateX(-50%); background:#111; color:white; padding:10px 20px; border-radius:20px; font-size:13px; font-weight:600; font-family:'Kanit',sans-serif; opacity:0; transition:opacity .3s; pointer-events:none; z-index:999; white-space:nowrap; max-width:90vw; text-align:center; }
 .toast.show { opacity:1; }
-
 .bottom-nav { position:fixed; bottom:0; left:0; right:0; background:white; border-top:1px solid #eee; display:flex; padding:8px 0 env(safe-area-inset-bottom); box-shadow:0 -2px 12px rgba(0,0,0,.08); z-index:100; }
 .nav-btn { flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; padding:6px 4px; border:none; background:transparent; cursor:pointer; font-family:'Kanit',sans-serif; font-size:9px; font-weight:700; color:#aaa; }
 .nav-btn.active { color:#5c7a6b; }
 .nav-btn .icon { font-size:22px; line-height:1; }
-
 .page { display:none; }
 .page.active { display:block; }
-
-/* OV base styles */
 .OV { width:100%; background:#f0ece6; padding:32px 28px 36px; display:flex; flex-direction:column; gap:16px; border-radius:32px; }
 .OV-brand { text-align:center; font-family:'Kanit',sans-serif; font-size:15px; font-weight:400; letter-spacing:10px; color:#5c7a6b; }
 .OV-toprow { display:flex; gap:14px; }
@@ -201,7 +178,7 @@ body { font-family:'Sarabun',sans-serif; background:#f0ede8; min-height:100vh; p
 <div class="app-header">
   <div>
     <div class="app-title">chiccoco</div>
-    <div class="app-sub">REMOTE CONTROL</div>
+    <div class="app-sub" id="appSub">REMOTE CONTROL</div>
   </div>
   <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
     <div style="display:flex;gap:6px;">
@@ -235,9 +212,7 @@ body { font-family:'Sarabun',sans-serif; background:#f0ede8; min-height:100vh; p
   <button class="btn-connect" onclick="connectFirebase()">🔌 เชื่อมต่อ Firebase</button>
 </div>
 
-<!-- PAGE: LIVE -->
 <div class="page active" id="page-live">
-
   <div class="sec">
     <div class="sec-lbl">📂 โหลดสต๊อก</div>
     <div class="stock-row">
@@ -251,7 +226,6 @@ body { font-family:'Sarabun',sans-serif; background:#f0ede8; min-height:100vh; p
     <div style="font-size:11px;color:#aaa;margin-top:6px;">รองรับ Excel ทำเอง และ Excel ที่ Export มาจากโปรแกรม CF สินค้า หรือระบบดูด CF ไลฟ์สด</div>
     <div style="font-size:11px;color:#c0392b;margin-top:6px;background:#fee;border-radius:8px;padding:8px 10px;">⚠️ อัปโหลดเฉพาะสินค้าที่มีสต๊อกอยู่เท่านั้นนะคะ เพื่อป้องกัน overlay แสดงสินค้าผิดพลาด</div>
   </div>
-
   <div class="sec current-card">
     <div class="sec-lbl">สินค้าที่แสดงอยู่ตอนนี้</div>
     <div class="current-code" id="curCode">—</div>
@@ -262,7 +236,6 @@ body { font-family:'Sarabun',sans-serif; background:#f0ede8; min-height:100vh; p
       <button class="btn-reset-all" onclick="resetAll()">🔄 รีเซ็ตทั้งหมด</button>
     </div>
   </div>
-
   <div class="sec">
     <div class="sec-lbl">🔍 ค้นหาสินค้า</div>
     <div class="search-wrap">
@@ -271,7 +244,6 @@ body { font-family:'Sarabun',sans-serif; background:#f0ede8; min-height:100vh; p
     </div>
     <div class="search-results" id="searchResults"></div>
   </div>
-
   <div class="sec">
     <div class="sec-lbl">🔫 สแกนบาร์โค้ด / พิมพ์รหัส</div>
     <div class="scan-input-wrap">
@@ -279,7 +251,6 @@ body { font-family:'Sarabun',sans-serif; background:#f0ede8; min-height:100vh; p
       <button class="btn-scan" onclick="applyCode()">ยืนยัน</button>
     </div>
   </div>
-
   <div class="sec" id="previewSection" style="display:none;">
     <div class="sec-header">
       <div class="sec-lbl" style="margin:0;">👁 ตัวอย่าง Overlay <span id="editedBadge" class="preview-edited-badge" style="display:none;">แก้ไขแล้ว</span></div>
@@ -287,12 +258,10 @@ body { font-family:'Sarabun',sans-serif; background:#f0ede8; min-height:100vh; p
     </div>
     <div class="preview-wrap" id="previewWrap"></div>
   </div>
-
   <div class="sec">
     <div class="sec-lbl">📦 ติ๊กไซส์ที่หมด</div>
     <div class="sizes-pills" id="sizesPills"><span class="sizes-empty">โหลดสินค้าก่อนค่ะ</span></div>
   </div>
-
   <div class="sec">
     <div class="sec-lbl">💰 แก้ราคา</div>
     <div class="price-row">
@@ -301,10 +270,8 @@ body { font-family:'Sarabun',sans-serif; background:#f0ede8; min-height:100vh; p
       <button class="btn-price-reset" onclick="resetPrice()">รีเซ็ต</button>
     </div>
   </div>
-
 </div>
 
-<!-- PAGE: TIMER -->
 <div class="page" id="page-timer">
   <div class="sec">
     <div class="sec-lbl">⏱ Flash Sale Timer</div>
@@ -328,7 +295,6 @@ body { font-family:'Sarabun',sans-serif; background:#f0ede8; min-height:100vh; p
   </div>
 </div>
 
-<!-- PAGE: HISTORY -->
 <div class="page" id="page-history">
   <div class="sec">
     <div class="sec-lbl">🕐 ประวัติสินค้าล่าสุด</div>
@@ -338,7 +304,6 @@ body { font-family:'Sarabun',sans-serif; background:#f0ede8; min-height:100vh; p
   </div>
 </div>
 
-<!-- PAGE: CF -->
 <div class="page" id="page-cf">
   <div class="sec">
     <div class="sec-header">
@@ -354,7 +319,6 @@ body { font-family:'Sarabun',sans-serif; background:#f0ede8; min-height:100vh; p
   </div>
 </div>
 
-<!-- BOTTOM NAV -->
 <div class="bottom-nav">
   <button class="nav-btn active" id="nav-live" onclick="switchPage('live')"><span class="icon">📡</span>ไลฟ์</button>
   <button class="nav-btn" id="nav-timer" onclick="switchPage('timer')"><span class="icon">⏱</span>Timer</button>
@@ -362,14 +326,12 @@ body { font-family:'Sarabun',sans-serif; background:#f0ede8; min-height:100vh; p
   <button class="nav-btn" id="nav-cf" onclick="switchPage('cf')"><span class="icon">📋</span>CF</button>
 </div>
 
-<!-- MANUAL MODAL -->
 <div class="modal-overlay" id="manualModal">
   <div class="modal-sheet">
     <div class="modal-title">
       ✏️ เพิ่มสินค้าใหม่ด้วยตัวเอง
       <button class="modal-close" onclick="closeManualModal()">ปิด</button>
     </div>
-
     <div class="edit-field">
       <div class="edit-label">ประเภทสินค้า</div>
       <select id="mn-type" onchange="renderManualSizes()" style="width:100%;padding:10px 14px;border:1.5px solid #e0e0e0;border-radius:10px;font-size:15px;font-family:'Sarabun',sans-serif;outline:none;">
@@ -377,7 +339,6 @@ body { font-family:'Sarabun',sans-serif; background:#f0ede8; min-height:100vh; p
         <option value="clothing">เสื้อผ้า (มีตารางไซส์)</option>
       </select>
     </div>
-
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
       <div class="edit-field">
         <div class="edit-label">รหัสสินค้า *</div>
@@ -388,12 +349,10 @@ body { font-family:'Sarabun',sans-serif; background:#f0ede8; min-height:100vh; p
         <input class="edit-input" id="mn-price" type="number" placeholder="เช่น 299">
       </div>
     </div>
-
     <div class="edit-field">
       <div class="edit-label">ชื่อสินค้า *</div>
       <input class="edit-input" id="mn-name" placeholder="เช่น กระเป๋า COS รุ่นพับได้">
     </div>
-
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
       <div class="edit-field">
         <div class="edit-label">สี</div>
@@ -404,15 +363,11 @@ body { font-family:'Sarabun',sans-serif; background:#f0ede8; min-height:100vh; p
         <input class="edit-input" id="mn-material" placeholder="เช่น Cotton 95%">
       </div>
     </div>
-
-    <!-- dynamic section -->
     <div id="mn-size-section"></div>
-
     <button class="btn-edit-save" onclick="saveManual()">💾 บันทึกสินค้า (ยิงบาร์โค้ดเพื่อแสดง)</button>
   </div>
 </div>
 
-<!-- EDIT MODAL -->
 <div class="modal-overlay" id="editModal">
   <div class="modal-sheet">
     <div class="modal-title">
@@ -431,8 +386,8 @@ body { font-family:'Sarabun',sans-serif; background:#f0ede8; min-height:100vh; p
 <script>
 // ── STATE ──
 let db = null;
-let products = {};      // ข้อมูลจาก Excel
-let edits = {};         // ข้อมูลที่แก้ไขแล้ว (จาก Firebase)
+let products = {};
+let edits = {};
 let currentCode = null;
 let soldSizes = [];
 let salePrice = null;
@@ -446,9 +401,9 @@ let timerSeconds = 0;
 let timerRunning = false;
 let wakeLock = null;
 let fbConnected = false;
+let shopPath = 'chiccoco/shops/default'; // ✅ แก้ไข: แยก path ต่อร้าน
 const DEVICE_ID = 'dev_' + Math.random().toString(36).slice(2,7);
 
-// ── MERGE: รวม Excel + edits ──
 function getProduct(code) {
   if (!code || !products[code]) return null;
   const p = { ...products[code] };
@@ -465,7 +420,6 @@ function getProduct(code) {
   return p;
 }
 
-// ── PAGE NAV ──
 function switchPage(page) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -475,15 +429,13 @@ function switchPage(page) {
   if (page === 'cf') renderCF();
 }
 
-// ── LOGOUT ──
+// ✅ แก้ไข: logout ไปที่ login.html ที่ถูกต้อง
 function logOut() {
-  // ล้าง sessionStorage แล้วไปหน้า login
   sessionStorage.clear();
   showToast('ออกจากระบบแล้วค่ะ');
-  setTimeout(() => { window.location.href = 'chiccoco-login.html'; }, 800);
+  setTimeout(() => { window.location.href = 'login.html'; }, 800);
 }
 
-// ── SCREEN WAKE LOCK ──
 async function toggleScreenOn() {
   const btn = document.getElementById('btnScreenOn');
   if (wakeLock) {
@@ -498,7 +450,6 @@ async function toggleScreenOn() {
   }
 }
 
-// ── FIREBASE ──
 function connectFirebase() {
   const apiKey = document.getElementById('cfg-apiKey').value.trim();
   const projectId = document.getElementById('cfg-projectId').value.trim();
@@ -529,16 +480,18 @@ function initFirebase(apiKey, projectId, dbUrl) {
 
 function doInit(apiKey, projectId, dbUrl) {
   try {
+    // ✅ แก้ไข: ดึง shopId จาก sessionStorage แล้วตั้ง shopPath
+    const shopId = sessionStorage.getItem('shopId') || 'default';
+    shopPath = 'chiccoco/shops/' + shopId;
+
     if (!firebase.apps.length) firebase.initializeApp({ apiKey, projectId, databaseURL: dbUrl });
     db = firebase.database();
 
-    // connection monitor
     db.ref('.info/connected').on('value', snap => {
       fbConnected = snap.val() === true;
       if (fbConnected) {
         setStatus('connected', '✅ เชื่อมต่อแล้ว');
-        // บอก Firebase ว่าเครื่องนี้ online
-        db.ref('chiccoco/devices/' + DEVICE_ID).set({ ts: Date.now(), alive: true });
+        db.ref(shopPath + '/devices/' + DEVICE_ID).set({ ts: Date.now(), alive: true });
       } else {
         setStatus('error', '⚠️ หลุดการเชื่อมต่อ...');
       }
@@ -546,18 +499,14 @@ function doInit(apiKey, projectId, dbUrl) {
 
     document.getElementById('configSection').style.display = 'none';
 
-    // listen state
-    db.ref('chiccoco/state').on('value', snap => { const d = snap.val(); if (d) syncFromRemote(d); });
+    db.ref(shopPath + '/state').on('value', snap => { const d = snap.val(); if (d) syncFromRemote(d); });
 
-    // listen edits จาก Firebase — sync ข้ามเครื่อง
-    db.ref('chiccoco/edits').on('value', snap => {
-      const d = snap.val();
-      edits = d || {};
+    db.ref(shopPath + '/edits').on('value', snap => {
+      edits = snap.val() || {};
       updatePreview();
     });
 
-    // โหลด products จาก Firebase อัตโนมัติตอนเปิดแอป
-    db.ref('chiccoco/products').once('value', snap => {
+    db.ref(shopPath + '/products').once('value', snap => {
       const d = snap.val();
       if (d && Object.keys(d).length > 0) {
         products = d;
@@ -565,9 +514,6 @@ function doInit(apiKey, projectId, dbUrl) {
         showToast(`📦 โหลดสต๊อก ${Object.keys(products).length} รายการจากครั้งที่แล้วแล้วค่ะ`);
       }
     });
-
-    // นับเครื่องที่ online — ไม่แสดงแล้ว
-    db.ref('chiccoco/devices').off();
 
     showToast('เชื่อมต่อสำเร็จ!');
   } catch(e) {
@@ -593,63 +539,46 @@ function syncFromRemote(d) {
 function pushState() {
   if (!db || !fbConnected) { showToast('⚠️ Firebase ยังไม่เชื่อมต่อค่ะ'); return; }
   if (!currentCode || !products[currentCode]) return;
-  db.ref('chiccoco/state').set({
+  db.ref(shopPath + '/state').set({
     code: currentCode, soldSizes, salePrice, hidden: overlayHidden, ts: Date.now()
   });
 }
 
-// ── EDIT PRODUCT DATA ──
 function openEditModal() {
   if (!currentCode) { showToast('กรุณาเลือกสินค้าก่อนค่ะ'); return; }
   const p = getProduct(currentCode);
   if (!p) return;
-
   document.getElementById('editModalCode').textContent = currentCode;
   const fields = document.getElementById('editFields');
-
   let html = `
-    <div class="edit-field"><div class="edit-label">ชื่อสินค้า</div>
-      <input class="edit-input" id="ef-name" value="${p.name||''}"></div>
-    <div class="edit-field"><div class="edit-label">สี</div>
-      <input class="edit-input" id="ef-color" value="${p.color||''}"></div>
-    <div class="edit-field"><div class="edit-label">วัสดุ / เนื้อผ้า</div>
-      <input class="edit-input" id="ef-material" value="${p.material||''}"></div>
-    <div class="edit-field"><div class="edit-label">ขนาดสินค้า (เบ็ดเตล็ด)</div>
-      <input class="edit-input" id="ef-size" value="${p.size||''}"></div>
-    <div class="edit-field"><div class="edit-label">ราคา</div>
-      <input class="edit-input" id="ef-price" type="number" value="${p.price||''}"></div>`;
-
-  // ถ้ามีตารางไซส์ — แสดงให้แก้ไขได้
+    <div class="edit-field"><div class="edit-label">ชื่อสินค้า</div><input class="edit-input" id="ef-name" value="${p.name||''}"></div>
+    <div class="edit-field"><div class="edit-label">สี</div><input class="edit-input" id="ef-color" value="${p.color||''}"></div>
+    <div class="edit-field"><div class="edit-label">วัสดุ / เนื้อผ้า</div><input class="edit-input" id="ef-material" value="${p.material||''}"></div>
+    <div class="edit-field"><div class="edit-label">ขนาดสินค้า (เบ็ดเตล็ด)</div><input class="edit-input" id="ef-size" value="${p.size||''}"></div>
+    <div class="edit-field"><div class="edit-label">ราคา</div><input class="edit-input" id="ef-price" type="number" value="${p.price||''}"></div>`;
   if (p.type === 'clothing' && p.sizes && p.sizes.length > 0) {
     const cols = p.activeCols || [];
     html += `<div class="edit-field"><div class="edit-label">ตารางสัดส่วน</div>`;
     p.sizes.forEach((s, i) => {
-      const colCount = cols.length + 1;
       html += `<div class="edit-table-row" style="grid-template-columns: 60px ${cols.map(()=>'1fr').join(' ')}">
-        <div><div style="font-size:10px;color:#aaa;margin-bottom:3px;">ไซส์</div>
-          <input class="edit-input" id="ef-sz-${i}" value="${s.size||''}"></div>`;
+        <div><div style="font-size:10px;color:#aaa;margin-bottom:3px;">ไซส์</div><input class="edit-input" id="ef-sz-${i}" value="${s.size||''}"></div>`;
       cols.forEach(c => {
-        html += `<div><div style="font-size:10px;color:#aaa;margin-bottom:3px;">${c}</div>
-          <input class="edit-input" id="ef-${c}-${i}" value="${s[c]||''}"></div>`;
+        html += `<div><div style="font-size:10px;color:#aaa;margin-bottom:3px;">${c}</div><input class="edit-input" id="ef-${c}-${i}" value="${s[c]||''}"></div>`;
       });
       html += `</div>`;
     });
     html += `</div>`;
   }
-
   fields.innerHTML = html;
   document.getElementById('editModal').classList.add('open');
 }
 
-function closeEditModal() {
-  document.getElementById('editModal').classList.remove('open');
-}
+function closeEditModal() { document.getElementById('editModal').classList.remove('open'); }
 
 function saveEdit() {
   if (!currentCode || !db || !fbConnected) { showToast('ไม่สามารถบันทึกได้ค่ะ'); return; }
   const p = getProduct(currentCode);
   const cols = p.activeCols || [];
-
   const edit = {
     name:     document.getElementById('ef-name')?.value.trim() || '',
     color:    document.getElementById('ef-color')?.value.trim() || '',
@@ -658,8 +587,6 @@ function saveEdit() {
     price:    document.getElementById('ef-price')?.value.trim() || '',
     ts:       Date.now()
   };
-
-  // บันทึกตารางไซส์ถ้ามี
   if (p.type === 'clothing' && p.sizes && p.sizes.length > 0) {
     edit.sizes = p.sizes.map((s, i) => {
       const ns = { size: document.getElementById(`ef-sz-${i}`)?.value.trim() || s.size };
@@ -667,34 +594,30 @@ function saveEdit() {
       return ns;
     });
   }
-
-  // ลบ key ที่ว่างออก
   Object.keys(edit).forEach(k => { if (edit[k] === '' && k !== 'ts') delete edit[k]; });
-
-  db.ref('chiccoco/edits/' + currentCode).set(edit).then(() => {
+  db.ref(shopPath + '/edits/' + currentCode).set(edit).then(() => {
     edits[currentCode] = edit;
     closeEditModal();
     updateCurrentUI();
     updatePreview();
     pushState();
     showToast(`✅ บันทึกข้อมูล ${currentCode} ลง Firebase แล้วค่ะ`);
-    document.getElementById('scanInput').focus(); // กลับช่องสแกนทันที
+    document.getElementById('scanInput').focus();
   }).catch(() => showToast('บันทึกไม่สำเร็จค่ะ'));
 }
 
 function resetEdit() {
   if (!currentCode || !db || !fbConnected) return;
-  db.ref('chiccoco/edits/' + currentCode).remove().then(() => {
+  db.ref(shopPath + '/edits/' + currentCode).remove().then(() => {
     delete edits[currentCode];
     closeEditModal();
     updateCurrentUI();
     updatePreview();
     showToast(`คืนข้อมูลเดิมของ ${currentCode} แล้วค่ะ`);
-    document.getElementById('scanInput').focus(); // กลับช่องสแกนทันที
+    document.getElementById('scanInput').focus();
   });
 }
 
-// ── OVERLAY TOGGLE ──
 function toggleOverlay() {
   overlayHidden = !overlayHidden;
   const btn = document.getElementById('btnHide');
@@ -704,26 +627,16 @@ function toggleOverlay() {
   showToast(overlayHidden ? 'ซ่อน Overlay แล้วค่ะ' : 'แสดง Overlay แล้วค่ะ');
 }
 
-// ── RESET ALL ──
 function resetAll() {
-  soldSizes = [];
-  salePrice = null;
-  overlayHidden = false;
-  if (currentCode) {
-    delete soldSizesMap[currentCode];
-    delete salePriceMap[currentCode];
-  }
+  soldSizes = []; salePrice = null; overlayHidden = false;
+  if (currentCode) { delete soldSizesMap[currentCode]; delete salePriceMap[currentCode]; }
   document.getElementById('priceInput').value = '';
   document.getElementById('btnHide').textContent = '👁 ซ่อน Overlay';
   document.getElementById('btnHide').classList.remove('hidden');
-  updateCurrentUI();
-  renderSizePills();
-  updatePreview();
-  pushState();
+  updateCurrentUI(); renderSizePills(); updatePreview(); pushState();
   showToast('รีเซ็ตทั้งหมดแล้วค่ะ');
 }
 
-// ── SEARCH ──
 function doSearch(q) {
   const res = document.getElementById('searchResults');
   if (!q || q.length < 1) { res.style.display = 'none'; return; }
@@ -736,12 +649,8 @@ function doSearch(q) {
   res.innerHTML = matches.map(code => {
     const p = getProduct(code);
     return `<div class="search-result-item" onclick="selectProduct('${code}')">
-      <div>
-        <div class="search-result-code">${code}${edits[code]?'✏️':''}</div>
-        <div class="search-result-name">${p.name}</div>
-      </div>
-      <div class="search-result-price">฿${Number(p.price).toLocaleString()}</div>
-    </div>`;
+      <div><div class="search-result-code">${code}${edits[code]?'✏️':''}</div><div class="search-result-name">${p.name}</div></div>
+      <div class="search-result-price">฿${Number(p.price).toLocaleString()}</div></div>`;
   }).join('');
   res.style.display = 'block';
 }
@@ -753,20 +662,12 @@ function selectProduct(code) {
   soldSizes = soldSizesMap[code] ? [...soldSizesMap[code]] : [];
   salePrice = salePriceMap[code] || null;
   document.getElementById('priceInput').value = salePrice || '';
-  addToHistory(code);
-  updateCurrentUI();
-  renderSizePills();
-  updatePreview();
-  pushState();
+  addToHistory(code); updateCurrentUI(); renderSizePills(); updatePreview(); pushState();
   const p = getProduct(code);
-  const msg = salePrice
-    ? `${code} — ราคาลดเหลือ ฿${Number(salePrice).toLocaleString()}`
-    : `เปลี่ยนเป็น ${code} แล้วค่ะ`;
-  showToast(msg);
+  showToast(salePrice ? `${code} — ราคาลดเหลือ ฿${Number(salePrice).toLocaleString()}` : `เปลี่ยนเป็น ${code} แล้วค่ะ`);
   document.getElementById('scanInput').focus();
 }
 
-// ── BARCODE ──
 function applyCode() {
   const val = document.getElementById('scanInput').value.trim();
   if (!val) return;
@@ -776,7 +677,6 @@ function applyCode() {
   document.getElementById('scanInput').value = '';
 }
 
-// ── HISTORY ──
 function addToHistory(code) {
   const p = getProduct(code);
   if (!p) return;
@@ -791,15 +691,10 @@ function renderHistory() {
   list.innerHTML = liveHistory.map(h => `
     <div class="history-item ${h.code===currentCode?'current':''}" onclick="selectProduct('${h.code}')">
       <div class="history-code">${h.code}</div>
-      <div class="history-info">
-        <div class="history-name">${h.name}</div>
-        <div class="history-price">฿${Number(h.price).toLocaleString()}</div>
-      </div>
-      <div class="history-time">${h.time}</div>
-    </div>`).join('');
+      <div class="history-info"><div class="history-name">${h.name}</div><div class="history-price">฿${Number(h.price).toLocaleString()}</div></div>
+      <div class="history-time">${h.time}</div></div>`).join('');
 }
 
-// ── SIZE PILLS ──
 function renderSizePills() {
   const container = document.getElementById('sizesPills');
   const p = getProduct(currentCode);
@@ -815,40 +710,30 @@ function renderSizePills() {
       if (soldSizes.includes(s.size)) soldSizes = soldSizes.filter(x => x!==s.size);
       else soldSizes.push(s.size);
       soldSizesMap[currentCode] = [...soldSizes];
-      renderSizePills();
-      updatePreview();
-      pushState();
+      renderSizePills(); updatePreview(); pushState();
       showToast(soldSizes.includes(s.size) ? `${s.size} — หมดแล้ว` : `${s.size} — กลับมาแล้ว`);
     };
     container.appendChild(pill);
   });
 }
 
-// ── PRICE ──
 function applyPrice() {
   const val = document.getElementById('priceInput').value.trim();
   if (!val || !currentCode) return;
-  salePrice = val;
-  salePriceMap[currentCode] = val;
-  updateCurrentUI();
-  updatePreview();
-  pushState();
+  salePrice = val; salePriceMap[currentCode] = val;
+  updateCurrentUI(); updatePreview(); pushState();
   showToast(`✅ ลดราคา ${currentCode} → ฿${Number(val).toLocaleString()} แล้วค่ะ  ⚠️ อย่าลืมแก้ใน V Rich ด้วยนะคะ`);
   document.getElementById('scanInput').focus();
 }
 
 function resetPrice() {
-  salePrice = null;
-  delete salePriceMap[currentCode];
+  salePrice = null; delete salePriceMap[currentCode];
   document.getElementById('priceInput').value = '';
-  updateCurrentUI();
-  updatePreview();
-  pushState();
+  updateCurrentUI(); updatePreview(); pushState();
   showToast('รีเซ็ตราคาแล้วค่ะ');
   document.getElementById('scanInput').focus();
 }
 
-// ── CURRENT UI ──
 function updateCurrentUI() {
   const p = getProduct(currentCode);
   if (!p) return;
@@ -859,7 +744,6 @@ function updateCurrentUI() {
     : `฿${Number(p.price).toLocaleString()}`;
 }
 
-// ── PREVIEW ──
 function buildOV(p, sold, sale) {
   if (!p) return '';
   const av = (p.sizes||[]).filter(s => !(sold||[]).includes(s.size));
@@ -869,15 +753,11 @@ function buildOV(p, sold, sale) {
   const ph = sale
     ? `<div class="OV-price"><div class="OV-price-lbl">ราคา</div><div class="OV-price-sale"><div class="OV-price-original">${fmt2(p.price)}</div><div class="OV-price-new">${fmt2(sale)}</div></div></div>`
     : `<div class="OV-price"><div class="OV-price-lbl">ราคา</div><div class="OV-price-num">${fmt2(p.price)}</div></div>`;
-
   if (p.type === 'misc') {
     const miscSize = p.size || (p.sizes&&p.sizes.length ? p.sizes.map(s=>s.size).filter(Boolean).join(', ') : '');
-    return `<div class="OV">
-      <div class="OV-brand">C H I C C O C O</div>
-      <div class="OV-toprow">
-        <div class="OV-box" style="flex:1.1"><div class="OV-box-lbl">รหัสสินค้า</div><div class="OV-box-code">${p.code}</div></div>
-        ${ph.replace('class="OV-price"','class="OV-price" style="flex:1"')}
-      </div>
+    return `<div class="OV"><div class="OV-brand">C H I C C O C O</div>
+      <div class="OV-toprow"><div class="OV-box" style="flex:1.1"><div class="OV-box-lbl">รหัสสินค้า</div><div class="OV-box-code">${p.code}</div></div>
+      ${ph.replace('class="OV-price"','class="OV-price" style="flex:1"')}</div>
       <div class="OV-name">${p.name}</div>
       <div class="OV-inforow">
         ${p.color?`<div class="OV-info"><div class="OV-info-lbl">สี</div><div class="OV-info-val">${p.color}</div></div>`:''}
@@ -887,8 +767,7 @@ function buildOV(p, sold, sale) {
     </div>`;
   }
   const rows = av.map(s=>`<tr><td>${s.size}</td>${co.map(c=>`<td>${s[c]||'—'}</td>`).join('')}</tr>`).join('');
-  return `<div class="OV">
-    <div class="OV-brand">C H I C C O C O</div>
+  return `<div class="OV"><div class="OV-brand">C H I C C O C O</div>
     <div class="OV-toprow">
       <div class="OV-box"><div class="OV-box-lbl">รหัสสินค้า</div><div class="OV-box-code">${p.code}</div></div>
       <div class="OV-box"><div class="OV-box-lbl">ไซส์</div><div class="OV-box-sizes">${lb.join(', ')||'—'}</div></div>
@@ -914,7 +793,6 @@ function updatePreview() {
   badge.style.display = p._edited ? 'inline-block' : 'none';
 }
 
-// ── TIMER ──
 function setTimer(m) { timerSeconds=m*60; timerRunning=false; clearInterval(timerInterval); updateTimerDisplay(); document.getElementById('btnTimerStart').style.display=''; document.getElementById('btnTimerPause').style.display='none'; }
 
 function startTimer() {
@@ -923,19 +801,18 @@ function startTimer() {
   document.getElementById('btnTimerStart').style.display='none';
   document.getElementById('btnTimerPause').style.display='';
   const label = document.getElementById('timerLabel').value||'';
-  if (db&&fbConnected) db.ref('chiccoco/timer').set({seconds:timerSeconds,label,running:true,ts:Date.now()});
+  if (db&&fbConnected) db.ref(shopPath + '/timer').set({seconds:timerSeconds,label,running:true,ts:Date.now()});
   timerInterval = setInterval(() => {
     timerSeconds--;
     updateTimerDisplay();
-    // sync ทุก 10 วินาที overlay คำนวณเองจาก ts
     if (timerSeconds%10===0 || timerSeconds<=5) {
-      if (db&&fbConnected) db.ref('chiccoco/timer').set({seconds:timerSeconds,label,running:true,ts:Date.now()});
+      if (db&&fbConnected) db.ref(shopPath + '/timer').set({seconds:timerSeconds,label,running:true,ts:Date.now()});
     }
     if (timerSeconds<=0) {
       clearInterval(timerInterval); timerRunning=false;
       document.getElementById('btnTimerStart').style.display='';
       document.getElementById('btnTimerPause').style.display='none';
-      if (db&&fbConnected) db.ref('chiccoco/timer').set({seconds:0,running:false,ts:Date.now()});
+      if (db&&fbConnected) db.ref(shopPath + '/timer').set({seconds:0,running:false,ts:Date.now()});
       showToast('⏰ หมดเวลาแล้วค่ะ!');
     }
   },1000);
@@ -945,14 +822,14 @@ function pauseTimer() {
   clearInterval(timerInterval); timerRunning=false;
   document.getElementById('btnTimerStart').style.display='';
   document.getElementById('btnTimerPause').style.display='none';
-  if (db&&fbConnected) db.ref('chiccoco/timer').set({seconds:timerSeconds,running:false,ts:Date.now()});
+  if (db&&fbConnected) db.ref(shopPath + '/timer').set({seconds:timerSeconds,running:false,ts:Date.now()});
 }
 
 function resetTimer() {
   clearInterval(timerInterval); timerRunning=false; timerSeconds=0; updateTimerDisplay();
   document.getElementById('btnTimerStart').style.display='';
   document.getElementById('btnTimerPause').style.display='none';
-  if (db&&fbConnected) db.ref('chiccoco/timer').set({seconds:0,running:false,ts:Date.now()});
+  if (db&&fbConnected) db.ref(shopPath + '/timer').set({seconds:0,running:false,ts:Date.now()});
 }
 
 function updateTimerDisplay() {
@@ -962,20 +839,17 @@ function updateTimerDisplay() {
   el.classList.toggle('warning',timerSeconds>0&&timerSeconds<=30);
 }
 
-// ── CF ──
 function addCF() {
   const name=document.getElementById('cfNameInput').value.trim();
   if (!name){showToast('กรุณากรอกชื่อลูกค้าค่ะ');return;}
   const p=getProduct(currentCode);
   cfList.push({id:Date.now(),name,code:currentCode||'—',productName:p?p.name:'—',price:p?p.price:'—',time:new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'})});
   document.getElementById('cfNameInput').value='';
-  renderCF();
-  showToast(`CF ${name} แล้วค่ะ`);
+  renderCF(); showToast(`CF ${name} แล้วค่ะ`);
   document.getElementById('cfNameInput').focus();
 }
 
 function removeCF(id){cfList=cfList.filter(c=>c.id!==id);renderCF();}
-
 function clearCF(){if(!cfList.length)return;cfList=[];renderCF();showToast('ล้างรายการ CF แล้วค่ะ');}
 
 function renderCF(){
@@ -994,7 +868,6 @@ function renderCF(){
   sum.textContent=`รวม ${cfList.length} CF`;
 }
 
-// ── LOAD STOCK ──
 function loadStock(input) {
   const files=input.files; if(!files||!files.length) return;
   let allProducts={},total=0,done=0;
@@ -1015,14 +888,13 @@ function loadStock(input) {
         products=allProducts;
         document.getElementById('stockInfo').textContent=`${total} รายการ (${files.length} ไฟล์)`;
         showToast(`โหลดสำเร็จ ${total} รายการค่ะ`);
-        if(db&&fbConnected) db.ref('chiccoco/products').set(products);
+        if(db&&fbConnected) db.ref(shopPath + '/products').set(products);
       }
     };
     r.readAsArrayBuffer(file);
   });
 }
 
-// ── PARSERS ──
 function parseCustom(rows){
   const hdr=rows[0].map(x=>String(x||'').trim()),map={},order=[];
   const mCols=['อก','ยาว','วงแขน','บ่า','เอว','สะโพก','เป้า','คัฟอก'];
@@ -1091,57 +963,37 @@ function parseVRich(rows){
   });
 }
 
-// ── UI HELPERS ──
 function setStatus(type,msg){document.getElementById('statusDot').className='status-dot '+type;document.getElementById('statusTxt').textContent=msg;}
 let toastTimer;
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastTimer);const dur=msg.includes('V Rich')?5000:2500;toastTimer=setTimeout(()=>t.classList.remove('show'),dur);}
 
-
-// ── MANUAL PRODUCT ──
 const MANUAL_COLS = {
-  shirt:  ['อก','ยาว','วงแขน','บ่า'],
-  pants:  ['เอว','สะโพก','เป้า','ยาว'],
-  dress:  ['อก','เอว','สะโพก','ยาว'],
-  set:    ['อก','เอว','สะโพก','เป้า'],
-  bra:    ['อก','ยาว','วงแขน'],
-  misc:   []
+  shirt:['อก','ยาว','วงแขน','บ่า'], pants:['เอว','สะโพก','เป้า','ยาว'],
+  dress:['อก','เอว','สะโพก','ยาว'], set:['อก','เอว','สะโพก','เป้า'],
+  bra:['อก','ยาว','วงแขน'], misc:[]
 };
 let manualSizeRows = 1;
 
 function openManualModal() {
   manualSizeRows = 1;
-  document.getElementById('mn-code').value = '';
-  document.getElementById('mn-price').value = '';
-  document.getElementById('mn-name').value = '';
-  document.getElementById('mn-color').value = '';
-  document.getElementById('mn-material').value = '';
+  ['mn-code','mn-price','mn-name','mn-color','mn-material'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('mn-type').value = 'misc';
   renderManualSizes();
   document.getElementById('manualModal').classList.add('open');
   setTimeout(() => document.getElementById('mn-code').focus(), 300);
 }
 
-function closeManualModal() {
-  document.getElementById('manualModal').classList.remove('open');
-}
+function closeManualModal() { document.getElementById('manualModal').classList.remove('open'); }
 
 function renderManualSizes() {
   const type = document.getElementById('mn-type').value;
   const sec = document.getElementById('mn-size-section');
-
   if (type === 'misc') {
-    sec.innerHTML = `
-      <div class="edit-field">
-        <div class="edit-label">ขนาดสินค้า / ไซส์</div>
-        <input class="edit-input" id="mn-size" placeholder="เช่น 24x11x24 cm หรือ ฟรีไซส์">
-      </div>`;
+    sec.innerHTML = `<div class="edit-field"><div class="edit-label">ขนาดสินค้า / ไซส์</div>
+      <input class="edit-input" id="mn-size" placeholder="เช่น 24x11x24 cm หรือ ฟรีไซส์"></div>`;
     return;
   }
-
-  // clothing — sub-type selector + size rows
   sec.innerHTML = `
-    <div class="edit-field">
-      <div class="edit-label">ประเภทเสื้อผ้า</div>
     <div class="edit-field">
       <div class="edit-label">ประเภทเสื้อผ้า</div>
       <div id="mn-subtype-dropdown" style="position:relative;">
@@ -1154,29 +1006,18 @@ function renderManualSizes() {
         </div>
         <div id="mn-subtype-list" style="display:none;position:absolute;left:0;right:0;top:calc(100% + 4px);background:white;border:1.5px solid #e0e0e0;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,.12);z-index:300;overflow:hidden;">
           <div class="subtype-option" onclick="selectSubtype('shirt','เสื้อ','อก / ยาว / วงแขน / บ่า')" style="padding:12px 16px;border-bottom:1px solid #f0f0f0;cursor:pointer;">
-            <div style="font-family:'Kanit',sans-serif;font-size:14px;font-weight:700;color:#2c2c2c;">เสื้อ</div>
-            <div style="font-size:11px;color:#aaa;margin-top:2px;">อก / ยาว / วงแขน / บ่า</div>
-          </div>
+            <div style="font-family:'Kanit',sans-serif;font-size:14px;font-weight:700;">เสื้อ</div><div style="font-size:11px;color:#aaa;">อก / ยาว / วงแขน / บ่า</div></div>
           <div class="subtype-option" onclick="selectSubtype('pants','กางเกง / กระโปรง / เลกกิ้ง / วอร์ม / กางเกงใน','เอว / สะโพก / เป้า / ยาว')" style="padding:12px 16px;border-bottom:1px solid #f0f0f0;cursor:pointer;">
-            <div style="font-family:'Kanit',sans-serif;font-size:14px;font-weight:700;color:#2c2c2c;">กางเกง / กระโปรง / เลกกิ้ง / วอร์ม / กางเกงใน</div>
-            <div style="font-size:11px;color:#aaa;margin-top:2px;">เอว / สะโพก / เป้า / ยาว</div>
-          </div>
+            <div style="font-family:'Kanit',sans-serif;font-size:14px;font-weight:700;">กางเกง / กระโปรง / เลกกิ้ง / วอร์ม / กางเกงใน</div><div style="font-size:11px;color:#aaa;">เอว / สะโพก / เป้า / ยาว</div></div>
           <div class="subtype-option" onclick="selectSubtype('dress','เดรส','อก / เอว / สะโพก / ยาว')" style="padding:12px 16px;border-bottom:1px solid #f0f0f0;cursor:pointer;">
-            <div style="font-family:'Kanit',sans-serif;font-size:14px;font-weight:700;color:#2c2c2c;">เดรส</div>
-            <div style="font-size:11px;color:#aaa;margin-top:2px;">อก / เอว / สะโพก / ยาว</div>
-          </div>
+            <div style="font-family:'Kanit',sans-serif;font-size:14px;font-weight:700;">เดรส</div><div style="font-size:11px;color:#aaa;">อก / เอว / สะโพก / ยาว</div></div>
           <div class="subtype-option" onclick="selectSubtype('set','ชุดเซท','อก / เอว / สะโพก / เป้า')" style="padding:12px 16px;border-bottom:1px solid #f0f0f0;cursor:pointer;">
-            <div style="font-family:'Kanit',sans-serif;font-size:14px;font-weight:700;color:#2c2c2c;">ชุดเซท</div>
-            <div style="font-size:11px;color:#aaa;margin-top:2px;">อก / เอว / สะโพก / เป้า</div>
-          </div>
+            <div style="font-family:'Kanit',sans-serif;font-size:14px;font-weight:700;">ชุดเซท</div><div style="font-size:11px;color:#aaa;">อก / เอว / สะโพก / เป้า</div></div>
           <div class="subtype-option" onclick="selectSubtype('bra','สปอร์ตบรา / บรา','อก / ยาว / วงแขน')" style="padding:12px 16px;cursor:pointer;">
-            <div style="font-family:'Kanit',sans-serif;font-size:14px;font-weight:700;color:#2c2c2c;">สปอร์ตบรา / บรา</div>
-            <div style="font-size:11px;color:#aaa;margin-top:2px;">อก / ยาว / วงแขน</div>
-          </div>
+            <div style="font-family:'Kanit',sans-serif;font-size:14px;font-weight:700;">สปอร์ตบรา / บรา</div><div style="font-size:11px;color:#aaa;">อก / ยาว / วงแขน</div></div>
         </div>
       </div>
       <input type="hidden" id="mn-subtype" value="shirt">
-    </div>
     </div>
     <div class="edit-field">
       <div class="edit-label">ตารางไซส์</div>
@@ -1202,13 +1043,6 @@ function selectSubtype(value, name, cols) {
   addManualSizeRow();
 }
 
-function renderSizeTable() {
-  const subtype = document.getElementById('mn-subtype')?.value || 'shirt';
-  manualSizeRows = 0;
-  document.getElementById('mn-size-rows').innerHTML = '';
-  addManualSizeRow();
-}
-
 function addManualSizeRow() {
   const subtype = document.getElementById('mn-subtype')?.value || 'shirt';
   const cols = MANUAL_COLS[subtype];
@@ -1229,17 +1063,14 @@ function addManualSizeRow() {
 }
 
 function saveManual() {
-  const code  = document.getElementById('mn-code').value.trim().toUpperCase();
+  const code = document.getElementById('mn-code').value.trim().toUpperCase();
   const price = document.getElementById('mn-price').value.trim();
-  const name  = document.getElementById('mn-name').value.trim();
+  const name = document.getElementById('mn-name').value.trim();
   const color = document.getElementById('mn-color').value.trim();
-  const mat   = document.getElementById('mn-material').value.trim();
-  const type  = document.getElementById('mn-type').value;
-
+  const mat = document.getElementById('mn-material').value.trim();
+  const type = document.getElementById('mn-type').value;
   if (!code || !price || !name) { showToast('กรุณากรอก รหัส ราคา และชื่อสินค้าค่ะ'); return; }
-
   let p = { code, price, name, color, material: mat };
-
   if (type === 'misc') {
     p.type = 'misc';
     p.size = document.getElementById('mn-size')?.value.trim() || '';
@@ -1260,14 +1091,10 @@ function saveManual() {
     p.sizes = sizes;
     p.activeCols = cols.filter(f => sizes.some(s => s[f]));
   }
-
-  // เพิ่มเข้า products โดยไม่ทับของเดิม
   products[code] = p;
   document.getElementById('stockInfo').textContent = `${Object.keys(products).length} รายการ`;
-
-  // บันทึกเฉพาะสินค้าใหม่ลง Firebase ไม่ต้อง push ทั้งหมด
   if (db && fbConnected) {
-    db.ref('chiccoco/products/' + code).set(p).then(() => {
+    db.ref(shopPath + '/products/' + code).set(p).then(() => {
       showToast(`✅ บันทึก ${code} แล้วค่ะ ยิงบาร์โค้ดเพื่อแสดง overlay ค่ะ`);
     });
   } else {
@@ -1277,11 +1104,10 @@ function saveManual() {
   document.getElementById('scanInput').focus();
 }
 
-
 function dlTemplate(type) {
   const templates = {
     clothing: { b64: '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', name: 'chiccoco-template-เสื้อผ้า.xlsx' },
-    misc:     { b64: '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', name: 'chiccoco-template-เบ็ดเตล็ด.xlsx' }
+    misc: { b64: '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', name: 'chiccoco-template-เบ็ดเตล็ด.xlsx' }
   };
   const t = templates[type];
   const bin = atob(t.b64);
@@ -1289,48 +1115,48 @@ function dlTemplate(type) {
   for (let i=0;i<bin.length;i++) bytes[i]=bin.charCodeAt(i);
   const blob = new Blob([bytes],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
   const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = t.name;
-  a.click();
+  a.href = URL.createObjectURL(blob); a.download = t.name; a.click();
   showToast('\ud83d\udce5 ดาวน์โหลด ' + t.name + ' แล้วค่ะ');
 }
 
 // ── INIT ──
-document.addEventListener('DOMContentLoaded',()=>{
-  // เช็ค session — ถ้าไม่ได้ login ให้ไปหน้า login
+document.addEventListener('DOMContentLoaded', () => {
+  // ✅ แก้ไข: เช็ค login แล้ว redirect ไป login.html ที่ถูกต้อง
   const uid = sessionStorage.getItem('uid');
   if (!uid) {
-    window.location.href = 'chiccoco-login.html';
+    window.location.href = 'login.html';
     return;
   }
 
-  // แสดงชื่อร้านใน header ถ้ามี
+  // ✅ แสดงชื่อร้านใน header
   const shopName = sessionStorage.getItem('shopName');
   if (shopName) {
-    document.querySelector('.app-sub').textContent = shopName.toUpperCase();
+    document.getElementById('appSub').textContent = shopName.toUpperCase();
   }
-  try{
-    const cfg=JSON.parse(localStorage.getItem('chiccoco_fb'));
-    if(cfg){
-      document.getElementById('cfg-apiKey').value=cfg.apiKey;
-      document.getElementById('cfg-projectId').value=cfg.projectId;
-      document.getElementById('cfg-dbUrl').value=cfg.dbUrl;
-      initFirebase(cfg.apiKey,cfg.projectId,cfg.dbUrl);
+
+  try {
+    const cfg = JSON.parse(localStorage.getItem('chiccoco_fb'));
+    if (cfg) {
+      document.getElementById('cfg-apiKey').value = cfg.apiKey;
+      document.getElementById('cfg-projectId').value = cfg.projectId;
+      document.getElementById('cfg-dbUrl').value = cfg.dbUrl;
+      initFirebase(cfg.apiKey, cfg.projectId, cfg.dbUrl);
     }
-  }catch(e){}
+  } catch(e) {}
+
   document.getElementById('scanInput').focus();
   updateTimerDisplay();
   renderCF();
-  // ปิด modal เมื่อกดพื้นหลัง
-  document.getElementById('editModal').addEventListener('click',function(e){if(e.target===this)closeEditModal();});
-  document.getElementById('editModal').addEventListener('keydown', function(e){
+
+  document.getElementById('editModal').addEventListener('click', function(e) { if(e.target===this) closeEditModal(); });
+  document.getElementById('editModal').addEventListener('keydown', function(e) {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); saveEdit(); }
     if (e.key === 'Escape') closeEditModal();
   });
-  document.getElementById('manualModal').addEventListener('click',function(e){if(e.target===this)closeManualModal();});
-  document.getElementById('manualModal').addEventListener('keydown',function(e){if(e.key==='Escape')closeManualModal();});
-  // ปิด subtype dropdown เมื่อกดนอก
-  document.addEventListener('click', function(e){
+  document.getElementById('manualModal').addEventListener('click', function(e) { if(e.target===this) closeManualModal(); });
+  document.getElementById('manualModal').addEventListener('keydown', function(e) { if(e.key==='Escape') closeManualModal(); });
+
+  document.addEventListener('click', function(e) {
     const dd = document.getElementById('mn-subtype-dropdown');
     if (dd && !dd.contains(e.target)) {
       const list = document.getElementById('mn-subtype-list');
