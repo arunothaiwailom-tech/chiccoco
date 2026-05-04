@@ -204,7 +204,7 @@ body { font-family:'Sarabun',sans-serif; background:#f0ede8; min-height:100vh; p
   </div>
 </div>
 
-<div class="config-section" id="configSection">
+<div class="config-section" id="configSection" style="display:none;">
   <div class="config-lbl">⚙️ ตั้งค่า Firebase (ทำครั้งเดียว)</div>
   <input class="config-input" id="cfg-apiKey" placeholder="apiKey">
   <input class="config-input" id="cfg-projectId" placeholder="projectId">
@@ -1145,15 +1145,11 @@ document.addEventListener('DOMContentLoaded', () => {
     shopDisplayName = shopName.toUpperCase();
   }
 
-  try {
-    const cfg = JSON.parse(localStorage.getItem('chiccoco_fb'));
-    if (cfg) {
-      document.getElementById('cfg-apiKey').value = cfg.apiKey;
-      document.getElementById('cfg-projectId').value = cfg.projectId;
-      document.getElementById('cfg-dbUrl').value = cfg.dbUrl;
-      initFirebase(cfg.apiKey, cfg.projectId, cfg.dbUrl);
-    }
-  } catch(e) {}
+  // ✅ Hardcode config — auto-connect ทุกครั้ง ไม่ต้องกรอกเอง
+  const FB_API_KEY    = 'AIzaSyBwIlvqugbNYNbFd44DtgKSZWsQrXNnSuI';
+  const FB_PROJECT_ID = 'chiccoco-live';
+  const FB_DB_URL     = 'https://chiccoco-live-default-rtdb.asia-southeast1.firebasedatabase.app';
+  initFirebase(FB_API_KEY, FB_PROJECT_ID, FB_DB_URL);
 
   document.getElementById('scanInput').focus();
   updateTimerDisplay();
