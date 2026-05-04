@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>chiccoco — Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&family=Kanit:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+* { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:'Sarabun',sans-serif; background:#f0ede8; min-height:100vh; padding:16px 14px 80px; color:#111; }
+
+.header { display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; }
+.header h1 { font-family:'Kanit',sans-serif; font-size:20px; font-weight:800; letter-spacing:4px; }
+.header p { font-size:10px; color:#aaa; letter-spacing:2px; }
+.btn-logout { padding:6px 14px; background:#fee; color:#c0392b; border:1.5px solid #f5b8b8; border-radius:8px; font-family:'Kanit',sans-serif; font-size:11px; font-weight:700; cursor:pointer; }
+
+/* Stats */
+.stats { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:16px; }
+.stat-card { background:white; border-radius:14px; padding:14px; text-align:center; box-shadow:0 1px 6px rgba(0,0,0,.06); }
+.stat-num { font-family:'Kanit',sans-serif; font-size:28px; font-weight:800; color:#5c7a6b; }
+.stat-num.red { color:#e63946; }
+.stat-num.yellow { color:#f5c842; }
+.stat-label { font-size:10px; color:#aaa; font-family:'Kanit',sans-serif; margin-top:2px; }
+
+/* Search */
+.search-box { background:white; border-radius:14px; padding:12px 16px; margin-bottom:12px; box-shadow:0 1px 6px rgba(0,0,0,.06); display:flex; gap:8px; }
+.search-input { flex:1; border:1.5px solid #e0e0e0; border-radius:8px; padding:8px 12px; font-size:14px; outline:none; font-family:'Sarabun',sans-serif; }
+.search-input:focus { border-color:#5c7a6b; }
+
+/* User cards */
+.user-card { background:white; border-radius:16px; padding:16px; margin-bottom:10px; box-shadow:0 1px 6px rgba(0,0,0,.06); border-left:4px solid #e0e0e0; }
+.user-card.active { border-left-color:#5c7a6b; }
+.user-card.expired { border-left-color:#e63946; }
+.user-card.warning { border-left-color:#f5c842; }
+.user-card.suspended { border-left-color:#aaa; }
+
+.user-top { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:10px; }
+.user-name { font-family:'Kanit',sans-serif; font-size:16px; font-weight:700; color:#2c2c2c; }
+.user-email { font-size:11px; color:#aaa; margin-top:2px; }
+.status-badge { padding:3px 10px; border-radius:20px; font-family:'Kanit',sans-serif; font-size:11px; font-weight:700; flex-shrink:0; }
+.badge-active { background:#eaf5ee; color:#5c7a6b; }
+.badge-expired { background:#fee; color:#e63946; }
+.badge-warning { background:#fff8e1; color:#b8860b; }
+.badge-suspended { background:#f5f5f5; color:#888; }
+
+.user-info { display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:12px; }
+.info-item { background:#f9f9f9; border-radius:8px; padding:8px 10px; }
+.info-label { font-size:10px; color:#aaa; font-family:'Kanit',sans-serif; }
+.info-value { font-size:13px; font-weight:700; color:#2c2c2c; margin-top:2px; }
+
+/* Actions */
+.user-actions { display:flex; gap:6px; flex-wrap:wrap; }
+.btn-action { padding:7px 12px; border:none; border-radius:8px; font-family:'Kanit',sans-serif; font-size:11px; font-weight:700; cursor:pointer; }
+.btn-renew { background:#5c7a6b; color:white; }
+.btn-suspend { background:#fee; color:#c0392b; }
+.btn-activate { background:#eaf5ee; color:#5c7a6b; }
+.btn-edit-date { background:#f0ece6; color:#8b6f3e; border:1.5px solid #c8a96e; }
+
+/* Modal */
+.modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:200; display:none; align-items:center; justify-content:center; padding:20px; }
+.modal-overlay.open { display:flex; }
+.modal-box { background:white; border-radius:20px; padding:24px; width:100%; max-width:360px; }
+.modal-title { font-family:'Kanit',sans-serif; font-size:16px; font-weight:700; margin-bottom:16px; }
+.modal-label { font-size:12px; color:#aaa; font-family:'Kanit',sans-serif; margin-bottom:6px; }
+.modal-input { width:100%; padding:10px 14px; border:1.5px solid #e0e0e0; border-radius:10px; font-size:15px; outline:none; margin-bottom:14px; }
+.modal-input:focus { border-color:#5c7a6b; }
+.modal-actions { display:flex; gap:8px; }
+.btn-confirm { flex:1; padding:12px; background:#5c7a6b; color:white; border:none; border-radius:10px; font-family:'Kanit',sans-serif; font-size:14px; font-weight:700; cursor:pointer; }
+.btn-cancel { flex:1; padding:12px; background:#f5f5f5; color:#888; border:none; border-radius:10px; font-family:'Kanit',sans-serif; font-size:14px; font-weight:700; cursor:pointer; }
+
+/* Add user */
+.btn-add { width:100%; padding:14px; background:#5c7a6b; color:white; border:none; border-radius:14px; font-family:'Kanit',sans-serif; font-size:15px; font-weight:700; cursor:pointer; margin-bottom:16px; }
+
+.toast { position:fixed; bottom:30px; left:50%; transform:translateX(-50%); background:#111; color:white; padding:10px 20px; border-radius:20px; font-size:13px; font-family:'Kanit',sans-serif; opacity:0; transition:opacity .3s; pointer-events:none; z-index:999; white-space:nowrap; }
+.toast.show { opacity:1; }
+
+.loading { text-align:center; padding:40px; color:#aaa; font-family:'Kanit',sans-serif; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>chiccoco</h1>
+    <p>ADMIN PANEL</p>
+  </div>
+  <button class="btn-logout" onclick="doLogout()">🚪 ออกจากระบบ</button>
+</div>
+
+<!-- Stats -->
+<div class="stats">
+  <div class="stat-card">
+    <div class="stat-num" id="countAll">—</div>
+    <div class="stat-label">ร้านทั้งหมด</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num" id="countActive">—</div>
+    <div class="stat-label">ใช้งานอยู่</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num red" id="countExpired">—</div>
+    <div class="stat-label">หมดอายุ</div>
+  </div>
+</div>
+
+<!-- Search -->
+<div class="search-box">
+  <input class="search-input" id="searchInput" placeholder="🔍 ค้นหาชื่อร้าน หรืออีเมล" oninput="filterUsers(this.value)">
+</div>
+
+<!-- User list -->
+<div id="userList"><div class="loading">⏳ กำลังโหลดข้อมูลค่ะ...</div></div>
+
+<!-- Edit date modal -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal-box">
+    <div class="modal-title" id="editModalTitle">✏️ แก้ไขวันหมดอายุ</div>
+    <div class="modal-label">วันหมดอายุใหม่</div>
+    <input type="date" class="modal-input" id="editDateInput">
+    <div class="modal-label">สถานะ</div>
+    <select class="modal-input" id="editStatusInput" style="font-family:'Sarabun',sans-serif;">
+      <option value="active">✅ active — ใช้งานได้</option>
+      <option value="expired">❌ expired — หมดอายุ</option>
+      <option value="suspended">🚫 suspended — ระงับ</option>
+    </select>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">ยกเลิก</button>
+      <button class="btn-confirm" onclick="saveEdit()">💾 บันทึก</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getFirestore, collection, getDocs, doc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const app = initializeApp({
+    apiKey: "AIzaSyBwIlvqugbNYNbFd44DtgKSZWsQrXNnSuI",
+    authDomain: "chiccoco-live.firebaseapp.com",
+    projectId: "chiccoco-live",
+    storageBucket: "chiccoco-live.firebasestorage.app",
+    messagingSenderId: "556795503566",
+    appId: "1:556795503566:web:3aeab9daa3ae0352ad819f"
+  });
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  let allUsers = [];
+  let editingUid = null;
+
+  function formatDate(d) {
+    if (!d) return '—';
+    const [y,m,dd] = d.split('-');
+    const months = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+    return `${parseInt(dd)} ${months[parseInt(m)-1]} ${parseInt(y)+543}`;
+  }
+
+  function addMonths(dateStr, n) {
+    if (!dateStr) return '';
+    const d = new Date(dateStr);
+    const today = new Date().toISOString().split('T')[0];
+    const base = dateStr < today ? today : dateStr;
+    const bd = new Date(base);
+    bd.setMonth(bd.getMonth() + n);
+    return bd.toISOString().split('T')[0];
+  }
+
+  function getStatusInfo(user) {
+    const today = new Date().toISOString().split('T')[0];
+    const expire = user.expireDate || '';
+    const status = user.status || 'active';
+    if (user.role === 'admin') return { label:'👑 admin', cls:'active', badgeCls:'badge-active' };
+    if (status === 'suspended') return { label:'🚫 ระงับ', cls:'suspended', badgeCls:'badge-suspended' };
+    if (status === 'expired' || expire < today) return { label:'❌ หมดอายุ', cls:'expired', badgeCls:'badge-expired' };
+    // warning ถ้าเหลือน้อยกว่า 7 วัน
+    const daysLeft = Math.ceil((new Date(expire) - new Date(today)) / 86400000);
+    if (daysLeft <= 7) return { label:`⚠️ เหลือ ${daysLeft} วัน`, cls:'warning', badgeCls:'badge-warning' };
+    return { label:`✅ ${daysLeft} วัน`, cls:'active', badgeCls:'badge-active' };
+  }
+
+  function renderUsers(users) {
+    const list = document.getElementById('userList');
+    if (!users.length) { list.innerHTML = '<div class="loading">ไม่พบข้อมูลค่ะ</div>'; return; }
+
+    list.innerHTML = users.map(u => {
+      const si = getStatusInfo(u);
+      return `
+      <div class="user-card ${si.cls}">
+        <div class="user-top">
+          <div>
+            <div class="user-name">${u.shopName || '—'}</div>
+            <div class="user-email">${u.email || '—'}</div>
+          </div>
+          <span class="status-badge ${si.badgeCls}">${si.label}</span>
+        </div>
+        <div class="user-info">
+          <div class="info-item">
+            <div class="info-label">Shop ID</div>
+            <div class="info-value">${u.shopId || '—'}</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">หมดอายุ</div>
+            <div class="info-value">${formatDate(u.expireDate)}</div>
+          </div>
+        </div>
+        ${u.role !== 'admin' ? `
+        <div class="user-actions">
+          <button class="btn-action btn-renew" onclick="renewUser('${u.uid}','${u.shopName}','${u.expireDate}')">+1 เดือน</button>
+          <button class="btn-action btn-edit-date" onclick="openEdit('${u.uid}','${u.shopName}','${u.expireDate}','${u.status||'active'}')">✏️ แก้ไข</button>
+          ${u.status === 'suspended'
+            ? `<button class="btn-action btn-activate" onclick="setStatus('${u.uid}','active','${u.shopName}')">✅ เปิดใช้</button>`
+            : `<button class="btn-action btn-suspend" onclick="setStatus('${u.uid}','suspended','${u.shopName}')">🚫 ระงับ</button>`
+          }
+        </div>` : '<div style="font-size:11px;color:#aaa;">👑 Admin account</div>'}
+      </div>`;
+    }).join('');
+  }
+
+  function updateStats(users) {
+    const today = new Date().toISOString().split('T')[0];
+    const nonAdmin = users.filter(u => u.role !== 'admin');
+    const active = nonAdmin.filter(u => u.status !== 'suspended' && u.status !== 'expired' && (u.expireDate||'') >= today);
+    const expired = nonAdmin.filter(u => u.status === 'expired' || (u.expireDate||'') < today);
+    document.getElementById('countAll').textContent = nonAdmin.length;
+    document.getElementById('countActive').textContent = active.length;
+    document.getElementById('countExpired').textContent = expired.length;
+  }
+
+  async function loadUsers() {
+    const snap = await getDocs(collection(db, 'users'));
+    allUsers = snap.docs.map(d => ({ uid: d.id, ...d.data() }));
+    allUsers.sort((a,b) => (a.shopId||'').localeCompare(b.shopId||''));
+    updateStats(allUsers);
+    renderUsers(allUsers);
+  }
+
+  window.filterUsers = function(q) {
+    if (!q) { renderUsers(allUsers); return; }
+    const lower = q.toLowerCase();
+    renderUsers(allUsers.filter(u =>
+      (u.shopName||'').toLowerCase().includes(lower) ||
+      (u.email||'').toLowerCase().includes(lower) ||
+      (u.shopId||'').toLowerCase().includes(lower)
+    ));
+  };
+
+  window.renewUser = async function(uid, shopName, currentExpire) {
+    const newExpire = addMonths(currentExpire, 1);
+    try {
+      await updateDoc(doc(db, 'users', uid), { expireDate: newExpire, status: 'active' });
+      showToast(`✅ ต่ออายุ ${shopName} ถึง ${formatDate(newExpire)} แล้วค่ะ`);
+      await loadUsers();
+    } catch(e) { showToast('❌ เกิดข้อผิดพลาดค่ะ'); }
+  };
+
+  window.setStatus = async function(uid, status, shopName) {
+    try {
+      await updateDoc(doc(db, 'users', uid), { status });
+      showToast(`✅ ${shopName}: ${status === 'suspended' ? 'ระงับแล้วค่ะ' : 'เปิดใช้งานแล้วค่ะ'}`);
+      await loadUsers();
+    } catch(e) { showToast('❌ เกิดข้อผิดพลาดค่ะ'); }
+  };
+
+  window.openEdit = function(uid, shopName, expireDate, status) {
+    editingUid = uid;
+    document.getElementById('editModalTitle').textContent = `✏️ ${shopName}`;
+    document.getElementById('editDateInput').value = expireDate || '';
+    document.getElementById('editStatusInput').value = status || 'active';
+    document.getElementById('editModal').classList.add('open');
+  };
+
+  window.closeModal = function() {
+    document.getElementById('editModal').classList.remove('open');
+    editingUid = null;
+  };
+
+  window.saveEdit = async function() {
+    if (!editingUid) return;
+    const newDate = document.getElementById('editDateInput').value;
+    const newStatus = document.getElementById('editStatusInput').value;
+    try {
+      await updateDoc(doc(db, 'users', editingUid), { expireDate: newDate, status: newStatus });
+      showToast('✅ บันทึกแล้วค่ะ');
+      closeModal();
+      await loadUsers();
+    } catch(e) { showToast('❌ เกิดข้อผิดพลาดค่ะ'); }
+  };
+
+  let toastTimer;
+  window.showToast = function(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+  };
+
+  window.doLogout = async function() {
+    sessionStorage.clear();
+    try { await signOut(auth); } catch(e) {}
+    window.location.href = 'login.html';
+  };
+
+  // Auth check
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) { window.location.href = 'login.html'; return; }
+    const snap = await getDoc(doc(db, 'users', user.uid));
+    if (!snap.exists() || snap.data().role !== 'admin') {
+      alert('คุณไม่มีสิทธิ์เข้าถึงหน้านี้ค่ะ');
+      window.location.href = 'chiccoco-remote.html';
+      return;
+    }
+    await loadUsers();
+  });
+
+  // Close modal on backdrop click
+  document.getElementById('editModal').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+  });
+</script>
+</body>
+</html>
