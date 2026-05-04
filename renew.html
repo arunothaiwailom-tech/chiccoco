@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>chiccoco — ต่ออายุสมาชิก</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&family=Kanit:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+* { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:'Sarabun',sans-serif; background:#f0ede8; min-height:100vh; display:flex; align-items:flex-start; justify-content:center; padding:20px; }
+.card { background:white; border-radius:24px; padding:28px 24px; width:100%; max-width:420px; box-shadow:0 4px 24px rgba(0,0,0,.10); margin:auto; }
+
+.logo { text-align:center; margin-bottom:20px; }
+.logo h1 { font-family:'Kanit',sans-serif; font-size:26px; font-weight:800; letter-spacing:6px; color:#2c2c2c; }
+.logo p { font-size:12px; color:#aaa; letter-spacing:2px; margin-top:4px; }
+
+.status-box { border-radius:14px; padding:16px; margin-bottom:20px; text-align:center; }
+.status-box.expired { background:#fee; border:1.5px solid #f5b8b8; }
+.status-box.warning { background:#fff8e1; border:1.5px solid #f5c842; }
+.status-icon { font-size:32px; margin-bottom:8px; }
+.status-title { font-family:'Kanit',sans-serif; font-size:16px; font-weight:700; color:#c0392b; }
+.status-title.warning { color:#b8860b; }
+.status-sub { font-size:13px; color:#888; margin-top:4px; }
+
+.shop-info { background:#f9f9f9; border-radius:12px; padding:14px 16px; margin-bottom:20px; }
+.shop-row { display:flex; justify-content:space-between; align-items:center; padding:6px 0; border-bottom:1px solid #eee; }
+.shop-row:last-child { border-bottom:none; }
+.shop-label { font-size:12px; color:#aaa; font-family:'Kanit',sans-serif; }
+.shop-value { font-size:14px; font-weight:700; color:#2c2c2c; font-family:'Kanit',sans-serif; }
+.shop-value.red { color:#e63946; }
+.shop-value.green { color:#5c7a6b; }
+
+.price-box { background:#5c7a6b; border-radius:16px; padding:18px; text-align:center; margin-bottom:20px; color:white; }
+.price-label { font-size:13px; opacity:.85; margin-bottom:6px; font-family:'Kanit',sans-serif; }
+.price-amount { font-family:'Kanit',sans-serif; font-size:48px; font-weight:800; line-height:1; }
+.price-unit { font-size:14px; opacity:.8; margin-top:4px; }
+
+.bank-box { border:1.5px solid #e0e0e0; border-radius:14px; padding:16px; margin-bottom:20px; }
+.bank-title { font-family:'Kanit',sans-serif; font-size:13px; font-weight:700; color:#5c7a6b; margin-bottom:12px; }
+.bank-row { display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid #f0f0f0; }
+.bank-row:last-child { border-bottom:none; }
+.bank-key { font-size:12px; color:#aaa; }
+.bank-val { font-size:15px; font-weight:700; color:#2c2c2c; font-family:'Kanit',sans-serif; }
+.copy-btn { padding:4px 10px; background:#f0ece6; border:none; border-radius:6px; font-size:11px; font-family:'Kanit',sans-serif; cursor:pointer; color:#5c7a6b; font-weight:700; }
+
+.steps { margin-bottom:20px; }
+.steps-title { font-family:'Kanit',sans-serif; font-size:13px; font-weight:700; color:#555; margin-bottom:10px; }
+.step { display:flex; gap:10px; align-items:flex-start; margin-bottom:10px; }
+.step-num { width:24px; height:24px; border-radius:50%; background:#5c7a6b; color:white; font-family:'Kanit',sans-serif; font-size:12px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px; }
+.step-text { font-size:13px; color:#555; line-height:1.5; }
+.step-text strong { color:#2c2c2c; }
+
+/* Upload section */
+.upload-section { border:2px dashed #c8a96e; border-radius:14px; padding:20px; text-align:center; margin-bottom:16px; cursor:pointer; transition:all .2s; background:#fffdf8; }
+.upload-section:hover { border-color:#5c7a6b; background:#f0f8f4; }
+.upload-section.has-file { border-color:#5c7a6b; border-style:solid; background:#f0f8f4; }
+.upload-icon { font-size:36px; margin-bottom:8px; }
+.upload-text { font-family:'Kanit',sans-serif; font-size:14px; font-weight:700; color:#8b6f3e; }
+.upload-sub { font-size:12px; color:#aaa; margin-top:4px; }
+.upload-preview { width:100%; max-height:200px; object-fit:contain; border-radius:10px; margin-top:12px; display:none; }
+input[type="file"] { display:none; }
+
+.btn-submit { width:100%; padding:14px; background:#5c7a6b; color:white; border:none; border-radius:12px; font-family:'Kanit',sans-serif; font-size:15px; font-weight:700; cursor:pointer; margin-bottom:12px; display:flex; align-items:center; justify-content:center; gap:8px; }
+.btn-submit:disabled { background:#ccc; cursor:not-allowed; }
+
+/* Success state */
+.success-box { display:none; background:#eaf5ee; border:1.5px solid #5c7a6b; border-radius:14px; padding:20px; text-align:center; margin-bottom:16px; }
+.success-icon { font-size:40px; margin-bottom:10px; }
+.success-title { font-family:'Kanit',sans-serif; font-size:16px; font-weight:700; color:#5c7a6b; }
+.success-sub { font-size:13px; color:#888; margin-top:6px; line-height:1.6; }
+
+.btn-back { width:100%; padding:12px; background:#f5f5f5; color:#888; border:none; border-radius:12px; font-family:'Kanit',sans-serif; font-size:13px; font-weight:700; cursor:pointer; }
+
+.progress-bar { width:100%; height:6px; background:#e0e0e0; border-radius:3px; margin-bottom:16px; display:none; }
+.progress-fill { height:100%; background:#5c7a6b; border-radius:3px; transition:width .3s; }
+
+.note { font-size:11px; color:#aaa; text-align:center; margin-top:16px; line-height:1.6; }
+.toast { position:fixed; bottom:30px; left:50%; transform:translateX(-50%); background:#111; color:white; padding:10px 20px; border-radius:20px; font-size:13px; font-family:'Kanit',sans-serif; opacity:0; transition:opacity .3s; pointer-events:none; white-space:nowrap; }
+.toast.show { opacity:1; }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">
+    <div style="font-size:32px;margin-bottom:6px;">🎀</div>
+    <h1>CHICCOCO</h1>
+    <p>ระบบจัดการ Live Display</p>
+  </div>
+
+  <div class="status-box expired" id="statusBox">
+    <div class="status-icon">⏰</div>
+    <div class="status-title" id="statusTitle">สมาชิกหมดอายุแล้ว</div>
+    <div class="status-sub" id="statusSub">กรุณาต่ออายุเพื่อใช้งานต่อค่ะ</div>
+  </div>
+
+  <div class="shop-info">
+    <div class="shop-row">
+      <span class="shop-label">ร้านค้า</span>
+      <span class="shop-value" id="infoShopName">—</span>
+    </div>
+    <div class="shop-row">
+      <span class="shop-label">อีเมล</span>
+      <span class="shop-value" id="infoEmail" style="font-size:12px;">—</span>
+    </div>
+    <div class="shop-row">
+      <span class="shop-label">วันหมดอายุ</span>
+      <span class="shop-value red" id="infoExpire">—</span>
+    </div>
+    <div class="shop-row">
+      <span class="shop-label">ต่ออายุถึง</span>
+      <span class="shop-value green" id="infoNewExpire">—</span>
+    </div>
+  </div>
+
+  <div class="price-box">
+    <div class="price-label">ค่าบริการรายเดือน</div>
+    <div class="price-amount">399</div>
+    <div class="price-unit">บาท / เดือน</div>
+  </div>
+
+  <div class="bank-box">
+    <div class="bank-title">🏦 โอนเงินมาที่</div>
+    <div class="bank-row">
+      <span class="bank-key">ธนาคาร</span>
+      <span class="bank-val">ออมสิน</span>
+    </div>
+    <div class="bank-row">
+      <span class="bank-key">เลขบัญชี</span>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span class="bank-val">020-3-83307-913</span>
+        <button class="copy-btn" onclick="copyText('020-3-83307-913','คัดลอกเลขบัญชีแล้วค่ะ')">คัดลอก</button>
+      </div>
+    </div>
+    <div class="bank-row">
+      <span class="bank-key">ชื่อบัญชี</span>
+      <span class="bank-val">อรุโณทัย วายลม</span>
+    </div>
+    <div class="bank-row">
+      <span class="bank-key">จำนวนเงิน</span>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span class="bank-val" style="color:#5c7a6b;">399 บาท</span>
+        <button class="copy-btn" onclick="copyText('399','คัดลอกจำนวนเงินแล้วค่ะ')">คัดลอก</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="steps">
+    <div class="steps-title">📋 ขั้นตอนต่ออายุ</div>
+    <div class="step"><div class="step-num">1</div><div class="step-text">โอนเงิน <strong>399 บาท</strong> ไปที่บัญชีออมสินข้างต้น</div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-text">ถ่ายสลิป แล้ว <strong>แนบสลิปด้านล่าง</strong> ได้เลยค่ะ</div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-text">ทีมงานจะอนุมัติภายใน <strong>1-2 ชั่วโมง</strong> ในเวลาทำการค่ะ</div></div>
+  </div>
+
+  <!-- Upload slip -->
+  <div id="uploadArea">
+    <input type="file" id="slipInput" accept="image/*" onchange="previewSlip(this)">
+    <div class="upload-section" id="uploadBox" onclick="document.getElementById('slipInput').click()">
+      <div class="upload-icon">📎</div>
+      <div class="upload-text">แนบสลิปโอนเงิน</div>
+      <div class="upload-sub">กดเพื่อเลือกรูปภาพค่ะ</div>
+      <img id="slipPreview" class="upload-preview">
+    </div>
+
+    <div class="progress-bar" id="progressBar">
+      <div class="progress-fill" id="progressFill" style="width:0%"></div>
+    </div>
+
+    <button class="btn-submit" id="submitBtn" onclick="submitSlip()" disabled>
+      📤 ส่งสลิปแจ้งชำระเงิน
+    </button>
+  </div>
+
+  <!-- Success -->
+  <div class="success-box" id="successBox">
+    <div class="success-icon">✅</div>
+    <div class="success-title">ส่งสลิปเรียบร้อยแล้วค่ะ!</div>
+    <div class="success-sub">ทีมงานจะตรวจสอบและอนุมัติ<br>ภายใน 1-2 ชั่วโมงในเวลาทำการค่ะ<br><br>ขอบคุณที่ใช้บริการ Chiccoco Live ค่ะ 🎀</div>
+  </div>
+
+  <button class="btn-back" onclick="doBack()">🔙 กลับหน้าหลัก</button>
+
+  <div class="note">
+    สอบถามเพิ่มเติม Line: <strong>@395vujby</strong><br>
+    เวลาทำการ จ-ศ 9:00-18:00 น.
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getFirestore, doc, getDoc, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+
+  const app = initializeApp({
+    apiKey: "AIzaSyBwIlvqugbNYNbFd44DtgKSZWsQrXNnSuI",
+    authDomain: "chiccoco-live.firebaseapp.com",
+    projectId: "chiccoco-live",
+    storageBucket: "chiccoco-live.appspot.com",
+    messagingSenderId: "556795503566",
+    appId: "1:556795503566:web:3aeab9daa3ae0352ad819f"
+  });
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+  const storage = getStorage(app);
+
+  let currentUser = null;
+  let userData = null;
+  let selectedFile = null;
+
+  function formatDate(d) {
+    if (!d) return '—';
+    const [y,m,dd] = d.split('-');
+    const months = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+    return `${parseInt(dd)} ${months[parseInt(m)-1]} ${parseInt(y)+543}`;
+  }
+
+  function calcNewExpire(exp) {
+    const today = new Date().toISOString().split('T')[0];
+    const base = (!exp || exp < today) ? today : exp;
+    const d = new Date(base);
+    d.setMonth(d.getMonth() + 1);
+    return d.toISOString().split('T')[0];
+  }
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      // fallback sessionStorage
+      const sn = sessionStorage.getItem('shopName');
+      const se = sessionStorage.getItem('expireDate');
+      if (sn) {
+        document.getElementById('infoShopName').textContent = sn;
+        document.getElementById('infoExpire').textContent = formatDate(se);
+        document.getElementById('infoNewExpire').textContent = formatDate(calcNewExpire(se));
+      }
+      return;
+    }
+    currentUser = user;
+    const snap = await getDoc(doc(db, 'users', user.uid));
+    if (!snap.exists()) return;
+    userData = snap.data();
+
+    const expire = userData.expireDate || '';
+    const today = new Date().toISOString().split('T')[0];
+
+    document.getElementById('infoShopName').textContent = userData.shopName || '—';
+    document.getElementById('infoEmail').textContent = userData.email || user.email || '—';
+    document.getElementById('infoExpire').textContent = formatDate(expire);
+    document.getElementById('infoNewExpire').textContent = formatDate(calcNewExpire(expire));
+
+    // warning status
+    if (expire >= today) {
+      const box = document.getElementById('statusBox');
+      box.className = 'status-box warning';
+      document.getElementById('statusTitle').className = 'status-title warning';
+      document.getElementById('statusTitle').textContent = 'สมาชิกใกล้หมดอายุ';
+      document.getElementById('statusSub').textContent = `หมดอายุวันที่ ${formatDate(expire)}`;
+    }
+  });
+
+  window.previewSlip = function(input) {
+    const file = input.files[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      showToast('กรุณาเลือกไฟล์รูปภาพค่ะ'); return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      showToast('ไฟล์ใหญ่เกินไปค่ะ (สูงสุด 5MB)'); return;
+    }
+    selectedFile = file;
+    const reader = new FileReader();
+    reader.onload = e => {
+      const preview = document.getElementById('slipPreview');
+      preview.src = e.target.result;
+      preview.style.display = 'block';
+      document.getElementById('uploadBox').classList.add('has-file');
+      document.querySelector('.upload-text').textContent = '✅ เลือกรูปแล้วค่ะ';
+      document.querySelector('.upload-sub').textContent = file.name;
+      document.getElementById('submitBtn').disabled = false;
+    };
+    reader.readAsDataURL(file);
+  };
+
+  window.submitSlip = async function() {
+    if (!selectedFile) { showToast('กรุณาเลือกรูปสลิปก่อนค่ะ'); return; }
+    if (!currentUser) { showToast('กรุณา login ก่อนค่ะ'); return; }
+
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.innerHTML = '⏳ กำลังส่ง...';
+
+    const progressBar = document.getElementById('progressBar');
+    const progressFill = document.getElementById('progressFill');
+    progressBar.style.display = 'block';
+
+    try {
+      // Upload to Firebase Storage
+      const timestamp = Date.now();
+      const fileName = `slip_${timestamp}.${selectedFile.name.split('.').pop()}`;
+      const storageRef = ref(storage, `slips/${currentUser.uid}/${fileName}`);
+      const uploadTask = uploadBytesResumable(storageRef, selectedFile);
+
+      uploadTask.on('state_changed',
+        (snapshot) => {
+          const pct = Math.round(snapshot.bytesTransferred / snapshot.totalBytes * 100);
+          progressFill.style.width = pct + '%';
+        },
+        (error) => {
+          showToast('❌ อัปโหลดไม่สำเร็จค่ะ: ' + error.message);
+          btn.disabled = false;
+          btn.innerHTML = '📤 ส่งสลิปแจ้งชำระเงิน';
+          progressBar.style.display = 'none';
+        },
+        async () => {
+          const slipUrl = await getDownloadURL(uploadTask.snapshot.ref);
+
+          // บันทึก payment record ใน Firestore
+          await addDoc(collection(db, 'payments'), {
+            uid: currentUser.uid,
+            shopId: userData?.shopId || '',
+            shopName: userData?.shopName || '',
+            email: userData?.email || currentUser.email || '',
+            amount: 399,
+            currentExpire: userData?.expireDate || '',
+            newExpire: calcNewExpire(userData?.expireDate || ''),
+            slipUrl: slipUrl,
+            slipFileName: fileName,
+            status: 'pending',
+            submittedAt: serverTimestamp()
+          });
+
+          // แสดง success
+          document.getElementById('uploadArea').style.display = 'none';
+          document.getElementById('successBox').style.display = 'block';
+          progressBar.style.display = 'none';
+        }
+      );
+    } catch(e) {
+      showToast('❌ เกิดข้อผิดพลาดค่ะ: ' + e.message);
+      btn.disabled = false;
+      btn.innerHTML = '📤 ส่งสลิปแจ้งชำระเงิน';
+      progressBar.style.display = 'none';
+    }
+  };
+
+  window.doBack = async function() {
+    sessionStorage.clear();
+    try { await signOut(auth); } catch(e) {}
+    window.location.href = 'login.html';
+  };
+
+  let toastTimer;
+  window.showToast = function(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+  };
+
+  window.copyText = function(text, msg) {
+    navigator.clipboard.writeText(text).then(() => showToast('✅ ' + msg));
+  };
+</script>
+</body>
+</html>
