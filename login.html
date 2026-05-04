@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="th">
 <head>
   <meta charset="UTF-8" />
@@ -8,173 +9,176 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    :root {
-      --pink: #ff4d8d;
-      --pink-dark: #e0006b;
-      --bg: #0d0d0d;
-      --card: #1a1a1a;
-      --border: #2e2e2e;
-      --text: #f0f0f0;
-      --muted: #888;
-    }
+```
+:root {
+  --pink: #ff4d8d;
+  --pink-dark: #e0006b;
+  --bg: #0d0d0d;
+  --card: #1a1a1a;
+  --border: #2e2e2e;
+  --text: #f0f0f0;
+  --muted: #888;
+}
 
-    body {
-      font-family: 'Courier New', Courier, monospace;
-      letter-spacing: 0.5px;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-    }
+body {
+  font-family: 'Courier New', Courier, monospace;
+  letter-spacing: 0.5px;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
 
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background: radial-gradient(ellipse at 20% 50%, rgba(255,77,141,0.08) 0%, transparent 60%),
-                  radial-gradient(ellipse at 80% 20%, rgba(255,77,141,0.05) 0%, transparent 50%);
-      pointer-events: none;
-    }
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(ellipse at 20% 50%, rgba(255,77,141,0.08) 0%, transparent 60%),
+              radial-gradient(ellipse at 80% 20%, rgba(255,77,141,0.05) 0%, transparent 50%);
+  pointer-events: none;
+}
 
-    .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 48px 40px;
-      width: 100%;
-      max-width: 400px;
-      position: relative;
-      box-shadow: 0 0 60px rgba(255,77,141,0.08);
-      animation: fadeUp 0.5s ease both;
-    }
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 48px 40px;
+  width: 100%;
+  max-width: 400px;
+  position: relative;
+  box-shadow: 0 0 60px rgba(255,77,141,0.08);
+  animation: fadeUp 0.5s ease both;
+}
 
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(24px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
 
-    .logo {
-      text-align: center;
-      margin-bottom: 36px;
-    }
+.logo {
+  text-align: center;
+  margin-bottom: 36px;
+}
 
-    .logo-icon {
-      width: 56px;
-      height: 56px;
-      background: linear-gradient(135deg, var(--pink), var(--pink-dark));
-      border-radius: 16px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 28px;
-      margin-bottom: 12px;
-      box-shadow: 0 8px 24px rgba(255,77,141,0.3);
-    }
+.logo-icon {
+  width: 56px;
+  height: 56px;
+  background: linear-gradient(135deg, var(--pink), var(--pink-dark));
+  border-radius: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  margin-bottom: 12px;
+  box-shadow: 0 8px 24px rgba(255,77,141,0.3);
+}
 
-    .logo h1 {
-      font-family: 'Kanit', sans-serif;
-      font-size: 26px;
-      font-weight: 700;
-      letter-spacing: 2px;
-      background: linear-gradient(135deg, #fff 40%, var(--pink));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
+.logo h1 {
+  font-family: 'Kanit', sans-serif;
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  background: linear-gradient(135deg, #fff 40%, var(--pink));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
 
-    .logo p {
-      color: var(--muted);
-      font-size: 13px;
-      margin-top: 4px;
-    }
+.logo p {
+  color: var(--muted);
+  font-size: 13px;
+  margin-top: 4px;
+}
 
-    .form-group { margin-bottom: 20px; }
+.form-group { margin-bottom: 20px; }
 
-    label {
-      display: block;
-      font-size: 13px;
-      color: var(--muted);
-      margin-bottom: 8px;
-      font-family: 'Kanit', sans-serif;
-    }
+label {
+  display: block;
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 8px;
+  font-family: 'Kanit', sans-serif;
+}
 
-    input {
-      width: 100%;
-      background: #111;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 14px 16px;
-      color: var(--text);
-      font-family: 'Courier New', Courier, monospace;
-      letter-spacing: 0.5px;
-      font-size: 15px;
-      outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
+input {
+  width: 100%;
+  background: #111;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 16px;
+  color: var(--text);
+  font-family: 'Courier New', Courier, monospace;
+  letter-spacing: 0.5px;
+  font-size: 15px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
 
-    input:focus {
-      border-color: var(--pink);
-      box-shadow: 0 0 0 3px rgba(255,77,141,0.12);
-    }
+input:focus {
+  border-color: var(--pink);
+  box-shadow: 0 0 0 3px rgba(255,77,141,0.12);
+}
 
-    input::placeholder { color: #444; }
+input::placeholder { color: #444; }
 
-    .btn {
-      width: 100%;
-      padding: 15px;
-      background: linear-gradient(135deg, var(--pink), var(--pink-dark));
-      border: none;
-      border-radius: 10px;
-      color: #fff;
-      font-family: 'Kanit', sans-serif;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      margin-top: 8px;
-      transition: opacity 0.2s, transform 0.1s;
-      letter-spacing: 1px;
-      box-shadow: 0 4px 20px rgba(255,77,141,0.3);
-    }
+.btn {
+  width: 100%;
+  padding: 15px;
+  background: linear-gradient(135deg, var(--pink), var(--pink-dark));
+  border: none;
+  border-radius: 10px;
+  color: #fff;
+  font-family: 'Kanit', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: opacity 0.2s, transform 0.1s;
+  letter-spacing: 1px;
+  box-shadow: 0 4px 20px rgba(255,77,141,0.3);
+}
 
-    .btn:hover { opacity: 0.9; }
-    .btn:active { transform: scale(0.98); }
-    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn:hover { opacity: 0.9; }
+.btn:active { transform: scale(0.98); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-    .error-msg {
-      background: rgba(255,77,77,0.1);
-      border: 1px solid rgba(255,77,77,0.3);
-      border-radius: 8px;
-      padding: 12px 14px;
-      font-size: 13px;
-      color: #ff6b6b;
-      margin-top: 16px;
-      display: none;
-    }
+.error-msg {
+  background: rgba(255,77,77,0.1);
+  border: 1px solid rgba(255,77,77,0.3);
+  border-radius: 8px;
+  padding: 12px 14px;
+  font-size: 13px;
+  color: #ff6b6b;
+  margin-top: 16px;
+  display: none;
+}
 
-    .error-msg.show { display: block; }
+.error-msg.show { display: block; }
 
-    .loading {
-      display: inline-block;
-      width: 16px;
-      height: 16px;
-      border: 2px solid rgba(255,255,255,0.3);
-      border-top-color: #fff;
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
-      vertical-align: middle;
-      margin-right: 8px;
-    }
+.loading {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  vertical-align: middle;
+  margin-right: 8px;
+}
 
-    @keyframes spin { to { transform: rotate(360deg); } }
+@keyframes spin { to { transform: rotate(360deg); } }
 
-    .footer-text {
-      text-align: center;
-      color: var(--muted);
-      font-size: 12px;
-      margin-top: 28px;
-    }
+.footer-text {
+  text-align: center;
+  color: var(--muted);
+  font-size: 12px;
+  margin-top: 28px;
+}
+```
+
   </style>
 </head>
 <body>
@@ -183,7 +187,7 @@
   <div class="logo">
     <div class="logo-icon">🎀</div>
     <h1>CHICCOCO</h1>
-    <p>ระบบจัดการ Live Commerce</p>
+    <p>ระบบจัดการ Live Display</p>
   </div>
 
   <div class="form-group">
@@ -199,9 +203,34 @@
     </div>
   </div>
 
-  <button class="btn" id="loginBtn" onclick="handleLogin()">เข้าสู่ระบบ</button>
+<button class="btn" id="loginBtn" onclick="handleLogin()">เข้าสู่ระบบ</button>
 
   <div class="error-msg" id="errorMsg"></div>
+
+  <!-- ลืมรหัสผ่าน -->
+
+  <div style="text-align:center;margin-top:12px;">
+    <button type="button" onclick="showForgotPanel()" style="background:none;border:none;color:#8b6f3e;font-family:'Kanit',sans-serif;font-size:13px;cursor:pointer;text-decoration:underline;padding:4px;">
+      ลืมรหัสผ่าน?
+    </button>
+  </div>
+
+  <!-- Forgot Password Panel -->
+
+  <div id="forgotPanel" style="display:none;margin-top:16px;padding:16px;background:#fff8e1;border:1.5px solid #f5c842;border-radius:12px;">
+    <div style="font-family:'Kanit',sans-serif;font-size:13px;font-weight:700;color:#b8860b;margin-bottom:10px;">🔑 รีเซ็ตรหัสผ่าน</div>
+    <div style="font-size:12px;color:#888;margin-bottom:10px;">ระบบจะส่งลิงก์เปลี่ยนรหัสผ่านไปที่อีเมลของคุณค่ะ</div>
+    <input type="text" id="resetEmailInput" placeholder="กรอกอีเมลที่ลงทะเบียนไว้"
+      style="width:100%;padding:10px 14px;border:1.5px solid #e0d0a0;border-radius:8px;font-size:14px;margin-bottom:10px;font-family:'Sarabun',sans-serif;outline:none;"/>
+    <button onclick="sendResetEmail()"
+      style="width:100%;padding:10px;background:#f5c842;color:#333;border:none;border-radius:8px;font-family:'Kanit',sans-serif;font-size:13px;font-weight:700;cursor:pointer;">
+      📧 ส่งลิงก์รีเซ็ตรหัสผ่าน
+    </button>
+    <div id="resetMsg" style="margin-top:10px;font-size:13px;text-align:center;"></div>
+    <div style="text-align:center;margin-top:8px;">
+      <button type="button" onclick="hideForgotPanel()" style="background:none;border:none;color:#aaa;font-family:'Kanit',sans-serif;font-size:12px;cursor:pointer;">ยกเลิก</button>
+    </div>
+  </div>
 
   <div class="footer-text">Chiccoco Live © 2025</div>
 </div>
@@ -300,6 +329,58 @@
   document.addEventListener('keydown', e => {
     if (e.key === 'Enter') handleLogin();
   });
+
+// ── FORGOT PASSWORD ──
+function showForgotPanel() {
+  document.getElementById('forgotPanel').style.display = 'block';
+  // copy email จากช่อง login ถ้ามี
+  var email = document.getElementById('emailInput').value.trim();
+  if (email) document.getElementById('resetEmailInput').value = email;
+  document.getElementById('resetEmailInput').focus();
+}
+
+function hideForgotPanel() {
+  document.getElementById('forgotPanel').style.display = 'none';
+  document.getElementById('resetMsg').textContent = '';
+  document.getElementById('resetEmailInput').value = '';
+}
+
+function sendResetEmail() {
+  var email = document.getElementById('resetEmailInput').value.trim();
+  var msgEl = document.getElementById('resetMsg');
+  
+  if (!email) {
+    msgEl.style.color = '#e63946';
+    msgEl.textContent = 'กรุณากรอกอีเมลค่ะ';
+    return;
+  }
+  
+  var btn = event.target;
+  btn.disabled = true;
+  btn.textContent = '⏳ กำลังส่ง...';
+  msgEl.textContent = '';
+  
+  firebase.auth().sendPasswordResetEmail(email)
+    .then(function() {
+      msgEl.style.color = '#5c7a6b';
+      msgEl.textContent = '✅ ส่งลิงก์ไปที่ ' + email + ' แล้วค่ะ กรุณาเช็คอีเมล (รวมถึงกล่อง Spam)';
+      btn.textContent = '📧 ส่งแล้ว';
+    })
+    .catch(function(error) {
+      msgEl.style.color = '#e63946';
+      if (error.code === 'auth/user-not-found') {
+        msgEl.textContent = '❌ ไม่พบอีเมลนี้ในระบบค่ะ';
+      } else if (error.code === 'auth/invalid-email') {
+        msgEl.textContent = '❌ รูปแบบอีเมลไม่ถูกต้องค่ะ';
+      } else if (error.code === 'auth/too-many-requests') {
+        msgEl.textContent = '⚠️ ส่งบ่อยเกินไป กรุณารอสักครู่แล้วลองใหม่ค่ะ';
+      } else {
+        msgEl.textContent = '❌ เกิดข้อผิดพลาดค่ะ: ' + error.message;
+      }
+      btn.disabled = false;
+      btn.textContent = '📧 ส่งลิงก์รีเซ็ตรหัสผ่าน';
+    });
+}
 </script>
 
 </body>
