@@ -292,14 +292,43 @@
 
       const userData = userDoc.data();
 
+      // ✅ เช็ค status และ expireDate
+      const status = userData.status || 'active';
+      const expireDate = userData.expireDate || '2099-12-31';
+      const today = new Date().toISOString().split('T')[0];
+      const isAdmin = userData.role === 'admin';
+
+      if (!isAdmin) {
+        if (status === 'suspended') {
+          showError('บัญชีของคุณถูกระงับ กรุณาติดต่อ @395vujby ค่ะ');
+          btn.disabled = false; btn.innerHTML = 'เข้าสู่ระบบ';
+          return;
+        }
+        if (status === 'expired' || expireDate < today) {
+          // บันทึก session แล้วไปหน้าต่ออายุ
+          sessionStorage.setItem('uid', uid);
+          sessionStorage.setItem('role', userData.role);
+          sessionStorage.setItem('shopId', userData.shopId || '');
+          sessionStorage.setItem('shopName', userData.shopName || '');
+          sessionStorage.setItem('expireDate', expireDate);
+          window.location.href = 'renew.html';
+          return;
+        }
+      }
+
       // บันทึก session
       sessionStorage.setItem('uid', uid);
       sessionStorage.setItem('role', userData.role);
       sessionStorage.setItem('shopId', userData.shopId || '');
       sessionStorage.setItem('shopName', userData.shopName || '');
+      sessionStorage.setItem('expireDate', expireDate);
 
-      // ไปหน้าหลัก
-      window.location.href = 'chiccoco-remote.html';
+      // ไปหน้าหลัก — admin ไป admin.html, owner ไป remote
+      if (userData.role === 'admin') {
+        window.location.href = 'admin.html';
+      } else {
+        window.location.href = 'chiccoco-remote.html';
+      }
 
     } catch (err) {
       let msg = 'เกิดข้อผิดพลาด กรุณาลองใหม่';
