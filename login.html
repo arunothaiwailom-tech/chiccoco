@@ -183,7 +183,7 @@
   <div class="logo">
     <div class="logo-icon">🎀</div>
     <h1>CHICCOCO</h1>
-    <p>ระบบจัดการ Live Display</p>
+    <p>ระบบจัดการ Live. Display</p>
   </div>
 
   <div class="form-group">
@@ -230,12 +230,10 @@
 </div>
 
 <script type="module">
-  // --- Import Firebase (v10.12.0 Modular) ---
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
   import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-  // --- Configuration ---
   const firebaseConfig = {
     apiKey: "AIzaSyBwIlvqugbNYNbFd44DtgKSZWsQrXNnSuI",
     authDomain: "chiccoco-live.firebaseapp.com",
@@ -251,7 +249,6 @@
   const auth = getAuth(app);
   const db = getFirestore(app);
 
-  // --- Global Functions (Required for HTML onclick) ---
   window.togglePassword = function() {
     const input = document.getElementById('passwordInput');
     const btn = document.getElementById('togglePass');
@@ -295,7 +292,6 @@
 
       const userData = userDoc.data();
 
-      // ✅ เช็ค status และ expireDate
       const status = userData.status || 'active';
       const expireDate = userData.expireDate || '2099-12-31';
       const today = new Date().toISOString().split('T')[0];
@@ -307,8 +303,7 @@
           btn.disabled = false; btn.innerHTML = 'เข้าสู่ระบบ';
           return;
         }
-        if (status === 'expired' || (expireDate && expireDate < today)) {
-          // บันทึก session แล้วไปหน้าต่ออายุ
+        if (status === 'expired' || expireDate < today) {
           sessionStorage.setItem('uid', uid);
           sessionStorage.setItem('role', userData.role);
           sessionStorage.setItem('shopId', userData.shopId || '');
@@ -319,14 +314,12 @@
         }
       }
 
-      // บันทึก session
       sessionStorage.setItem('uid', uid);
       sessionStorage.setItem('role', userData.role);
       sessionStorage.setItem('shopId', userData.shopId || '');
       sessionStorage.setItem('shopName', userData.shopName || '');
       sessionStorage.setItem('expireDate', expireDate);
 
-      // ไปหน้าหลัก
       if (userData.role === 'admin') {
         window.location.href = 'admin.html';
       } else {
@@ -353,12 +346,11 @@
     el.classList.add('show');
   }
 
-  // Handle Enter Key
   document.addEventListener('keydown', e => {
     if (e.key === 'Enter') handleLogin();
   });
 
-  // --- FORGOT PASSWORD FUNCTIONS ---
+  // --- ซ่อมระบบลืมรหัสผ่าน ---
   window.showForgotPanel = function() {
     document.getElementById('forgotPanel').style.display = 'block';
     var email = document.getElementById('emailInput').value.trim();
@@ -390,19 +382,15 @@
     try {
       await sendPasswordResetEmail(auth, email);
       msgEl.style.color = '#5c7a6b';
-      msgEl.textContent = '✅ ส่งลิงก์ไปที่ ' + email + ' แล้วค่ะ กรุณาเช็คอีเมล (รวมถึงกล่อง Spam)';
+      msgEl.textContent = '✅ ส่งลิงก์ไปที่ ' + email + ' แล้วค่ะ กรุณาเช็คอีเมล';
       btn.textContent = '📧 ส่งแล้ว';
     } catch (error) {
       console.error(error);
       msgEl.style.color = '#e63946';
       if (error.code === 'auth/user-not-found') {
         msgEl.textContent = '❌ ไม่พบอีเมลนี้ในระบบค่ะ';
-      } else if (error.code === 'auth/invalid-email') {
-        msgEl.textContent = '❌ รูปแบบอีเมลไม่ถูกต้องค่ะ';
-      } else if (error.code === 'auth/too-many-requests') {
-        msgEl.textContent = '⚠️ ส่งบ่อยเกินไป กรุณารอสักครู่แล้วลองใหม่ค่ะ';
       } else {
-        msgEl.textContent = '❌ เกิดข้อผิดพลาดค่ะ: ' + error.message;
+        msgEl.textContent = '❌ เกิดข้อผิดพลาด: ' + error.message;
       }
       btn.disabled = false;
       btn.textContent = '📧 ส่งลิงก์รีเซ็ตรหัสผ่าน';
