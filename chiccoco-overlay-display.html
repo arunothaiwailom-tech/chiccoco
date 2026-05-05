@@ -9,40 +9,81 @@
 html { background:transparent !important; width:720px; }
 body { background:transparent !important; width:720px; overflow:visible; font-family:'Sarabun',sans-serif; margin:0; padding:0; }
 
+/* ── CSS VARIABLES & THEMES ── */
+:root {
+  --ov-bg:       #f0ece6;
+  --ov-accent:   #5c7a6b;
+  --ov-code:     #8b1a1a;
+  --ov-price-bg: #d9cfc4;
+  --ov-header:   #3d4f47;
+  --ov-text:     #2c2c2c;
+  --ov-white:    #ffffff;
+  --ov-muted:    #aaa8a0;
+  --ov-border:   #ede9e4;
+  --ov-row-odd:  #ffffff;
+  --ov-row-even: #f5f1eb;
+  --ov-footer:   #a09488;
+  --ov-brand:    #5c7a6b;
+}
+body.theme-pink {
+  --ov-bg:#fdf0f5; --ov-accent:#c0607a; --ov-code:#8b1a3a;
+  --ov-price-bg:#f7d6e0; --ov-header:#8b3a52; --ov-text:#2c2c2c;
+  --ov-muted:#d4a0b0; --ov-border:#f7d6e0; --ov-row-odd:#fff5f8;
+  --ov-row-even:#fce8ef; --ov-footer:#c0607a; --ov-brand:#c0607a;
+}
+body.theme-dark {
+  --ov-bg:#1e1e2e; --ov-accent:#a78bfa; --ov-code:#f472b6;
+  --ov-price-bg:#2d2d42; --ov-header:#12121e; --ov-text:#e2e8f0;
+  --ov-white:#2d2d42; --ov-muted:#6b7280; --ov-border:#374151;
+  --ov-row-odd:#252535; --ov-row-even:#1e1e2e; --ov-footer:#a78bfa; --ov-brand:#a78bfa;
+}
+body.theme-minimal {
+  --ov-bg:#ffffff; --ov-accent:#333333; --ov-code:#111111;
+  --ov-price-bg:#f0f0f0; --ov-header:#222222; --ov-text:#111111;
+  --ov-muted:#999999; --ov-border:#e5e5e5; --ov-row-odd:#ffffff;
+  --ov-row-even:#f9f9f9; --ov-footer:#999999; --ov-brand:#333333;
+}
+body.theme-gold {
+  --ov-bg:#fdf8ee; --ov-accent:#b8860b; --ov-code:#8b1a1a;
+  --ov-price-bg:#e8d5a3; --ov-header:#7a5c00; --ov-text:#2c2c2c;
+  --ov-muted:#c8a96e; --ov-border:#e8d5a3; --ov-row-odd:#fffdf5;
+  --ov-row-even:#fdf3d0; --ov-footer:#b8860b; --ov-brand:#b8860b;
+}
+
 .OV-timer { width:720px; background:linear-gradient(135deg,#8b1a1a,#c0392b); border-radius:24px; padding:18px 28px; display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:12px; box-shadow:0 4px 16px rgba(139,26,26,.3); opacity:0; transition:opacity .4s; }
 .OV-timer.visible { opacity:1; }
 .OV-timer-label { font-family:'Kanit',sans-serif; font-size:32px; font-weight:700; color:rgba(255,255,255,.9); flex:1; }
 .OV-timer-count { font-family:'Kanit',sans-serif; font-size:72px; font-weight:800; color:white; line-height:1; letter-spacing:2px; }
 .OV-timer-count.warning { color:#ffd700; }
 
-.OV { width:720px; background:#f0ece6; padding:32px 28px 28px; display:inline-flex; flex-direction:column; gap:16px; opacity:0; transition:opacity .4s; border-radius:32px; vertical-align:top; }
+.OV { width:720px; background:var(--ov-bg); padding:32px 28px 28px; display:inline-flex; flex-direction:column; gap:16px; opacity:0; transition:opacity .4s; border-radius:32px; vertical-align:top; }
 .OV.visible { opacity:1; }
 
-.OV-brand { text-align:center; font-family:'Kanit',sans-serif; font-size:40px; font-weight:700; letter-spacing:4px; color:#5c7a6b; text-transform:uppercase; }
+.OV-brand { text-align:center; font-family:'Kanit',sans-serif; font-size:40px; font-weight:700; letter-spacing:4px; color:var(--ov-brand); text-transform:uppercase; }
 .OV-toprow { display:flex; gap:14px; }
-.OV-box { background:white; border-radius:20px; padding:18px 22px; text-align:center; flex:1; box-shadow:0 2px 12px rgba(0,0,0,.07); }
-.OV-box-lbl { font-size:40px; font-weight:400; color:#aaa8a0; margin-bottom:10px; font-family:'Sarabun',sans-serif; }
+.OV-box { background:var(--ov-white); border-radius:20px; padding:18px 22px; text-align:center; flex:1; box-shadow:0 2px 12px rgba(0,0,0,.07); }
+.OV-box-lbl { font-size:40px; font-weight:400; color:var(--ov-muted); margin-bottom:10px; font-family:'Sarabun',sans-serif; }
 .OV-box-code { font-size:82px; font-weight:800; color:#8b1a1a; line-height:1; letter-spacing:1px; font-family:'Kanit',sans-serif; }
-.OV-box-sizes { font-size:72px; font-weight:800; color:#8b1a1a; line-height:1.1; font-family:'Kanit',sans-serif; }
-.OV-price { background:#d9cfc4; border-radius:20px; text-align:center; padding:18px 22px; box-shadow:0 2px 12px rgba(0,0,0,.07); }
-.OV-price-lbl { font-size:40px; font-weight:400; color:#a09488; font-family:'Sarabun',sans-serif; margin-bottom:6px; }
-.OV-price-num { font-size:82px; font-weight:800; color:#2c2c2c; line-height:1; font-family:'Kanit',sans-serif; }
+.OV-box-sizes { font-size:72px; font-weight:800; color:var(--ov-code); line-height:1.1; font-family:'Kanit',sans-serif; }
+.OV-price { background:var(--ov-price-bg); border-radius:20px; text-align:center; padding:18px 22px; box-shadow:0 2px 12px rgba(0,0,0,.07); }
+.OV-price-lbl { font-size:40px; font-weight:400; color:var(--ov-footer); font-family:'Sarabun',sans-serif; margin-bottom:6px; }
+.OV-price-num { font-size:82px; font-weight:800; color:var(--ov-text); line-height:1; font-family:'Kanit',sans-serif; }
 .OV-price-sale { display:flex; flex-direction:column; align-items:center; gap:4px; }
-.OV-price-original { font-size:40px; font-weight:700; color:#b0a498; text-decoration:line-through; line-height:1; font-family:'Kanit',sans-serif; }
-.OV-price-new { font-size:82px; font-weight:800; color:#8b1a1a; line-height:1; font-family:'Kanit',sans-serif; }
-.OV-name { font-size:42px; font-weight:700; color:#2c2c2c; text-align:center; line-height:1.4; font-family:'Sarabun',sans-serif; }
-.OV-inforow { display:flex; background:white; border-radius:20px; overflow:hidden; box-shadow:0 2px 12px rgba(0,0,0,.07); }
+.OV-price-original { font-size:40px; font-weight:700; color:var(--ov-muted); text-decoration:line-through; line-height:1; font-family:'Kanit',sans-serif; }
+.OV-price-new { font-size:82px; font-weight:800; color:var(--ov-code); line-height:1; font-family:'Kanit',sans-serif; }
+.OV-name { font-size:42px; font-weight:700; color:var(--ov-text); text-align:center; line-height:1.4; font-family:'Sarabun',sans-serif; }
+.OV-inforow { display:flex; background:var(--ov-white); border-radius:20px; overflow:hidden; box-shadow:0 2px 12px rgba(0,0,0,.07); }
 .OV-info { flex:1; padding:16px 20px; text-align:center; }
-.OV-info+.OV-info { border-left:1.5px solid #ede9e4; }
-.OV-info-lbl { font-size:25px; color:#aaa8a0; font-weight:400; font-family:'Sarabun',sans-serif; margin-bottom:8px; }
-.OV-info-val { font-size:50px; font-weight:700; color:#2c2c2c; line-height:1.3; font-family:'Sarabun',sans-serif; }
+.OV-info+.OV-info { border-left:1.5px solid var(--ov-border); }
+.OV-info-lbl { font-size:25px; color:var(--ov-muted); font-weight:400; font-family:'Sarabun',sans-serif; margin-bottom:8px; }
+.OV-info-val { font-size:50px; font-weight:700; color:var(--ov-text); line-height:1.3; font-family:'Sarabun',sans-serif; }
 .OV-table { width:100%; border-collapse:separate; border-spacing:0; border-radius:20px; overflow:hidden; box-shadow:0 2px 12px rgba(0,0,0,.07); table-layout:fixed; }
-.OV-table thead tr { background:#3d4f47; }
+.OV-table thead tr { background:var(--ov-header); }
 .OV-table thead th { color:white; padding:14px 4px; font-weight:700; text-align:center; font-family:'Sarabun',sans-serif; overflow:hidden; }
-.OV-table tbody tr:nth-child(odd)  { background:white; }
-.OV-table tbody tr:nth-child(even) { background:#f5f1eb; }
+.OV-table tbody tr:nth-child(odd)  { background:var(--ov-white); }
+.OV-table tbody tr:nth-child(even) { background:var(--ov-row-even); }
 .OV-table tbody td { padding:10px 4px; text-align:center; font-weight:600; color:#2c2c2c; font-family:'Sarabun',sans-serif; overflow:hidden; white-space:nowrap; }
-.OV-footer { text-align:center; font-family:'Kanit',sans-serif; font-size:18px; font-weight:400; color:#a09488; letter-spacing:4px; padding-top:4px; }
+.OV-footer { text-align:center; font-family:'Kanit',sans-serif; font-size:18px; font-weight:400; color:var(--ov-footer); letter-spacing:4px; padding-top:4px; }
 </style>
 </head>
 <body>
@@ -137,7 +178,34 @@ function startDB(){
     _db.ref(_shopPath+'/state').on('value',   function(s){ var d=s.val(); if(d){_state=d; draw();} });
     _db.ref(_shopPath+'/timer').on('value',   function(s){ drawTimer(s.val()); });
     _db.ref(_shopPath+'/edits').on('value',   function(s){ _edits=s.val()||{}; draw(); });
+    // ✅ Listen theme จาก state
+    _db.ref(_shopPath+'/state').on('value', function(s){
+      var d=s.val();
+      if(d && d.theme !== undefined) applyTheme(d.theme, d.customColors);
+    });
   }catch(e){ console.error('Firebase error',e); }
+}
+
+function applyTheme(theme, customColors) {
+  document.body.className = document.body.className
+    .replace(/theme-\S+/g,'').trim();
+  // ล้าง custom CSS vars ก่อน
+  const root = document.documentElement;
+  ['--ov-bg','--ov-price-bg','--ov-header','--ov-code',
+   '--ov-accent','--ov-brand','--ov-text'].forEach(v => root.style.removeProperty(v));
+
+  if(theme === 'theme-custom' && customColors) {
+    // ใช้ custom colors โดยตรง
+    root.style.setProperty('--ov-bg',       customColors.bg     || '#f0ece6');
+    root.style.setProperty('--ov-price-bg', customColors.price  || '#d9cfc4');
+    root.style.setProperty('--ov-header',   customColors.header || '#3d4f47');
+    root.style.setProperty('--ov-code',     customColors.code   || '#8b1a1a');
+    root.style.setProperty('--ov-accent',   customColors.accent || '#5c7a6b');
+    root.style.setProperty('--ov-brand',    customColors.accent || '#5c7a6b');
+    root.style.setProperty('--ov-text',     customColors.text   || '#2c2c2c');
+  } else if(theme && theme !== 'theme-custom') {
+    document.body.classList.add(theme);
+  }
 }
 
 function getP(code){
