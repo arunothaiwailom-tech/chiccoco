@@ -216,7 +216,7 @@
     <div style="font-size:12px;color:#888;margin-bottom:10px;">ระบบจะส่งลิงก์เปลี่ยนรหัสผ่านไปที่อีเมลของคุณค่ะ</div>
     <input type="text" id="resetEmailInput" placeholder="กรอกอีเมลที่ลงทะเบียนไว้"
       style="width:100%;padding:10px 14px;border:1.5px solid #e0d0a0;border-radius:8px;font-size:14px;margin-bottom:10px;font-family:'Sarabun',sans-serif;outline:none;"/>
-    <button onclick="sendResetEmail()"
+    <button onclick="sendResetEmail(event)"
       style="width:100%;padding:10px;background:#f5c842;color:#333;border:none;border-radius:8px;font-family:'Kanit',sans-serif;font-size:13px;font-weight:700;cursor:pointer;">
       📧 ส่งลิงก์รีเซ็ตรหัสผ่าน
     </button>
@@ -230,10 +230,12 @@
 </div>
 
 <script type="module">
+  // --- Import Firebase (v10.12.0 Modular) ---
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
   import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
+  // --- Configuration ---
   const firebaseConfig = {
     apiKey: "AIzaSyBwIlvqugbNYNbFd44DtgKSZWsQrXNnSuI",
     authDomain: "chiccoco-live.firebaseapp.com",
@@ -249,6 +251,7 @@
   const auth = getAuth(app);
   const db = getFirestore(app);
 
+  // --- Global Functions (Required for HTML onclick) ---
   window.togglePassword = function() {
     const input = document.getElementById('passwordInput');
     const btn = document.getElementById('togglePass');
@@ -304,7 +307,7 @@
           btn.disabled = false; btn.innerHTML = 'เข้าสู่ระบบ';
           return;
         }
-        if (status === 'expired' || expireDate < today) {
+        if (status === 'expired' || (expireDate && expireDate < today)) {
           // บันทึก session แล้วไปหน้าต่ออายุ
           sessionStorage.setItem('uid', uid);
           sessionStorage.setItem('role', userData.role);
@@ -323,7 +326,7 @@
       sessionStorage.setItem('shopName', userData.shopName || '');
       sessionStorage.setItem('expireDate', expireDate);
 
-      // ไปหน้าหลัก — admin ไป admin.html, owner ไป remote
+      // ไปหน้าหลัก
       if (userData.role === 'admin') {
         window.location.href = 'admin.html';
       } else {
@@ -331,6 +334,7 @@
       }
 
     } catch (err) {
+      console.error(err);
       let msg = 'เกิดข้อผิดพลาด กรุณาลองใหม่';
       if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
         msg = 'อีเมลหรือรหัสผ่านไม่ถูกต้อง';
@@ -349,47 +353,47 @@
     el.classList.add('show');
   }
 
+  // Handle Enter Key
   document.addEventListener('keydown', e => {
     if (e.key === 'Enter') handleLogin();
   });
 
-// ── FORGOT PASSWORD ──
-function showForgotPanel() {
-  document.getElementById('forgotPanel').style.display = 'block';
-  // copy email จากช่อง login ถ้ามี
-  var email = document.getElementById('emailInput').value.trim();
-  if (email) document.getElementById('resetEmailInput').value = email;
-  document.getElementById('resetEmailInput').focus();
-}
+  // --- FORGOT PASSWORD FUNCTIONS ---
+  window.showForgotPanel = function() {
+    document.getElementById('forgotPanel').style.display = 'block';
+    var email = document.getElementById('emailInput').value.trim();
+    if (email) document.getElementById('resetEmailInput').value = email;
+    document.getElementById('resetEmailInput').focus();
+  };
 
-function hideForgotPanel() {
-  document.getElementById('forgotPanel').style.display = 'none';
-  document.getElementById('resetMsg').textContent = '';
-  document.getElementById('resetEmailInput').value = '';
-}
+  window.hideForgotPanel = function() {
+    document.getElementById('forgotPanel').style.display = 'none';
+    document.getElementById('resetMsg').textContent = '';
+    document.getElementById('resetEmailInput').value = '';
+  };
 
-function sendResetEmail() {
-  var email = document.getElementById('resetEmailInput').value.trim();
-  var msgEl = document.getElementById('resetMsg');
-  
-  if (!email) {
-    msgEl.style.color = '#e63946';
-    msgEl.textContent = 'กรุณากรอกอีเมลค่ะ';
-    return;
-  }
-  
-  var btn = event.target;
-  btn.disabled = true;
-  btn.textContent = '⏳ กำลังส่ง...';
-  msgEl.textContent = '';
-  
-  firebase.auth().sendPasswordResetEmail(email)
-    .then(function() {
+  window.sendResetEmail = async function(event) {
+    const email = document.getElementById('resetEmailInput').value.trim();
+    const msgEl = document.getElementById('resetMsg');
+    const btn = event.target;
+    
+    if (!email) {
+      msgEl.style.color = '#e63946';
+      msgEl.textContent = 'กรุณากรอกอีเมลค่ะ';
+      return;
+    }
+    
+    btn.disabled = true;
+    btn.textContent = '⏳ กำลังส่ง...';
+    msgEl.textContent = '';
+    
+    try {
+      await sendPasswordResetEmail(auth, email);
       msgEl.style.color = '#5c7a6b';
       msgEl.textContent = '✅ ส่งลิงก์ไปที่ ' + email + ' แล้วค่ะ กรุณาเช็คอีเมล (รวมถึงกล่อง Spam)';
       btn.textContent = '📧 ส่งแล้ว';
-    })
-    .catch(function(error) {
+    } catch (error) {
+      console.error(error);
       msgEl.style.color = '#e63946';
       if (error.code === 'auth/user-not-found') {
         msgEl.textContent = '❌ ไม่พบอีเมลนี้ในระบบค่ะ';
@@ -402,8 +406,8 @@ function sendResetEmail() {
       }
       btn.disabled = false;
       btn.textContent = '📧 ส่งลิงก์รีเซ็ตรหัสผ่าน';
-    });
-}
+    }
+  };
 </script>
 
 </body>
