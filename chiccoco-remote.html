@@ -144,6 +144,43 @@ body { font-family:'Sarabun',sans-serif; background:#f0ede8; min-height:100vh; p
 .expiry-banner.danger .expiry-banner-text { color:#c0392b; }
 .btn-renew-now { padding:7px 14px; background:#f5c842; color:#333; border:none; border-radius:8px; font-family:'Kanit',sans-serif; font-size:12px; font-weight:700; cursor:pointer; white-space:nowrap; flex-shrink:0; }
 .expiry-banner.danger .btn-renew-now { background:#c0392b; color:white; }
+
+/* ── THEMES ── */
+:root {
+  --ov-bg:      #f0ece6;
+  --ov-accent:  #5c7a6b;
+  --ov-code:    #8b1a1a;
+  --ov-price-bg:#d9cfc4;
+  --ov-header:  #3d4f47;
+  --ov-text:    #2c2c2c;
+}
+body.theme-pink    { --ov-bg:#fdf0f5; --ov-accent:#c0607a; --ov-code:#8b1a1a; --ov-price-bg:#f7d6e0; --ov-header:#8b3a52; --ov-text:#2c2c2c; }
+body.theme-dark    { --ov-bg:#1e1e2e; --ov-accent:#a78bfa; --ov-code:#f472b6; --ov-price-bg:#2d2d42; --ov-header:#1a1a2e; --ov-text:#e2e8f0; }
+body.theme-minimal { --ov-bg:#ffffff; --ov-accent:#555555; --ov-code:#333333; --ov-price-bg:#f0f0f0; --ov-header:#222222; --ov-text:#111111; }
+body.theme-gold    { --ov-bg:#fdf8ee; --ov-accent:#b8860b; --ov-code:#8b1a1a; --ov-price-bg:#e8d5a3; --ov-header:#7a5c00; --ov-text:#2c2c2c; }
+
+.theme-bar { background:white; border-radius:14px; padding:10px 14px; margin-bottom:12px; box-shadow:0 1px 6px rgba(0,0,0,.06); }
+.theme-bar-label { font-size:10px; font-weight:700; color:#aaa; letter-spacing:1px; text-transform:uppercase; margin-bottom:8px; font-family:'Kanit',sans-serif; }
+.theme-swatches { display:flex; gap:8px; flex-wrap:wrap; }
+.theme-swatch { width:36px; height:36px; border-radius:50%; cursor:pointer; border:3px solid transparent; transition:all .2s; position:relative; }
+.theme-swatch.active { border-color:#5c7a6b; transform:scale(1.15); }
+.theme-swatch::after { content:attr(data-name); position:absolute; bottom:-18px; left:50%; transform:translateX(-50%); font-size:9px; font-family:'Kanit',sans-serif; color:#aaa; white-space:nowrap; opacity:0; transition:opacity .2s; }
+.theme-swatch:hover::after { opacity:1; }
+
+/* ── CAMERA MODAL ── */
+.camera-modal { position:fixed; inset:0; background:rgba(0,0,0,.9); z-index:500; display:none; flex-direction:column; align-items:center; justify-content:center; }
+.camera-modal.open { display:flex; }
+.camera-video { width:100%; max-width:400px; border-radius:16px; overflow:hidden; position:relative; }
+.camera-video video { width:100%; display:block; }
+.camera-overlay-frame { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; }
+.camera-frame { width:200px; height:200px; border:3px solid #5c7a6b; border-radius:16px; box-shadow:0 0 0 9999px rgba(0,0,0,.5); }
+.camera-scan-line { position:absolute; width:180px; height:2px; background:linear-gradient(90deg,transparent,#5c7a6b,transparent); animation:scan 2s linear infinite; }
+@keyframes scan { 0%{top:calc(50% - 90px)} 100%{top:calc(50% + 90px)} }
+.camera-close { margin-top:20px; padding:12px 32px; background:#fee; color:#c0392b; border:none; border-radius:12px; font-family:'Kanit',sans-serif; font-size:14px; font-weight:700; cursor:pointer; }
+.camera-hint { color:rgba(255,255,255,.7); font-size:13px; margin-top:12px; font-family:'Kanit',sans-serif; text-align:center; }
+.btn-camera { padding:14px 16px; background:#3d4f47; color:white; border:none; border-radius:10px; font-family:'Kanit',sans-serif; font-size:18px; cursor:pointer; flex-shrink:0; }
+.btn-camera:active { background:#5c7a6b; }
+
 .toast { position:fixed; bottom:110px; left:50%; transform:translateX(-50%); background:#111; color:white; padding:10px 20px; border-radius:20px; font-size:13px; font-weight:600; font-family:'Kanit',sans-serif; opacity:0; transition:opacity .3s; pointer-events:none; z-index:999; white-space:nowrap; max-width:90vw; text-align:center; }
 .toast.show { opacity:1; }
 .bottom-nav { position:fixed; bottom:0; left:0; right:0; background:white; border-top:1px solid #eee; display:flex; padding:8px 0 env(safe-area-inset-bottom); box-shadow:0 -2px 12px rgba(0,0,0,.08); z-index:100; }
@@ -241,6 +278,86 @@ body { font-family:'Sarabun',sans-serif; background:#f0ede8; min-height:100vh; p
     <div style="font-size:11px;color:#aaa;margin-top:6px;">รองรับ Excel ทำเอง และ Excel ที่ Export มาจากโปรแกรม CF สินค้า หรือระบบดูด CF ไลฟ์สด</div>
     <div style="font-size:11px;color:#c0392b;margin-top:6px;background:#fee;border-radius:8px;padding:8px 10px;">⚠️ อัปโหลดเฉพาะสินค้าที่มีสต๊อกอยู่เท่านั้นนะคะ เพื่อป้องกัน overlay แสดงสินค้าผิดพลาด</div>
   </div>
+  <!-- 🎨 Theme Selector -->
+  <div class="sec" style="padding:14px 16px;">
+    <div class="sec-lbl">🎨 ธีม Overlay</div>
+    <div class="theme-swatches" style="margin-bottom:10px;">
+      <div class="theme-swatch active" data-theme="" data-name="Classic" style="background:linear-gradient(135deg,#f0ece6,#5c7a6b);" onclick="setTheme(this,'')"></div>
+      <div class="theme-swatch" data-theme="theme-pink" data-name="Pink" style="background:linear-gradient(135deg,#fdf0f5,#c0607a);" onclick="setTheme(this,'theme-pink')"></div>
+      <div class="theme-swatch" data-theme="theme-dark" data-name="Dark" style="background:linear-gradient(135deg,#1e1e2e,#a78bfa);" onclick="setTheme(this,'theme-dark')"></div>
+      <div class="theme-swatch" data-theme="theme-minimal" data-name="Minimal" style="background:linear-gradient(135deg,#fff,#555);" onclick="setTheme(this,'theme-minimal')"></div>
+      <div class="theme-swatch" data-theme="theme-gold" data-name="Gold" style="background:linear-gradient(135deg,#fdf8ee,#b8860b);" onclick="setTheme(this,'theme-gold')"></div>
+      <div class="theme-swatch" data-theme="theme-custom" data-name="Custom" 
+           style="background:conic-gradient(red,yellow,green,blue,red);border:2px dashed #aaa;" 
+           onclick="toggleCustomPanel(this)" title="กำหนดสีเอง"></div>
+    </div>
+
+    <!-- Custom Color Panel -->
+    <div id="customColorPanel" style="display:none;background:#f9f9f9;border-radius:12px;padding:14px;border:1.5px solid #e0e0e0;">
+      <div style="font-family:'Kanit',sans-serif;font-size:11px;font-weight:700;color:#888;margin-bottom:10px;letter-spacing:1px;">🖌️ กำหนดสีเอง</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div>
+          <div style="font-size:11px;color:#aaa;margin-bottom:4px;font-family:'Kanit',sans-serif;">พื้นหลัง</div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <input type="color" id="c-bg" value="#f0ece6" onchange="applyCustomTheme()" style="width:36px;height:36px;border:none;border-radius:8px;cursor:pointer;padding:2px;">
+            <span id="c-bg-hex" style="font-size:11px;color:#aaa;">#f0ece6</span>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:11px;color:#aaa;margin-bottom:4px;font-family:'Kanit',sans-serif;">แถบราคา</div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <input type="color" id="c-price" value="#d9cfc4" onchange="applyCustomTheme()" style="width:36px;height:36px;border:none;border-radius:8px;cursor:pointer;padding:2px;">
+            <span id="c-price-hex" style="font-size:11px;color:#aaa;">#d9cfc4</span>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:11px;color:#aaa;margin-bottom:4px;font-family:'Kanit',sans-serif;">หัวตาราง</div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <input type="color" id="c-header" value="#3d4f47" onchange="applyCustomTheme()" style="width:36px;height:36px;border:none;border-radius:8px;cursor:pointer;padding:2px;">
+            <span id="c-header-hex" style="font-size:11px;color:#aaa;">#3d4f47</span>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:11px;color:#aaa;margin-bottom:4px;font-family:'Kanit',sans-serif;">รหัสสินค้า/ไซส์</div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <input type="color" id="c-code" value="#8b1a1a" onchange="applyCustomTheme()" style="width:36px;height:36px;border:none;border-radius:8px;cursor:pointer;padding:2px;">
+            <span id="c-code-hex" style="font-size:11px;color:#aaa;">#8b1a1a</span>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:11px;color:#aaa;margin-bottom:4px;font-family:'Kanit',sans-serif;">ชื่อร้าน/accent</div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <input type="color" id="c-accent" value="#5c7a6b" onchange="applyCustomTheme()" style="width:36px;height:36px;border:none;border-radius:8px;cursor:pointer;padding:2px;">
+            <span id="c-accent-hex" style="font-size:11px;color:#aaa;">#5c7a6b</span>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:11px;color:#aaa;margin-bottom:4px;font-family:'Kanit',sans-serif;">ข้อความหลัก</div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <input type="color" id="c-text" value="#2c2c2c" onchange="applyCustomTheme()" style="width:36px;height:36px;border:none;border-radius:8px;cursor:pointer;padding:2px;">
+            <span id="c-text-hex" style="font-size:11px;color:#aaa;">#2c2c2c</span>
+          </div>
+        </div>
+      </div>
+      <button onclick="resetCustomTheme()" style="margin-top:10px;width:100%;padding:8px;background:#f0ece6;border:none;border-radius:8px;font-family:'Kanit',sans-serif;font-size:12px;font-weight:700;color:#888;cursor:pointer;">↺ รีเซ็ตเป็นค่าเริ่มต้น</button>
+    </div>
+
+    <!-- Layout toggle -->
+    <div style="margin-top:12px;border-top:1px solid #f0f0f0;padding-top:12px;">
+      <div class="sec-lbl" style="margin-bottom:8px;">📐 รูปแบบ Overlay</div>
+      <div style="display:flex;gap:8px;">
+        <button id="btnLayoutV" onclick="setLayout('vertical')"
+          style="flex:1;padding:10px;background:#5c7a6b;color:white;border:none;border-radius:10px;font-family:'Kanit',sans-serif;font-size:12px;font-weight:700;cursor:pointer;">
+          📱 แนวตั้ง
+        </button>
+        <button id="btnLayoutH" onclick="setLayout('horizontal')"
+          style="flex:1;padding:10px;background:#f0ece6;color:#5c7a6b;border:2px solid #5c7a6b;border-radius:10px;font-family:'Kanit',sans-serif;font-size:12px;font-weight:700;cursor:pointer;">
+          🖥️ แนวนอน
+        </button>
+      </div>
+    </div>
+  </div>
+
   <div class="sec current-card">
     <div class="sec-lbl">สินค้าที่แสดงอยู่ตอนนี้</div>
     <div class="current-code" id="curCode">—</div>
@@ -263,6 +380,7 @@ body { font-family:'Sarabun',sans-serif; background:#f0ede8; min-height:100vh; p
     <div class="sec-lbl">🔫 สแกนบาร์โค้ด / พิมพ์รหัส</div>
     <div class="scan-input-wrap">
       <input class="scan-input" id="scanInput" placeholder="B129" autocomplete="off" autocorrect="off" spellcheck="false" autocapitalize="off" onkeydown="if(event.key==='Enter')applyCode()">
+      <button class="btn-camera" onclick="openCamera()" title="สแกนด้วยกล้อง">📷</button>
       <button class="btn-scan" onclick="applyCode()">ยืนยัน</button>
     </div>
   </div>
@@ -380,6 +498,19 @@ body { font-family:'Sarabun',sans-serif; background:#f0ede8; min-height:100vh; p
   </div>
 </div>
 
+<!-- 📷 Camera Scanner Modal -->
+<div class="camera-modal" id="cameraModal">
+  <div class="camera-video">
+    <video id="cameraVideo" autoplay playsinline muted></video>
+    <div class="camera-overlay-frame">
+      <div class="camera-frame"></div>
+      <div class="camera-scan-line"></div>
+    </div>
+  </div>
+  <div class="camera-hint">วางบาร์โค้ดในกรอบสีเขียวค่ะ</div>
+  <button class="camera-close" onclick="closeCamera()">✕ ปิดกล้อง</button>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -462,6 +593,211 @@ async function toggleScreenOn() {
 }
 
 // ✅ re-acquire wakeLock อัตโนมัติเมื่อกลับมาที่หน้าต่าง
+// ── THEME ──
+function setTheme(el, theme) {
+  document.querySelectorAll('.theme-swatch').forEach(s => s.classList.remove('active'));
+  el.classList.add('active');
+  // ซ่อน custom panel ถ้าไม่ได้เลือก custom
+  if (theme !== 'theme-custom') {
+    document.getElementById('customColorPanel').style.display = 'none';
+    // ลบ custom CSS vars
+    document.documentElement.style.removeProperty('--ov-bg');
+    document.documentElement.style.removeProperty('--ov-accent');
+    document.documentElement.style.removeProperty('--ov-code');
+    document.documentElement.style.removeProperty('--ov-price-bg');
+    document.documentElement.style.removeProperty('--ov-header');
+    document.documentElement.style.removeProperty('--ov-text');
+  }
+  document.body.className = document.body.className
+    .replace(/theme-\S+/g, '').trim();
+  if (theme && theme !== 'theme-custom') document.body.classList.add(theme);
+  // บันทึกลง Firebase
+  if (db && fbConnected) {
+    db.ref(shopPath + '/state').once('value', snap => {
+      const d = snap.val() || {};
+      db.ref(shopPath + '/state').set({ ...d, theme: theme, ts: Date.now() });
+    });
+  }
+  showToast('🎨 เปลี่ยนธีมแล้วค่ะ');
+}
+
+function setLayout(layout) {
+  // อัปเดต UI ปุ่ม
+  const btnV = document.getElementById('btnLayoutV');
+  const btnH = document.getElementById('btnLayoutH');
+  if (layout === 'vertical') {
+    btnV.style.background = '#5c7a6b'; btnV.style.color = 'white'; btnV.style.border = 'none';
+    btnH.style.background = '#f0ece6'; btnH.style.color = '#5c7a6b'; btnH.style.border = '2px solid #5c7a6b';
+  } else {
+    btnH.style.background = '#5c7a6b'; btnH.style.color = 'white'; btnH.style.border = 'none';
+    btnV.style.background = '#f0ece6'; btnV.style.color = '#5c7a6b'; btnV.style.border = '2px solid #5c7a6b';
+  }
+  // บันทึกลง Firebase
+  if (db && fbConnected) {
+    db.ref(shopPath + '/state').once('value', snap => {
+      const d = snap.val() || {};
+      db.ref(shopPath + '/state').set({ ...d, layout, ts: Date.now() });
+    });
+  }
+  showToast(layout === 'vertical' ? '📱 เปลี่ยนเป็นแนวตั้งแล้วค่ะ' : '🖥️ เปลี่ยนเป็นแนวนอนแล้วค่ะ');
+}
+
+function toggleCustomPanel(el) {
+  const panel = document.getElementById('customColorPanel');
+  const isOpen = panel.style.display !== 'none';
+  if (isOpen) {
+    panel.style.display = 'none';
+    el.classList.remove('active');
+  } else {
+    document.querySelectorAll('.theme-swatch').forEach(s => s.classList.remove('active'));
+    el.classList.add('active');
+    panel.style.display = 'block';
+    // โหลดค่าสีปัจจุบันถ้ามี custom theme บันทึกไว้
+    if (db && fbConnected) {
+      db.ref(shopPath + '/state/customColors').once('value', snap => {
+        const cc = snap.val();
+        if (cc) {
+          if(cc.bg)     { document.getElementById('c-bg').value=cc.bg;         document.getElementById('c-bg-hex').textContent=cc.bg; }
+          if(cc.price)  { document.getElementById('c-price').value=cc.price;   document.getElementById('c-price-hex').textContent=cc.price; }
+          if(cc.header) { document.getElementById('c-header').value=cc.header; document.getElementById('c-header-hex').textContent=cc.header; }
+          if(cc.code)   { document.getElementById('c-code').value=cc.code;     document.getElementById('c-code-hex').textContent=cc.code; }
+          if(cc.accent) { document.getElementById('c-accent').value=cc.accent; document.getElementById('c-accent-hex').textContent=cc.accent; }
+          if(cc.text)   { document.getElementById('c-text').value=cc.text;     document.getElementById('c-text-hex').textContent=cc.text; }
+        }
+      });
+    }
+  }
+}
+
+function applyCustomTheme() {
+  const bg     = document.getElementById('c-bg').value;
+  const price  = document.getElementById('c-price').value;
+  const header = document.getElementById('c-header').value;
+  const code   = document.getElementById('c-code').value;
+  const accent = document.getElementById('c-accent').value;
+  const text   = document.getElementById('c-text').value;
+
+  // อัปเดต hex labels
+  document.getElementById('c-bg-hex').textContent     = bg;
+  document.getElementById('c-price-hex').textContent  = price;
+  document.getElementById('c-header-hex').textContent = header;
+  document.getElementById('c-code-hex').textContent   = code;
+  document.getElementById('c-accent-hex').textContent = accent;
+  document.getElementById('c-text-hex').textContent   = text;
+
+  // ใช้ CSS variables โดยตรง
+  const root = document.documentElement;
+  root.style.setProperty('--ov-bg',       bg);
+  root.style.setProperty('--ov-price-bg', price);
+  root.style.setProperty('--ov-header',   header);
+  root.style.setProperty('--ov-code',     code);
+  root.style.setProperty('--ov-accent',   accent);
+  root.style.setProperty('--ov-brand',    accent);
+  root.style.setProperty('--ov-text',     text);
+
+  // ลบ theme class
+  document.body.className = document.body.className.replace(/theme-\S+/g,'').trim();
+
+  // บันทึกลง Firebase
+  const customColors = { bg, price, header, code, accent, text };
+  if (db && fbConnected) {
+    db.ref(shopPath + '/state').once('value', snap => {
+      const d = snap.val() || {};
+      db.ref(shopPath + '/state').set({
+        ...d,
+        theme: 'theme-custom',
+        customColors,
+        ts: Date.now()
+      });
+    });
+  }
+}
+
+function resetCustomTheme() {
+  document.getElementById('c-bg').value     = '#f0ece6';
+  document.getElementById('c-price').value  = '#d9cfc4';
+  document.getElementById('c-header').value = '#3d4f47';
+  document.getElementById('c-code').value   = '#8b1a1a';
+  document.getElementById('c-accent').value = '#5c7a6b';
+  document.getElementById('c-text').value   = '#2c2c2c';
+  applyCustomTheme();
+  showToast('↺ รีเซ็ตแล้วค่ะ');
+}
+
+// ── CAMERA SCANNER ──
+let _cameraStream = null;
+let _scanInterval = null;
+
+async function openCamera() {
+  const modal = document.getElementById('cameraModal');
+  const video = document.getElementById('cameraVideo');
+  modal.classList.add('open');
+  try {
+    _cameraStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'environment', width:{ideal:1280}, height:{ideal:720} }
+    });
+    video.srcObject = _cameraStream;
+    await video.play();
+    // โหลด ZXing library แล้วเริ่มสแกน
+    if (!window.ZXing) {
+      const s = document.createElement('script');
+      s.src = 'https://unpkg.com/@zxing/library@0.19.1/umd/index.min.js';
+      s.onload = () => startScan(video);
+      document.head.appendChild(s);
+    } else {
+      startScan(video);
+    }
+  } catch(e) {
+    closeCamera();
+    if (e.name === 'NotAllowedError') {
+      showToast('❌ กรุณาอนุญาตให้ใช้กล้องค่ะ');
+    } else {
+      showToast('❌ ไม่สามารถเปิดกล้องได้ค่ะ');
+    }
+  }
+}
+
+function startScan(video) {
+  try {
+    const codeReader = new ZXing.BrowserMultiFormatReader();
+    codeReader.decodeFromVideoElement(video, (result, err) => {
+      if (result) {
+        const code = result.getText().trim().toUpperCase();
+        closeCamera();
+        document.getElementById('scanInput').value = code;
+        // หาสินค้า
+        const found = Object.keys(products).find(k => k.toLowerCase() === code.toLowerCase());
+        if (found) {
+          selectProduct(found);
+          document.getElementById('scanInput').value = '';
+          showToast('📷 สแกนได้ ' + found + ' ค่ะ');
+        } else {
+          showToast('❌ ไม่พบรหัส ' + code + ' ค่ะ');
+        }
+      }
+    });
+    window._zxingReader = codeReader;
+  } catch(e) {
+    showToast('❌ ไม่รองรับการสแกนในอุปกรณ์นี้ค่ะ');
+    closeCamera();
+  }
+}
+
+function closeCamera() {
+  const modal = document.getElementById('cameraModal');
+  modal.classList.remove('open');
+  if (window._zxingReader) {
+    try { window._zxingReader.reset(); } catch(e) {}
+    window._zxingReader = null;
+  }
+  if (_cameraStream) {
+    _cameraStream.getTracks().forEach(t => t.stop());
+    _cameraStream = null;
+  }
+  document.getElementById('scanInput').focus();
+}
+
+
 document.addEventListener('visibilitychange', async () => {
   if (document.visibilityState === 'visible' && wakeLock === null) {
     const btn = document.getElementById('btnScreenOn');
