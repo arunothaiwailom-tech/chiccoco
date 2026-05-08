@@ -1,184 +1,113 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Chiccoco – เข้าสู่ระบบ</title>
-  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600;700&family=Sarabun:wght@300;400&display=swap" rel="stylesheet"/>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chiccoco — เข้าสู่ระบบ</title>
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700;800&family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+* { box-sizing:border-box; margin:0; padding:0; }
+body {
+  font-family:'Sarabun',sans-serif;
+  background:linear-gradient(135deg, #1a0a0f 0%, #2d0f1e 50%, #1a0a0f 100%);
+  min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px;
+}
+.card {
+  background:rgba(30,15,20,0.95);
+  border:1px solid rgba(255,100,150,0.2);
+  border-radius:24px; padding:40px 32px;
+  width:100%; max-width:400px;
+  box-shadow:0 20px 60px rgba(0,0,0,0.5);
+}
+.logo { text-align:center; margin-bottom:32px; }
+.logo-icon { font-size:48px; margin-bottom:12px; }
+.logo h1 {
+  font-family:'Kanit',sans-serif; font-size:32px; font-weight:800;
+  background:linear-gradient(135deg, #ff6b9d, #c44f82);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  letter-spacing:4px;
+}
+.logo p { color:#888; font-size:13px; margin-top:4px; }
 
-    :root {
-      --pink: #ff4d8d;
-      --pink-dark: #e0006b;
-      --bg: #0d0d0d;
-      --card: #1a1a1a;
-      --border: #2e2e2e;
-      --text: #f0f0f0;
-      --muted: #888;
-    }
+.field { margin-bottom:20px; }
+.field label { display:block; font-size:13px; color:#ccc; margin-bottom:8px; font-family:'Kanit',sans-serif; }
+.field input {
+  width:100%; padding:14px 16px;
+  background:rgba(255,255,255,0.08); border:1.5px solid rgba(255,255,255,0.15);
+  border-radius:12px; color:white; font-size:15px; outline:none;
+  font-family:'Sarabun',sans-serif; transition:border-color .2s;
+}
+.field input:focus { border-color:#ff6b9d; }
+.field input::placeholder { color:#666; }
+.pass-wrap { position:relative; }
+.pass-wrap input { padding-right:50px; }
+.toggle-pass {
+  position:absolute; right:14px; top:50%; transform:translateY(-50%);
+  background:none; border:none; color:#888; cursor:pointer; font-size:18px;
+}
 
-    body {
-      font-family: 'Courier New', Courier, monospace;
-      letter-spacing: 0.5px;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-    }
+.btn-login {
+  width:100%; padding:15px;
+  background:linear-gradient(135deg, #ff6b9d, #c44f82);
+  color:white; border:none; border-radius:12px;
+  font-family:'Kanit',sans-serif; font-size:16px; font-weight:700;
+  cursor:pointer; margin-top:8px; transition:opacity .2s;
+  display:flex; align-items:center; justify-content:center; gap:8px;
+}
+.btn-login:disabled { opacity:0.6; cursor:not-allowed; }
 
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background: radial-gradient(ellipse at 20% 50%, rgba(255,77,141,0.08) 0%, transparent 60%),
-                  radial-gradient(ellipse at 80% 20%, rgba(255,77,141,0.05) 0%, transparent 50%);
-      pointer-events: none;
-    }
+.error-box {
+  margin-top:12px; padding:12px 16px;
+  background:rgba(220,50,50,0.15); border:1px solid rgba(220,50,50,0.3);
+  border-radius:10px; color:#ff8080; font-size:13px; text-align:center;
+  display:none;
+}
+.error-box.show { display:block; }
 
-    .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 48px 40px;
-      width: 100%;
-      max-width: 400px;
-      position: relative;
-      box-shadow: 0 0 60px rgba(255,77,141,0.08);
-      animation: fadeUp 0.5s ease both;
-    }
+.forgot-link {
+  display:block; text-align:center; margin-top:16px;
+  color:#c44f82; font-size:13px; cursor:pointer; text-decoration:underline;
+  background:none; border:none; width:100%; font-family:'Sarabun',sans-serif;
+}
 
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(24px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
+.forgot-panel {
+  display:none; margin-top:16px; padding:16px;
+  background:rgba(255,255,255,0.05); border:1px solid rgba(255,100,150,0.2);
+  border-radius:12px;
+}
+.forgot-panel .title { font-family:'Kanit',sans-serif; font-size:13px; color:#ff6b9d; margin-bottom:8px; font-weight:700; }
+.forgot-panel .hint { font-size:12px; color:#888; margin-bottom:10px; }
+.forgot-panel input {
+  width:100%; padding:10px 14px;
+  background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15);
+  border-radius:8px; color:white; font-size:14px; outline:none; margin-bottom:10px;
+  font-family:'Sarabun',sans-serif;
+}
+.forgot-panel input:focus { border-color:#ff6b9d; }
+.btn-reset {
+  width:100%; padding:10px;
+  background:rgba(255,107,157,0.2); color:#ff6b9d;
+  border:1px solid rgba(255,107,157,0.4); border-radius:8px;
+  font-family:'Kanit',sans-serif; font-size:13px; font-weight:700; cursor:pointer;
+}
+.btn-reset:disabled { opacity:0.5; }
+.reset-msg { font-size:12px; text-align:center; margin-top:8px; }
+.btn-cancel-forgot {
+  display:block; text-align:center; margin-top:8px;
+  color:#666; font-size:12px; cursor:pointer; background:none; border:none;
+  width:100%; font-family:'Sarabun',sans-serif;
+}
 
-    .logo {
-      text-align: center;
-      margin-bottom: 36px;
-    }
+.footer { text-align:center; margin-top:24px; color:#444; font-size:11px; }
 
-    .logo-icon {
-      width: 56px;
-      height: 56px;
-      background: linear-gradient(135deg, var(--pink), var(--pink-dark));
-      border-radius: 16px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 28px;
-      margin-bottom: 12px;
-      box-shadow: 0 8px 24px rgba(255,77,141,0.3);
-    }
-
-    .logo h1 {
-      font-family: 'Kanit', sans-serif;
-      font-size: 26px;
-      font-weight: 700;
-      letter-spacing: 2px;
-      background: linear-gradient(135deg, #fff 40%, var(--pink));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .logo p {
-      color: var(--muted);
-      font-size: 13px;
-      margin-top: 4px;
-    }
-
-    .form-group { margin-bottom: 20px; }
-
-    label {
-      display: block;
-      font-size: 13px;
-      color: var(--muted);
-      margin-bottom: 8px;
-      font-family: 'Kanit', sans-serif;
-    }
-
-    input {
-      width: 100%;
-      background: #111;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 14px 16px;
-      color: var(--text);
-      font-family: 'Courier New', Courier, monospace;
-      letter-spacing: 0.5px;
-      font-size: 15px;
-      outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
-
-    input:focus {
-      border-color: var(--pink);
-      box-shadow: 0 0 0 3px rgba(255,77,141,0.12);
-    }
-
-    input::placeholder { color: #444; }
-
-    .btn {
-      width: 100%;
-      padding: 15px;
-      background: linear-gradient(135deg, var(--pink), var(--pink-dark));
-      border: none;
-      border-radius: 10px;
-      color: #fff;
-      font-family: 'Kanit', sans-serif;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      margin-top: 8px;
-      transition: opacity 0.2s, transform 0.1s;
-      letter-spacing: 1px;
-      box-shadow: 0 4px 20px rgba(255,77,141,0.3);
-    }
-
-    .btn:hover { opacity: 0.9; }
-    .btn:active { transform: scale(0.98); }
-    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-
-    .error-msg {
-      background: rgba(255,77,77,0.1);
-      border: 1px solid rgba(255,77,77,0.3);
-      border-radius: 8px;
-      padding: 12px 14px;
-      font-size: 13px;
-      color: #ff6b6b;
-      margin-top: 16px;
-      display: none;
-    }
-
-    .error-msg.show { display: block; }
-
-    .loading {
-      display: inline-block;
-      width: 16px;
-      height: 16px;
-      border: 2px solid rgba(255,255,255,0.3);
-      border-top-color: #fff;
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
-      vertical-align: middle;
-      margin-right: 8px;
-    }
-
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    .footer-text {
-      text-align: center;
-      color: var(--muted);
-      font-size: 12px;
-      margin-top: 28px;
-    }
-  </style>
+@keyframes spin { to { transform:rotate(360deg); } }
+.spinner {
+  width:16px; height:16px; border:2px solid rgba(255,255,255,0.3);
+  border-top-color:white; border-radius:50%; animation:spin .6s linear infinite;
+}
+</style>
 </head>
 <body>
-
 <div class="card">
   <div class="logo">
     <div class="logo-icon">🎀</div>
@@ -186,224 +115,166 @@
     <p>ระบบจัดการ Live Display</p>
   </div>
 
-  <div class="form-group">
+  <div class="field">
     <label>อีเมล</label>
-    <input type="text" id="emailInput" placeholder="กรอกอีเมลของคุณ" autocomplete="email" inputmode="email"/>
+    <input type="email" id="emailInput" placeholder="example@email.com" autocomplete="email">
   </div>
 
-  <div class="form-group">
+  <div class="field">
     <label>รหัสผ่าน</label>
-    <div style="position:relative;">
-      <input type="password" id="passwordInput" placeholder="กรอกรหัสผ่าน" autocomplete="current-password" style="padding-right:48px;"/>
-      <button type="button" id="togglePass" onclick="togglePassword()" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:18px;color:#888;padding:4px;">👁</button>
+    <div class="pass-wrap">
+      <input type="password" id="passwordInput" placeholder="••••••••" autocomplete="current-password">
+      <button class="toggle-pass" type="button" id="togglePass" onclick="togglePassword()">👁</button>
     </div>
   </div>
 
-  <button class="btn" id="loginBtn" onclick="handleLogin()">เข้าสู่ระบบ</button>
+  <button class="btn-login" id="loginBtn" onclick="doLogin()">เข้าสู่ระบบ</button>
 
-  <div class="error-msg" id="errorMsg"></div>
+  <div class="error-box" id="errorBox"></div>
 
-  <!-- ลืมรหัสผ่าน -->
-  <div style="text-align:center;margin-top:12px;">
-    <button type="button" onclick="showForgotPanel()" style="background:none;border:none;color:#8b6f3e;font-family:'Kanit',sans-serif;font-size:13px;cursor:pointer;text-decoration:underline;padding:4px;">
-      ลืมรหัสผ่าน?
-    </button>
+  <button class="forgot-link" onclick="toggleForgot()">ลืมรหัสผ่าน?</button>
+
+  <div class="forgot-panel" id="forgotPanel">
+    <div class="title">🔑 รีเซ็ตรหัสผ่าน</div>
+    <div class="hint">ระบบจะส่งลิงก์เปลี่ยนรหัสผ่านไปที่อีเมลของคุณค่ะ</div>
+    <input type="email" id="resetEmail" placeholder="กรอกอีเมลที่ลงทะเบียนไว้">
+    <button class="btn-reset" id="resetBtn" onclick="doReset()">📧 ส่งลิงก์รีเซ็ตรหัสผ่าน</button>
+    <div class="reset-msg" id="resetMsg"></div>
+    <button class="btn-cancel-forgot" onclick="toggleForgot()">ยกเลิก</button>
   </div>
 
-  <!-- Forgot Password Panel -->
-  <div id="forgotPanel" style="display:none;margin-top:16px;padding:16px;background:#fff8e1;border:1.5px solid #f5c842;border-radius:12px;">
-    <div style="font-family:'Kanit',sans-serif;font-size:13px;font-weight:700;color:#b8860b;margin-bottom:10px;">🔑 รีเซ็ตรหัสผ่าน</div>
-    <div style="font-size:12px;color:#888;margin-bottom:10px;">ระบบจะส่งลิงก์เปลี่ยนรหัสผ่านไปที่อีเมลของคุณค่ะ</div>
-    <input type="text" id="resetEmailInput" placeholder="กรอกอีเมลที่ลงทะเบียนไว้"
-      style="width:100%;padding:10px 14px;border:1.5px solid #e0d0a0;border-radius:8px;font-size:14px;margin-bottom:10px;font-family:'Sarabun',sans-serif;outline:none;"/>
-    <button id="resetBtn" onclick="sendResetEmail()"
-      style="width:100%;padding:10px;background:#f5c842;color:#333;border:none;border-radius:8px;font-family:'Kanit',sans-serif;font-size:13px;font-weight:700;cursor:pointer;">
-      📧 ส่งลิงก์รีเซ็ตรหัสผ่าน
-    </button>
-    <div id="resetMsg" style="margin-top:10px;font-size:13px;text-align:center;"></div>
-    <div style="text-align:center;margin-top:8px;">
-      <button type="button" onclick="hideForgotPanel()" style="background:none;border:none;color:#aaa;font-family:'Kanit',sans-serif;font-size:12px;cursor:pointer;">ยกเลิก</button>
-    </div>
-  </div>
-
-  <div class="footer-text">Chiccoco Live © 2025</div>
+  <div class="footer">Chiccoco Live © 2025</div>
 </div>
 
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyBwIlvqugbNYNbFd44DtgKSZWsQrXNnSuI",
-    authDomain: "chiccoco-live.firebaseapp.com",
-    databaseURL: "https://chiccoco-live-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId: "chiccoco-live",
-    storageBucket: "chiccoco-live.appspot.com",
-    messagingSenderId: "556795503566",
-    appId: "1:556795503566:web:3aeab9daa3ae0352ad819f",
-    measurementId: "G-MH00WS86RG"
-  };
+const app = initializeApp({
+  apiKey: "AIzaSyBwIlvqugbNYNbFd44DtgKSZWsQrXNnSuI",
+  authDomain: "chiccoco-live.firebaseapp.com",
+  projectId: "chiccoco-live",
+  storageBucket: "chiccoco-live.appspot.com",
+  messagingSenderId: "556795503566",
+  appId: "1:556795503566:web:3aeab9daa3ae0352ad819f"
+});
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
+function showError(msg) {
+  const el = document.getElementById('errorBox');
+  el.textContent = msg;
+  el.classList.add('show');
+}
+function hideError() {
+  document.getElementById('errorBox').classList.remove('show');
+}
 
-  window.togglePassword = function() {
-    const input = document.getElementById('passwordInput');
-    const btn = document.getElementById('togglePass');
-    if (input.type === 'password') {
-      input.type = 'text';
-      btn.textContent = '🙈';
-    } else {
-      input.type = 'password';
-      btn.textContent = '👁';
-    }
-  };
+window.togglePassword = function() {
+  const inp = document.getElementById('passwordInput');
+  const btn = document.getElementById('togglePass');
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+  btn.textContent = inp.type === 'password' ? '👁' : '🙈';
+};
 
-  window.handleLogin = async function() {
+window.toggleForgot = function() {
+  const panel = document.getElementById('forgotPanel');
+  const isOpen = panel.style.display === 'block';
+  panel.style.display = isOpen ? 'none' : 'block';
+  if (!isOpen) {
     const email = document.getElementById('emailInput').value.trim();
-    const password = document.getElementById('passwordInput').value;
-    const btn = document.getElementById('loginBtn');
-    const errorMsg = document.getElementById('errorMsg');
-
-    errorMsg.classList.remove('show');
-
-    if (!email || !password) {
-      showError('กรุณากรอกอีเมลและรหัสผ่าน');
-      return;
-    }
-
-    btn.disabled = true;
-    btn.innerHTML = '<span class="loading"></span>กำลังเข้าสู่ระบบ...';
-
-    try {
-      const userCred = await signInWithEmailAndPassword(auth, email, password);
-      const uid = userCred.user.uid;
-
-      const userDoc = await getDoc(doc(db, 'users', uid));
-
-      if (!userDoc.exists()) {
-        showError('ไม่พบข้อมูลผู้ใช้ กรุณาติดต่อผู้ดูแลระบบ');
-        btn.disabled = false;
-        btn.innerHTML = 'เข้าสู่ระบบ';
-        return;
-      }
-
-      const userData = userDoc.data();
-
-      // ✅ เช็ค status และ expireDate
-      const status = userData.status || 'active';
-      const expireDate = userData.expireDate || '2099-12-31';
-      const today = new Date().toISOString().split('T')[0];
-      const isAdmin = userData.role === 'admin';
-
-      if (!isAdmin) {
-        if (status === 'suspended') {
-          showError('บัญชีของคุณถูกระงับ กรุณาติดต่อ @395vujby ค่ะ');
-          btn.disabled = false; btn.innerHTML = 'เข้าสู่ระบบ';
-          return;
-        }
-        if (status === 'expired' || expireDate < today) {
-          // บันทึก session แล้วไปหน้าต่ออายุ
-          sessionStorage.setItem('uid', uid);
-          sessionStorage.setItem('role', userData.role);
-          sessionStorage.setItem('shopId', userData.shopId || '');
-          sessionStorage.setItem('shopName', userData.shopName || '');
-          sessionStorage.setItem('expireDate', expireDate);
-          window.location.href = 'renew.html';
-          return;
-        }
-      }
-
-      // บันทึก session
-      sessionStorage.setItem('uid', uid);
-      sessionStorage.setItem('role', userData.role);
-      sessionStorage.setItem('shopId', userData.shopId || '');
-      sessionStorage.setItem('shopName', userData.shopName || '');
-      sessionStorage.setItem('expireDate', expireDate);
-
-      // ไปหน้าหลัก — admin ไป admin.html, owner ไป remote
-      if (userData.role === 'admin') {
-        window.location.href = 'admin.html';
-      } else {
-        window.location.href = 'chiccoco-remote.html';
-      }
-
-    } catch (err) {
-      let msg = 'เกิดข้อผิดพลาด กรุณาลองใหม่';
-      if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
-        msg = 'อีเมลหรือรหัสผ่านไม่ถูกต้อง';
-      } else if (err.code === 'auth/too-many-requests') {
-        msg = 'พยายามเข้าสู่ระบบหลายครั้งเกินไป กรุณารอสักครู่';
-      }
-      showError(msg);
-      btn.disabled = false;
-      btn.innerHTML = 'เข้าสู่ระบบ';
-    }
-  };
-
-  function showError(msg) {
-    const el = document.getElementById('errorMsg');
-    el.textContent = msg;
-    el.classList.add('show');
+    if (email) document.getElementById('resetEmail').value = email;
+    document.getElementById('resetEmail').focus();
   }
+};
 
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Enter') handleLogin();
-  });
-
-// ── FORGOT PASSWORD ──
-window.showForgotPanel = function() {
-  document.getElementById('forgotPanel').style.display = 'block';
+window.doLogin = async function() {
+  hideError();
   const email = document.getElementById('emailInput').value.trim();
-  if (email) document.getElementById('resetEmailInput').value = email;
-  document.getElementById('resetEmailInput').focus();
+  const password = document.getElementById('passwordInput').value;
+  const btn = document.getElementById('loginBtn');
+
+  if (!email || !password) { showError('กรุณากรอกอีเมลและรหัสผ่านค่ะ'); return; }
+
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div>กำลังเข้าสู่ระบบ...';
+
+  try {
+    const cred = await signInWithEmailAndPassword(auth, email, password);
+    const uid = cred.user.uid;
+
+    const snap = await getDoc(doc(db, 'users', uid));
+    if (!snap.exists()) {
+      showError('ไม่พบข้อมูลผู้ใช้ กรุณาติดต่อ @395vujby ค่ะ');
+      btn.disabled = false; btn.textContent = 'เข้าสู่ระบบ'; return;
+    }
+
+    const data = snap.data();
+    const status = data.status || 'active';
+    const expireDate = data.expireDate || '2099-12-31';
+    const today = new Date().toISOString().split('T')[0];
+    const isAdmin = data.role === 'admin';
+
+    // บันทึก session
+    sessionStorage.setItem('uid', uid);
+    sessionStorage.setItem('role', data.role || '');
+    sessionStorage.setItem('shopId', data.shopId || '');
+    sessionStorage.setItem('shopName', data.shopName || '');
+    sessionStorage.setItem('expireDate', expireDate);
+
+    if (!isAdmin) {
+      if (status === 'suspended') {
+        showError('บัญชีถูกระงับ กรุณาติดต่อ @395vujby ค่ะ');
+        btn.disabled = false; btn.textContent = 'เข้าสู่ระบบ'; return;
+      }
+      if (expireDate < today) {
+        window.location.href = 'renew.html'; return;
+      }
+    }
+
+    // redirect
+    window.location.href = isAdmin ? 'admin.html' : 'chiccoco-remote.html';
+
+  } catch(e) {
+    console.error('Login error:', e.code, e.message);
+    const msgs = {
+      'auth/user-not-found': 'ไม่พบอีเมลนี้ในระบบค่ะ',
+      'auth/wrong-password': 'รหัสผ่านไม่ถูกต้องค่ะ',
+      'auth/invalid-credential': 'อีเมลหรือรหัสผ่านไม่ถูกต้องค่ะ',
+      'auth/invalid-email': 'รูปแบบอีเมลไม่ถูกต้องค่ะ',
+      'auth/too-many-requests': 'พยายามเข้าสู่ระบบบ่อยเกินไป กรุณารอสักครู่ค่ะ',
+      'auth/network-request-failed': 'ไม่มีการเชื่อมต่ออินเทอร์เน็ต กรุณาตรวจสอบค่ะ',
+    };
+    showError(msgs[e.code] || 'เกิดข้อผิดพลาด: ' + e.message);
+    btn.disabled = false; btn.textContent = 'เข้าสู่ระบบ';
+  }
 };
 
-window.hideForgotPanel = function() {
-  document.getElementById('forgotPanel').style.display = 'none';
-  document.getElementById('resetMsg').textContent = '';
-  document.getElementById('resetEmailInput').value = '';
-};
-
-window.sendResetEmail = async function() {
-  const { sendPasswordResetEmail } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js');
-  const email = document.getElementById('resetEmailInput').value.trim();
+window.doReset = async function() {
+  const email = document.getElementById('resetEmail').value.trim();
   const msgEl = document.getElementById('resetMsg');
   const btn = document.getElementById('resetBtn');
 
-  if (!email) {
-    msgEl.style.color = '#e63946';
-    msgEl.textContent = 'กรุณากรอกอีเมลค่ะ';
-    return;
-  }
+  if (!email) { msgEl.style.color='#ff8080'; msgEl.textContent='กรุณากรอกอีเมลค่ะ'; return; }
 
-  btn.disabled = true;
-  btn.textContent = '⏳ กำลังส่ง...';
-  msgEl.textContent = '';
-
+  btn.disabled = true; btn.textContent = '⏳ กำลังส่ง...';
   try {
     await sendPasswordResetEmail(auth, email);
     msgEl.style.color = '#5c7a6b';
-    msgEl.textContent = '✅ ส่งลิงก์ไปที่ ' + email + ' แล้วค่ะ กรุณาเช็คอีเมล (รวมถึงกล่อง Spam)';
-    btn.textContent = '📧 ส่งแล้ว';
-  } catch(error) {
-    msgEl.style.color = '#e63946';
-    if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
-      msgEl.textContent = '❌ ไม่พบอีเมลนี้ในระบบค่ะ';
-    } else if (error.code === 'auth/invalid-email') {
-      msgEl.textContent = '❌ รูปแบบอีเมลไม่ถูกต้องค่ะ';
-    } else if (error.code === 'auth/too-many-requests') {
-      msgEl.textContent = '⚠️ ส่งบ่อยเกินไป กรุณารอสักครู่แล้วลองใหม่ค่ะ';
-    } else {
-      msgEl.textContent = '❌ เกิดข้อผิดพลาดค่ะ: ' + error.message;
-    }
-    btn.disabled = false;
-    btn.textContent = '📧 ส่งลิงก์รีเซ็ตรหัสผ่าน';
+    msgEl.textContent = '✅ ส่งลิงก์ไปที่ ' + email + ' แล้วค่ะ (เช็ค Spam ด้วยนะคะ)';
+    btn.textContent = '✅ ส่งแล้ว';
+  } catch(e) {
+    msgEl.style.color = '#ff8080';
+    msgEl.textContent = e.code === 'auth/user-not-found' ? '❌ ไม่พบอีเมลนี้ในระบบค่ะ' : '❌ ' + e.message;
+    btn.disabled = false; btn.textContent = '📧 ส่งลิงก์รีเซ็ตรหัสผ่าน';
   }
 };
-</script>
 
+// Enter key
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') window.doLogin();
+});
+</script>
 </body>
 </html>
