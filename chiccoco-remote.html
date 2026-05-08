@@ -565,17 +565,19 @@ function switchPage(page) {
 
 // ✅ แก้ไข: logout ไปที่ login.html ที่ถูกต้อง
 function logOut() {
-  // ✅ ปิด Firebase listeners ก่อน logout
-  if (db) {
-    db.ref(shopPath + '/state').off();
-    db.ref(shopPath + '/edits').off();
-    db.ref(shopPath + '/products').off();
-    db.ref(shopPath + '/timer').off();
-    db.ref('.info/connected').off();
-  }
+  // ปิด Firebase listeners ก่อน logout
+  try {
+    if (db) {
+      db.ref(shopPath + '/state').off();
+      db.ref(shopPath + '/edits').off();
+      db.ref(shopPath + '/products').off();
+      db.ref(shopPath + '/timer').off();
+      db.ref('.info/connected').off();
+    }
+  } catch(e) { console.log('logout cleanup error:', e); }
+  // ✅ ล้าง session และไปหน้า login เสมอ ไม่ว่า Firebase จะ connect หรือไม่
   sessionStorage.clear();
-  showToast('ออกจากระบบแล้วค่ะ');
-  setTimeout(() => { window.location.href = 'login.html'; }, 800);
+  window.location.href = 'login.html';
 }
 
 async function toggleScreenOn() {
@@ -852,22 +854,34 @@ function connectFirebase() {
 }
 
 function initFirebase(apiKey, projectId, dbUrl) {
+  setStatus('connecting', '⏳ กำลังเชื่อมต่อ...');
+  
+  function onError(e) {
+    console.error('Firebase script load error:', e);
+    setStatus('error', '❌ โหลด Firebase ไม่ได้ กรุณา Refresh');
+  }
+
   if (!window.firebase) {
     const s1 = document.createElement('script');
     s1.src = 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js';
+    s1.onerror = onError;
     s1.onload = () => {
       const s2 = document.createElement('script');
       s2.src = 'https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js';
+      s2.onerror = onError;
       s2.onload = () => {
         const s3 = document.createElement('script');
         s3.src = 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js';
+        s3.onerror = onError;
         s3.onload = () => doInit(apiKey, projectId, dbUrl);
         document.head.appendChild(s3);
       };
       document.head.appendChild(s2);
     };
     document.head.appendChild(s1);
-  } else { doInit(apiKey, projectId, dbUrl); }
+  } else { 
+    doInit(apiKey, projectId, dbUrl); 
+  }
 }
 
 function doInit(apiKey, projectId, dbUrl) {
