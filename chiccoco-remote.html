@@ -642,6 +642,25 @@ function setLayout(layout) {
   showToast(layout === 'vertical' ? '📱 เปลี่ยนเป็นแนวตั้งแล้วค่ะ' : '🖥️ เปลี่ยนเป็นแนวนอนแล้วค่ะ');
 }
 
+function setLayout(layout) {
+  const btnV = document.getElementById('btnLayoutV');
+  const btnH = document.getElementById('btnLayoutH');
+  if (layout === 'vertical') {
+    btnV.style.cssText = 'flex:1;padding:10px;background:#5c7a6b;color:white;border:none;border-radius:10px;font-family:'Kanit',sans-serif;font-size:12px;font-weight:700;cursor:pointer;';
+    btnH.style.cssText = 'flex:1;padding:10px;background:#f0ece6;color:#5c7a6b;border:2px solid #5c7a6b;border-radius:10px;font-family:'Kanit',sans-serif;font-size:12px;font-weight:700;cursor:pointer;';
+  } else {
+    btnH.style.cssText = 'flex:1;padding:10px;background:#5c7a6b;color:white;border:none;border-radius:10px;font-family:'Kanit',sans-serif;font-size:12px;font-weight:700;cursor:pointer;';
+    btnV.style.cssText = 'flex:1;padding:10px;background:#f0ece6;color:#5c7a6b;border:2px solid #5c7a6b;border-radius:10px;font-family:'Kanit',sans-serif;font-size:12px;font-weight:700;cursor:pointer;';
+  }
+  if (db && fbConnected) {
+    db.ref(shopPath + '/state').once('value', snap => {
+      const d = snap.val() || {};
+      db.ref(shopPath + '/state').set({ ...d, layout, ts: Date.now() });
+    });
+  }
+  showToast(layout === 'vertical' ? '📱 แนวตั้งแล้วค่ะ' : '🖥️ แนวนอนแล้วค่ะ');
+}
+
 function toggleCustomPanel(el) {
   const panel = document.getElementById('customColorPanel');
   const isOpen = panel.style.display !== 'none';
