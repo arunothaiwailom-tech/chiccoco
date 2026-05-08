@@ -757,11 +757,16 @@ async function openCamera() {
     });
     video.srcObject = _cameraStream;
     await video.play();
-    // โหลด ZXing library แล้วเริ่มสแกน
+    // โหลด ZXing library
     if (!window.ZXing) {
+      showToast('⏳ กำลังโหลด Scanner...');
       const s = document.createElement('script');
       s.src = 'https://unpkg.com/@zxing/library@0.19.1/umd/index.min.js';
-      s.onload = () => startScan(video);
+      s.onload = () => { showToast('📷 พร้อมสแกนแล้วค่ะ'); startScan(video); };
+      s.onerror = () => { 
+        showToast('❌ โหลด Scanner ไม่ได้ กรุณาเช็ค Internet ค่ะ'); 
+        closeCamera(); 
+      };
       document.head.appendChild(s);
     } else {
       startScan(video);
@@ -814,6 +819,14 @@ function closeCamera() {
     _cameraStream = null;
   }
   document.getElementById('scanInput').focus();
+
+  // ✅ Preload ZXing library ล่วงหน้า
+  if (!window.ZXing) {
+    const zs = document.createElement('script');
+    zs.src = 'https://unpkg.com/@zxing/library@0.19.1/umd/index.min.js';
+    zs.onerror = () => console.log('ZXing load failed, will retry on camera open');
+    document.head.appendChild(zs);
+  }
 }
 
 
@@ -982,6 +995,14 @@ function saveEdit() {
     pushState();
     showToast(`✅ บันทึกข้อมูล ${currentCode} ลง Firebase แล้วค่ะ`);
     document.getElementById('scanInput').focus();
+
+  // ✅ Preload ZXing library ล่วงหน้า
+  if (!window.ZXing) {
+    const zs = document.createElement('script');
+    zs.src = 'https://unpkg.com/@zxing/library@0.19.1/umd/index.min.js';
+    zs.onerror = () => console.log('ZXing load failed, will retry on camera open');
+    document.head.appendChild(zs);
+  }
   }).catch(() => showToast('บันทึกไม่สำเร็จค่ะ'));
 }
 
@@ -994,6 +1015,14 @@ function resetEdit() {
     updatePreview();
     showToast(`คืนข้อมูลเดิมของ ${currentCode} แล้วค่ะ`);
     document.getElementById('scanInput').focus();
+
+  // ✅ Preload ZXing library ล่วงหน้า
+  if (!window.ZXing) {
+    const zs = document.createElement('script');
+    zs.src = 'https://unpkg.com/@zxing/library@0.19.1/umd/index.min.js';
+    zs.onerror = () => console.log('ZXing load failed, will retry on camera open');
+    document.head.appendChild(zs);
+  }
   });
 }
 
@@ -1045,6 +1074,14 @@ function selectProduct(code) {
   const p = getProduct(code);
   showToast(salePrice ? `${code} — ราคาลดเหลือ ฿${Number(salePrice).toLocaleString()}` : `เปลี่ยนเป็น ${code} แล้วค่ะ`);
   document.getElementById('scanInput').focus();
+
+  // ✅ Preload ZXing library ล่วงหน้า
+  if (!window.ZXing) {
+    const zs = document.createElement('script');
+    zs.src = 'https://unpkg.com/@zxing/library@0.19.1/umd/index.min.js';
+    zs.onerror = () => console.log('ZXing load failed, will retry on camera open');
+    document.head.appendChild(zs);
+  }
 }
 
 function applyCode() {
@@ -1095,6 +1132,14 @@ function renderSizePills() {
       clearTimeout(window._sizeFocusTimer);
       window._sizeFocusTimer = setTimeout(() => {
         document.getElementById('scanInput').focus();
+
+  // ✅ Preload ZXing library ล่วงหน้า
+  if (!window.ZXing) {
+    const zs = document.createElement('script');
+    zs.src = 'https://unpkg.com/@zxing/library@0.19.1/umd/index.min.js';
+    zs.onerror = () => console.log('ZXing load failed, will retry on camera open');
+    document.head.appendChild(zs);
+  }
       }, 5000);
     };
     container.appendChild(pill);
@@ -1108,6 +1153,14 @@ function applyPrice() {
   updateCurrentUI(); updatePreview(); pushState();
   showToast(`✅ ลดราคา ${currentCode} → ฿${Number(val).toLocaleString()} แล้วค่ะ  ⚠️ อย่าลืมแก้ใน V Rich ด้วยนะคะ`);
   document.getElementById('scanInput').focus();
+
+  // ✅ Preload ZXing library ล่วงหน้า
+  if (!window.ZXing) {
+    const zs = document.createElement('script');
+    zs.src = 'https://unpkg.com/@zxing/library@0.19.1/umd/index.min.js';
+    zs.onerror = () => console.log('ZXing load failed, will retry on camera open');
+    document.head.appendChild(zs);
+  }
 }
 
 function resetPrice() {
@@ -1116,6 +1169,14 @@ function resetPrice() {
   updateCurrentUI(); updatePreview(); pushState();
   showToast('รีเซ็ตราคาแล้วค่ะ');
   document.getElementById('scanInput').focus();
+
+  // ✅ Preload ZXing library ล่วงหน้า
+  if (!window.ZXing) {
+    const zs = document.createElement('script');
+    zs.src = 'https://unpkg.com/@zxing/library@0.19.1/umd/index.min.js';
+    zs.onerror = () => console.log('ZXing load failed, will retry on camera open');
+    document.head.appendChild(zs);
+  }
 }
 
 function updateCurrentUI() {
@@ -1249,7 +1310,25 @@ function loadStock(input) {
         products=allProducts;
         document.getElementById('stockInfo').textContent=`${total} รายการ (${files.length} ไฟล์)`;
         showToast(`โหลดสำเร็จ ${total} รายการค่ะ`);
-        if(db&&fbConnected) db.ref(shopPath + '/products').set(products);
+        // ✅ บันทึกลง Firebase — ถ้ายังไม่ connect ให้ retry
+        if(db && fbConnected) {
+          db.ref(shopPath + '/products').set(products)
+            .then(()=>showToast(`✅ บันทึกลง Firebase สำเร็จ ${total} รายการค่ะ`))
+            .catch(e=>showToast('❌ บันทึก Firebase ผิดพลาด: '+e.message));
+        } else {
+          // เก็บไว้ใน memory ก่อน แล้ว retry เมื่อ connect
+          showToast(`⚠️ โหลดสำเร็จ ${total} รายการ (รอ Firebase เชื่อมต่อ...)`);
+          const retryInterval = setInterval(()=>{
+            if(db && fbConnected){
+              clearInterval(retryInterval);
+              db.ref(shopPath + '/products').set(products)
+                .then(()=>showToast('✅ บันทึกลง Firebase สำเร็จแล้วค่ะ'))
+                .catch(e=>showToast('❌ บันทึก Firebase ผิดพลาด: '+e.message));
+            }
+          }, 1000);
+          // หยุด retry หลัง 30 วิ
+          setTimeout(()=>clearInterval(retryInterval), 30000);
+        }
       }
     };
     r.readAsArrayBuffer(file);
@@ -1463,6 +1542,14 @@ function saveManual() {
   }
   closeManualModal();
   document.getElementById('scanInput').focus();
+
+  // ✅ Preload ZXing library ล่วงหน้า
+  if (!window.ZXing) {
+    const zs = document.createElement('script');
+    zs.src = 'https://unpkg.com/@zxing/library@0.19.1/umd/index.min.js';
+    zs.onerror = () => console.log('ZXing load failed, will retry on camera open');
+    document.head.appendChild(zs);
+  }
 }
 
 function dlTemplate(type) {
@@ -1503,6 +1590,14 @@ document.addEventListener('DOMContentLoaded', () => {
   initFirebase(FB_API_KEY, FB_PROJECT_ID, FB_DB_URL);
 
   document.getElementById('scanInput').focus();
+
+  // ✅ Preload ZXing library ล่วงหน้า
+  if (!window.ZXing) {
+    const zs = document.createElement('script');
+    zs.src = 'https://unpkg.com/@zxing/library@0.19.1/umd/index.min.js';
+    zs.onerror = () => console.log('ZXing load failed, will retry on camera open');
+    document.head.appendChild(zs);
+  }
   updateTimerDisplay();
 
   // ✅ เช็ควันหมดอายุ — แสดง banner ถ้าเหลือ ≤ 3 วัน
