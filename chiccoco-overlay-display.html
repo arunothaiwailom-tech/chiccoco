@@ -83,6 +83,45 @@ body.theme-gold {
 .OV-table tbody tr:nth-child(odd)  { background:var(--ov-white); }
 .OV-table tbody tr:nth-child(even) { background:var(--ov-row-even); }
 .OV-table tbody td { padding:10px 4px; text-align:center; font-weight:600; color:#2c2c2c; font-family:'Sarabun',sans-serif; overflow:hidden; white-space:nowrap; }
+/* ── HORIZONTAL LAYOUT A ── */
+.OV.horizontal {
+  flex-direction:row !important;
+  align-items:stretch;
+  width:720px;
+  min-height:unset;
+}
+.OV.horizontal .OV-left {
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+  width:220px;
+  flex-shrink:0;
+}
+.OV.horizontal .OV-right {
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+  justify-content:space-between;
+}
+.OV.horizontal .OV-brand {
+  text-align:center;
+  font-size:11px;
+  letter-spacing:4px;
+}
+.OV.horizontal .OV-box-code { font-size:56px !important; }
+.OV.horizontal .OV-price-num { font-size:56px !important; }
+.OV.horizontal .OV-price-new { font-size:56px !important; }
+.OV.horizontal .OV-price-original { font-size:28px !important; }
+.OV.horizontal .OV-box-lbl { font-size:12px !important; }
+.OV.horizontal .OV-price-lbl { font-size:12px !important; }
+.OV.horizontal .OV-name { font-size:16px !important; }
+.OV.horizontal .OV-info-lbl { font-size:10px !important; }
+.OV.horizontal .OV-info-val { font-size:20px !important; }
+.OV.horizontal .OV-table thead th { font-size:18px !important; padding:10px 6px; }
+.OV.horizontal .OV-table tbody td { font-size:26px !important; padding:8px 4px; }
+.OV.horizontal .OV-table tbody td:first-child { font-size:24px !important; }
+
 .OV-footer { text-align:center; font-family:'Kanit',sans-serif; font-size:18px; font-weight:400; color:var(--ov-footer); letter-spacing:4px; padding-top:4px; }
 </style>
 </head>
@@ -306,8 +345,54 @@ function draw(){
   }
 
   var ov=document.getElementById('OV');
-  ov.innerHTML=h;
-  ov.className='OV visible';
+  var layout=(_state&&_state.layout==='horizontal')?'horizontal':'vertical';
+
+  if(layout==='horizontal'){
+    // ── Horizontal A: ซ้าย=รหัส+ราคา+ชื่อ+สี | ขวา=ไซส์+ตาราง ──
+    var leftH='<div class="OV-left">'
+      +'<div class="OV-brand">'+brand+'</div>'
+      +'<div class="OV-box"><div class="OV-box-lbl">รหัสสินค้า</div><div class="OV-box-code">'+p.code+'</div></div>'
+      +ph
+      +'<div class="OV-name">'+p.name+'</div>'
+      +(p.color||p.material?
+        '<div class="OV-inforow">'
+        +(p.color?'<div class="OV-info"><div class="OV-info-lbl">สี</div><div class="OV-info-val">'+p.color+'</div></div>':'')
+        +(p.material?'<div class="OV-info"><div class="OV-info-lbl">วัสดุ</div><div class="OV-info-val" style="font-size:14px;">'+p.material+'</div></div>':'')
+        +'</div>':'')
+      +'</div>';
+
+    var rightH='<div class="OV-right">';
+    if(p.type==='misc'){
+      var miscSize=p.size||'';
+      if(!miscSize&&p.sizes&&p.sizes.length>0) miscSize=p.sizes.map(function(s){return s.size;}).filter(Boolean).join(', ');
+      rightH+=(miscSize?'<div class="OV-box"><div class="OV-box-lbl">ขนาดสินค้า</div><div class="OV-box-sizes">'+miscSize+'</div></div>':'');
+    } else {
+      var totalCols=co.length+1;
+      var cellW=Math.floor(440/totalCols);
+      var hdrFs=totalCols<=3?22:totalCols<=5?18:15;
+      var rows=av.map(function(s){
+        var sFs=autoFs(s.size,cellW,30,16);
+        var cells='<td style="font-size:'+sFs+'px;font-weight:800;color:var(--ov-code);font-family:'Kanit',sans-serif;">'+s.size+'</td>';
+        co.forEach(function(col){
+          var val=s[col]||'—';
+          var vFs=autoFs(val,cellW,32,16);
+          cells+='<td style="font-size:'+vFs+'px;">'+val+'</td>';
+        });
+        return '<tr>'+cells+'</tr>';
+      }).join('');
+      rightH+='<div class="OV-box"><div class="OV-box-lbl">ไซส์ที่เหลือ</div><div class="OV-box-sizes">'+(lb.join(', ')||'—')+'</div></div>';
+      rightH+=(rows?'<table class="OV-table"><thead><tr><th style="font-size:'+hdrFs+'px;">ไซส์</th>'+co.map(function(col){return '<th style="font-size:'+hdrFs+'px;">'+col+'</th>';}).join('')+'</tr></thead><tbody>'+rows+'</tbody></table>':'');
+    }
+    rightH+='<div class="OV-footer">Chiccoco Live @ 2025</div></div>';
+
+    ov.innerHTML=leftH+rightH;
+    ov.className='OV horizontal visible';
+
+  } else {
+    // ── Vertical (เดิม) ──
+    ov.innerHTML=h;
+    ov.className='OV visible';
+  }
 }
 </script>
 </body>
