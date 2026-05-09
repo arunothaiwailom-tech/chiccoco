@@ -236,9 +236,14 @@ function draw(){
   /* สร้าง inforow */
   function makeInfoRow(){
     if(!p.color&&!p.material)return '';
+    // ✅ สี: 50px คงที่ ตัดบรรทัดอัตโนมัติ
+    var colorFs=50;
+    // ✅ วัสดุ: 50px แต่ลดอัตโนมัติถ้ายาว
+    var matLen=(p.material||'').length;
+    var matFs=matLen<=6?50:matLen<=12?44:matLen<=18?38:matLen<=26?32:26;
     var inner='';
-    if(p.color)    inner+='<div class="OV-info"><div class="OV-info-lbl">สี</div><div class="OV-info-val" style="font-size:'+ivFs+'px;">'+p.color+'</div></div>';
-    if(p.material) inner+='<div class="OV-info"><div class="OV-info-lbl">วัสดุ</div><div class="OV-info-val" style="font-size:'+ivFs+'px;">'+p.material+'</div></div>';
+    if(p.color)    inner+='<div class="OV-info"><div class="OV-info-lbl">สี</div><div class="OV-info-val" style="font-size:'+colorFs+'px;white-space:normal;overflow-wrap:break-word;word-break:break-word;">'+p.color+'</div></div>';
+    if(p.material) inner+='<div class="OV-info"><div class="OV-info-lbl">วัสดุ</div><div class="OV-info-val" style="font-size:'+matFs+'px;white-space:normal;overflow-wrap:break-word;word-break:break-word;">'+p.material+'</div></div>';
     return '<div class="OV-inforow">'+inner+'</div>';
   }
 
