@@ -6,8 +6,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&family=Kanit:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
 * { box-sizing:border-box; margin:0; padding:0; }
-html { background:transparent !important; width:720px; }
-body { background:transparent !important; width:720px; overflow:visible; font-family:'Sarabun',sans-serif; margin:0; padding:0; }
+html { background:transparent !important; }
+body { background:transparent !important; overflow:visible; font-family:'Sarabun',sans-serif; margin:0; padding:0; }
 
 /* ── CSS VARIABLES & THEMES ── */
 :root {
@@ -17,74 +17,72 @@ body { background:transparent !important; width:720px; overflow:visible; font-fa
   --ov-row-odd:#ffffff; --ov-row-even:#f5f1eb;
   --ov-footer:#a09488; --ov-brand:#5c7a6b;
 }
-body.theme-pink { --ov-bg:#fdf0f5; --ov-accent:#c0607a; --ov-code:#8b1a3a; --ov-price-bg:#f7d6e0; --ov-header:#8b3a52; --ov-text:#2c2c2c; --ov-muted:#d4a0b0; --ov-border:#f7d6e0; --ov-row-odd:#fff5f8; --ov-row-even:#fce8ef; --ov-footer:#c0607a; --ov-brand:#c0607a; }
-body.theme-dark { --ov-bg:#1e1e2e; --ov-accent:#a78bfa; --ov-code:#f472b6; --ov-price-bg:#2d2d42; --ov-header:#12121e; --ov-text:#e2e8f0; --ov-white:#2d2d42; --ov-muted:#6b7280; --ov-border:#374151; --ov-row-odd:#252535; --ov-row-even:#1e1e2e; --ov-footer:#a78bfa; --ov-brand:#a78bfa; }
+body.theme-pink    { --ov-bg:#fdf0f5; --ov-accent:#c0607a; --ov-code:#8b1a3a; --ov-price-bg:#f7d6e0; --ov-header:#8b3a52; --ov-text:#2c2c2c; --ov-muted:#d4a0b0; --ov-border:#f7d6e0; --ov-row-odd:#fff5f8; --ov-row-even:#fce8ef; --ov-footer:#c0607a; --ov-brand:#c0607a; }
+body.theme-dark    { --ov-bg:#1e1e2e; --ov-accent:#a78bfa; --ov-code:#f472b6; --ov-price-bg:#2d2d42; --ov-header:#12121e; --ov-text:#e2e8f0; --ov-white:#2d2d42; --ov-muted:#6b7280; --ov-border:#374151; --ov-row-odd:#252535; --ov-row-even:#1e1e2e; --ov-footer:#a78bfa; --ov-brand:#a78bfa; }
 body.theme-minimal { --ov-bg:#ffffff; --ov-accent:#333333; --ov-code:#111111; --ov-price-bg:#f0f0f0; --ov-header:#222222; --ov-text:#111111; --ov-muted:#999999; --ov-border:#e5e5e5; --ov-row-odd:#ffffff; --ov-row-even:#f9f9f9; --ov-footer:#999999; --ov-brand:#333333; }
-body.theme-gold { --ov-bg:#fdf8ee; --ov-accent:#b8860b; --ov-code:#8b1a1a; --ov-price-bg:#e8d5a3; --ov-header:#7a5c00; --ov-text:#2c2c2c; --ov-muted:#c8a96e; --ov-border:#e8d5a3; --ov-row-odd:#fffdf5; --ov-row-even:#fdf3d0; --ov-footer:#b8860b; --ov-brand:#b8860b; }
+body.theme-gold    { --ov-bg:#fdf8ee; --ov-accent:#b8860b; --ov-code:#8b1a1a; --ov-price-bg:#e8d5a3; --ov-header:#7a5c00; --ov-text:#2c2c2c; --ov-muted:#c8a96e; --ov-border:#e8d5a3; --ov-row-odd:#fffdf5; --ov-row-even:#fdf3d0; --ov-footer:#b8860b; --ov-brand:#b8860b; }
 
 /* ── TIMER ── */
-.OV-timer { width:720px; background:linear-gradient(135deg,#8b1a1a,#c0392b); border-radius:24px; padding:18px 28px; display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:12px; opacity:0; transition:opacity .4s; }
+.OV-timer { background:linear-gradient(135deg,#8b1a1a,#c0392b); border-radius:24px; padding:18px 28px; display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:12px; opacity:0; transition:opacity .4s; }
 .OV-timer.visible { opacity:1; }
 .OV-timer-label { font-family:'Kanit',sans-serif; font-size:32px; font-weight:700; color:rgba(255,255,255,.9); flex:1; }
 .OV-timer-count { font-family:'Kanit',sans-serif; font-size:72px; font-weight:800; color:white; line-height:1; }
 .OV-timer-count.warning { color:#ffd700; }
 
-/* ── OV WRAPPER ── */
-.OV { width:720px; background:var(--ov-bg); padding:24px 22px; display:inline-flex; flex-direction:column; gap:12px; opacity:0; transition:opacity .4s; border-radius:28px; vertical-align:top; }
+/* ── OV BASE (แนวตั้ง) ── */
+.OV { display:inline-flex; flex-direction:column; background:var(--ov-bg); border-radius:28px; padding:28px 24px; gap:14px; opacity:0; transition:opacity .4s; vertical-align:top; }
 .OV.visible { opacity:1; }
 
-/* brand + footer — full width centered */
-.OV-brand-full { text-align:center; font-family:'Kanit',sans-serif; font-size:40px; font-weight:700; letter-spacing:6px; color:var(--ov-brand); text-transform:uppercase; }
-.OV-footer-full { text-align:center; font-family:'Kanit',sans-serif; font-size:18px; color:var(--ov-footer); letter-spacing:4px; }
-
-/* brand + footer แนวตั้ง */
-.OV-brand { text-align:center; font-family:'Kanit',sans-serif; font-size:40px; font-weight:700; letter-spacing:4px; color:var(--ov-brand); text-transform:uppercase; }
-.OV-footer { text-align:center; font-family:'Kanit',sans-serif; font-size:18px; color:var(--ov-footer); letter-spacing:4px; }
-
-/* ── HORIZONTAL content row ── */
-.OV-content-row { display:flex; gap:14px; align-items:stretch; }
-.OV-col-left { width:245px; flex-shrink:0; display:flex; flex-direction:column; gap:10px; }
-.OV-col-right { flex:1; display:flex; flex-direction:column; gap:10px; }
-
-/* ── BOXES ── */
-.OV-box { background:var(--ov-white); border-radius:18px; padding:14px 16px; text-align:center; box-shadow:0 2px 10px rgba(0,0,0,.07); }
+/* ── shared components ── */
+.OV-brand   { text-align:center; font-family:'Kanit',sans-serif; font-size:40px; font-weight:700; letter-spacing:4px; color:var(--ov-brand); text-transform:uppercase; }
+.OV-footer  { text-align:center; font-family:'Kanit',sans-serif; font-size:18px; color:var(--ov-footer); letter-spacing:4px; }
+.OV-toprow  { display:flex; gap:12px; width:100%; }
+.OV-box     { background:var(--ov-white); border-radius:18px; padding:14px 16px; text-align:center; box-shadow:0 2px 10px rgba(0,0,0,.07); flex:1; }
 .OV-box-lbl { font-size:34px; font-weight:400; color:var(--ov-muted); margin-bottom:6px; }
-.OV-box-code { font-size:74px; font-weight:800; color:var(--ov-code); line-height:1; font-family:'Kanit',sans-serif; }
+.OV-box-code  { font-size:74px; font-weight:800; color:var(--ov-code); line-height:1; font-family:'Kanit',sans-serif; }
 .OV-box-sizes { font-size:64px; font-weight:800; color:var(--ov-code); line-height:1.1; font-family:'Kanit',sans-serif; }
-.OV-price { background:var(--ov-price-bg); border-radius:18px; text-align:center; padding:14px 16px; box-shadow:0 2px 10px rgba(0,0,0,.07); }
-.OV-price-lbl { font-size:34px; font-weight:400; color:var(--ov-muted); margin-bottom:4px; }
-.OV-price-num { font-size:74px; font-weight:800; color:var(--ov-text); line-height:1; font-family:'Kanit',sans-serif; }
-.OV-price-sale { display:flex; flex-direction:column; align-items:center; gap:2px; }
+.OV-price     { background:var(--ov-price-bg); border-radius:18px; text-align:center; padding:14px 16px; box-shadow:0 2px 10px rgba(0,0,0,.07); }
+.OV-price-lbl      { font-size:34px; font-weight:400; color:var(--ov-muted); margin-bottom:4px; }
+.OV-price-num      { font-size:74px; font-weight:800; color:var(--ov-text); line-height:1; font-family:'Kanit',sans-serif; }
+.OV-price-sale     { display:flex; flex-direction:column; align-items:center; gap:2px; }
 .OV-price-original { font-size:36px; font-weight:700; color:var(--ov-muted); text-decoration:line-through; line-height:1; font-family:'Kanit',sans-serif; }
-.OV-price-new { font-size:74px; font-weight:800; color:var(--ov-code); line-height:1; font-family:'Kanit',sans-serif; }
-.OV-name { font-size:38px; font-weight:700; color:var(--ov-text); text-align:center; line-height:1.4; font-family:'Sarabun',sans-serif; }
+.OV-price-new      { font-size:74px; font-weight:800; color:var(--ov-code); line-height:1; font-family:'Kanit',sans-serif; }
+.OV-name    { font-size:38px; font-weight:700; color:var(--ov-text); text-align:center; line-height:1.4; font-family:'Sarabun',sans-serif; }
 .OV-inforow { display:flex; background:var(--ov-white); border-radius:18px; overflow:hidden; box-shadow:0 2px 10px rgba(0,0,0,.07); }
-.OV-info { flex:1; padding:12px 14px; text-align:center; }
+.OV-info    { flex:1; padding:12px 14px; text-align:center; }
 .OV-info+.OV-info { border-left:1.5px solid var(--ov-border); }
 .OV-info-lbl { font-size:22px; color:var(--ov-muted); font-weight:400; margin-bottom:6px; }
 .OV-info-val { font-size:44px; font-weight:700; color:var(--ov-text); line-height:1.3; font-family:'Sarabun',sans-serif; }
-.OV-table { width:100%; border-collapse:separate; border-spacing:0; border-radius:18px; overflow:hidden; box-shadow:0 2px 10px rgba(0,0,0,.07); table-layout:fixed; }
+.OV-table   { width:100%; border-collapse:separate; border-spacing:0; border-radius:18px; overflow:hidden; box-shadow:0 2px 10px rgba(0,0,0,.07); table-layout:fixed; }
 .OV-table thead tr { background:var(--ov-header); }
 .OV-table thead th { color:white; padding:12px 6px; font-size:28px; font-weight:700; text-align:center; font-family:'Sarabun',sans-serif; }
-.OV-table tbody tr:nth-child(odd) { background:var(--ov-row-odd); }
+.OV-table tbody tr:nth-child(odd)  { background:var(--ov-row-odd); }
 .OV-table tbody tr:nth-child(even) { background:var(--ov-row-even); }
-.OV-table tbody td { padding:10px 4px; text-align:center; font-size:44px; font-weight:600; color:var(--ov-text); overflow:hidden; white-space:nowrap; }
+.OV-table tbody td { padding:10px 4px; text-align:center; font-size:44px; font-weight:600; color:var(--ov-text); overflow:hidden; }
 .OV-table tbody td:first-child { font-size:40px; font-weight:800; color:var(--ov-code); font-family:'Kanit',sans-serif; }
 
-/* ── HORIZONTAL overrides ── */
-.OV.horizontal .OV-box-lbl { font-size:14px; }
-.OV.horizontal .OV-box-code { font-size:64px; }
-.OV.horizontal .OV-box-sizes { font-size:40px; }
-.OV.horizontal .OV-price-lbl { font-size:14px; }
-.OV.horizontal .OV-price-num { font-size:64px; }
-.OV.horizontal .OV-price-new { font-size:64px; }
-.OV.horizontal .OV-price-original { font-size:30px; }
-.OV.horizontal .OV-name { font-size:30px; text-align:left; }
-.OV.horizontal .OV-info-lbl { font-size:12px; }
-.OV.horizontal .OV-info-val { font-size:26px; }
-.OV.horizontal .OV-table thead th { font-size:26px; padding:10px 5px; }
-.OV.horizontal .OV-table tbody td { font-size:35px; padding:10px 5px; }
-.OV.horizontal .OV-table tbody td:first-child { font-size:35px; }
+/* ── HORIZONTAL layout ── */
+.OV.horizontal {
+  flex-direction:row;
+  flex-wrap:wrap;          /* brand+footer คร่อมทั้งแถว */
+  align-items:stretch;
+}
+/* brand + footer span เต็มความกว้าง */
+.OV.horizontal .OV-brand  { width:100%; letter-spacing:6px; }
+.OV.horizontal .OV-footer { width:100%; }
+/* col ซ้าย-ขวา */
+.OV-col-L { display:flex; flex-direction:column; gap:12px; flex:0 0 40%; }
+.OV-col-R { display:flex; flex-direction:column; gap:12px; flex:1; }
+/* ข้อความใน horizontal = แนวตั้ง เปลี่ยนแค่บางส่วน */
+.OV.horizontal .OV-name { text-align:left; font-size:32px; }
+/* info-val auto-shrink: ใช้ขนาดเดียวกับแนวตั้ง แต่ถ้าข้อความยาวให้ shrink */
+.OV.horizontal .OV-info-val {
+  font-size:44px;
+  overflow-wrap:break-word;
+  word-break:break-word;
+  hyphens:auto;
+  line-height:1.2;
+}
 </style>
 </head>
 <body>
@@ -105,24 +103,20 @@ var _shopPath = 'chiccoco/shops/' + _shopId;
 var _db=null, _state=null, _prod={}, _edits={}, _shopName='';
 var _timerLocal=0, _timerInterval=null;
 
-// ── Timer ──
-function drawTimer(d) {
-  var el=document.getElementById('OV-timer');
-  var lbl=document.getElementById('OV-timer-label');
-  var cnt=document.getElementById('OV-timer-count');
-  if(_timerInterval){ clearInterval(_timerInterval); _timerInterval=null; }
-  if(!d||d.seconds<=0){ el.classList.remove('visible'); return; }
+/* ── Timer ── */
+function drawTimer(d){
+  var el=document.getElementById('OV-timer'),lbl=document.getElementById('OV-timer-label'),cnt=document.getElementById('OV-timer-count');
+  if(_timerInterval){clearInterval(_timerInterval);_timerInterval=null;}
+  if(!d||d.seconds<=0){el.classList.remove('visible');return;}
   lbl.textContent=d.label||'Flash Sale!';
-  if(!d.running){
-    _timerLocal=d.seconds; renderCount(cnt,_timerLocal); el.classList.add('visible'); return;
-  }
+  if(!d.running){_timerLocal=d.seconds;renderCount(cnt,_timerLocal);el.classList.add('visible');return;}
   var elapsed=Math.floor((Date.now()-d.ts)/1000);
   _timerLocal=Math.max(0,d.seconds-elapsed);
-  if(_timerLocal<=0){ el.classList.remove('visible'); return; }
-  renderCount(cnt,_timerLocal); el.classList.add('visible');
+  if(_timerLocal<=0){el.classList.remove('visible');return;}
+  renderCount(cnt,_timerLocal);el.classList.add('visible');
   _timerInterval=setInterval(function(){
-    _timerLocal--; renderCount(cnt,_timerLocal);
-    if(_timerLocal<=0){ clearInterval(_timerInterval); _timerInterval=null; el.classList.remove('visible'); }
+    _timerLocal--;renderCount(cnt,_timerLocal);
+    if(_timerLocal<=0){clearInterval(_timerInterval);_timerInterval=null;el.classList.remove('visible');}
   },1000);
 }
 function renderCount(el,sec){
@@ -131,25 +125,20 @@ function renderCount(el,sec){
   el.className='OV-timer-count'+(sec<=30?' warning':'');
 }
 
-// ── Theme ──
-function applyTheme(theme,customColors){
+/* ── Theme ── */
+function applyTheme(theme,cc){
   document.body.className=document.body.className.replace(/theme-\S+/g,'').trim();
-  var root=document.documentElement;
-  ['--ov-bg','--ov-price-bg','--ov-header','--ov-code','--ov-accent','--ov-brand','--ov-text','--ov-muted','--ov-border','--ov-row-odd','--ov-row-even','--ov-footer','--ov-white'].forEach(function(v){ root.style.removeProperty(v); });
-  if(theme==='theme-custom'&&customColors){
-    root.style.setProperty('--ov-bg',       customColors.bg     ||'#f0ece6');
-    root.style.setProperty('--ov-price-bg', customColors.price  ||'#d9cfc4');
-    root.style.setProperty('--ov-header',   customColors.header ||'#3d4f47');
-    root.style.setProperty('--ov-code',     customColors.code   ||'#8b1a1a');
-    root.style.setProperty('--ov-accent',   customColors.accent ||'#5c7a6b');
-    root.style.setProperty('--ov-brand',    customColors.accent ||'#5c7a6b');
-    root.style.setProperty('--ov-text',     customColors.text   ||'#2c2c2c');
-  } else if(theme&&theme!=='theme-custom'){
-    document.body.classList.add(theme);
-  }
+  var r=document.documentElement;
+  ['--ov-bg','--ov-price-bg','--ov-header','--ov-code','--ov-accent','--ov-brand','--ov-text','--ov-muted','--ov-border','--ov-row-odd','--ov-row-even','--ov-footer','--ov-white'].forEach(function(v){r.style.removeProperty(v);});
+  if(theme==='theme-custom'&&cc){
+    r.style.setProperty('--ov-bg',cc.bg||'#f0ece6');r.style.setProperty('--ov-price-bg',cc.price||'#d9cfc4');
+    r.style.setProperty('--ov-header',cc.header||'#3d4f47');r.style.setProperty('--ov-code',cc.code||'#8b1a1a');
+    r.style.setProperty('--ov-accent',cc.accent||'#5c7a6b');r.style.setProperty('--ov-brand',cc.accent||'#5c7a6b');
+    r.style.setProperty('--ov-text',cc.text||'#2c2c2c');
+  } else if(theme&&theme!=='theme-custom'){document.body.classList.add(theme);}
 }
 
-// ── Firebase Load ──
+/* ── Firebase ── */
 window.addEventListener('load',function(){
   var s1=document.createElement('script');
   s1.src='https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js';
@@ -159,8 +148,7 @@ window.addEventListener('load',function(){
     s2.onload=function(){
       var s3=document.createElement('script');
       s3.src='https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js';
-      s3.onload=function(){ startDB(); };
-      s3.onerror=function(){ startDB(); };
+      s3.onload=function(){startDB();};s3.onerror=function(){startDB();};
       document.head.appendChild(s3);
     };
     document.head.appendChild(s2);
@@ -168,153 +156,153 @@ window.addEventListener('load',function(){
   document.head.appendChild(s1);
 });
 
-// ── startDB ──
 function startDB(){
   try{
     if(!firebase.apps.length) firebase.initializeApp({apiKey:API_KEY,projectId:PROJECT_ID,databaseURL:DB_URL});
     _db=firebase.database();
-
-    // ดึงชื่อร้านจาก Firestore
     try{
-      var _fs=firebase.firestore();
-      _fs.collection('users').where('shopId','==',_shopId).limit(1).get()
+      var fs=firebase.firestore();
+      fs.collection('users').where('shopId','==',_shopId).limit(1).get()
       .then(function(snap){
         _shopName=(!snap.empty&&snap.docs[0].data().shopName)?snap.docs[0].data().shopName:'CHICCOCO';
         draw();
-      }).catch(function(){ _shopName='CHICCOCO'; draw(); });
-    }catch(e){ _shopName='CHICCOCO'; draw(); }
+      }).catch(function(){_shopName='CHICCOCO';draw();});
+    }catch(e){_shopName='CHICCOCO';draw();}
 
-    // Listeners
-    _db.ref(_shopPath+'/products').on('value',function(s){
-      var d=s.val(); if(d){_prod=d; draw();}
-    });
+    _db.ref(_shopPath+'/products').on('value',function(s){var d=s.val();if(d){_prod=d;draw();}});
     _db.ref(_shopPath+'/state').on('value',function(s){
-      var d=s.val();
-      if(d){
-        _state=d;
-        if(d.theme!==undefined) applyTheme(d.theme,d.customColors);
-        draw();
-      }
+      var d=s.val();if(d){_state=d;if(d.theme!==undefined)applyTheme(d.theme,d.customColors);draw();}
     });
-    _db.ref(_shopPath+'/timer').on('value',function(s){ drawTimer(s.val()); });
-    _db.ref(_shopPath+'/edits').on('value',function(s){ _edits=s.val()||{}; draw(); });
-
-  }catch(e){ console.error('Firebase error',e); }
+    _db.ref(_shopPath+'/timer').on('value',function(s){drawTimer(s.val());});
+    _db.ref(_shopPath+'/edits').on('value',function(s){_edits=s.val()||{};draw();});
+  }catch(e){console.error('Firebase error',e);}
 }
 
-// ── Helpers ──
+/* ── Helpers ── */
 function getP(code){
-  var p=_prod[code]; if(!p) return null;
-  var p2=Object.assign({},p), e=_edits[code];
-  if(e){ if(e.name)p2.name=e.name; if(e.color)p2.color=e.color; if(e.material)p2.material=e.material; if(e.size)p2.size=e.size; if(e.price)p2.price=e.price; if(e.sizes)p2.sizes=e.sizes; }
+  var p=_prod[code];if(!p)return null;
+  var p2=Object.assign({},p),e=_edits[code];
+  if(e){if(e.name)p2.name=e.name;if(e.color)p2.color=e.color;if(e.material)p2.material=e.material;if(e.size)p2.size=e.size;if(e.price)p2.price=e.price;if(e.sizes)p2.sizes=e.sizes;}
   return p2;
 }
-function fmt(v){ var n=Number(v); return isNaN(n)?v:n.toLocaleString(); }
+function fmt(v){var n=Number(v);return isNaN(n)?v:n.toLocaleString();}
+
+/* autoFs: คำนวณ font-size ให้พอดีกับ cell — ใช้ทั้ง vertical และ horizontal */
 function autoFs(val,cellW,base,min){
-  var len=String(val||'').length; if(len===0) return base;
+  var len=String(val||'').length;if(len===0)return base;
   return Math.min(base,Math.max(min,Math.floor(cellW/(len*0.58))));
 }
 
-// ── Draw ──
+/* infoVal font-size: ขนาดเท่ากันทั้งสี+วัสดุ แต่ถ้ายาวให้เล็กลง */
+function infoValFs(color,material,base){
+  var maxLen=Math.max((color||'').length,(material||'').length);
+  if(maxLen<=4) return base;
+  if(maxLen<=8) return Math.round(base*0.85);
+  if(maxLen<=14) return Math.round(base*0.7);
+  return Math.round(base*0.55);
+}
+
+/* ── Draw ── */
 function draw(){
-  if(!_state||!_state.code) return;
-  var p=getP(_state.code); if(!p) return;
-  var sold=_state.soldSizes||[], sale=_state.salePrice||null;
-  var av=(p.sizes||[]).filter(function(s){ return sold.indexOf(s.size)===-1; });
-  var lb=av.map(function(s){ return s.size; }).filter(Boolean);
+  if(!_state||!_state.code)return;
+  var p=getP(_state.code);if(!p)return;
+  var sold=_state.soldSizes||[],sale=_state.salePrice||null;
+  var av=(p.sizes||[]).filter(function(s){return sold.indexOf(s.size)===-1;});
+  var lb=av.map(function(s){return s.size;}).filter(Boolean);
   var co=p.activeCols||[];
   var brand=_shopName||'CHICCOCO';
-  var layout=(_state.layout==='horizontal')?'horizontal':'vertical';
+  var isH=(_state.layout==='horizontal');
   var ov=document.getElementById('OV');
 
   var ph=sale
     ?'<div class="OV-price"><div class="OV-price-lbl">ราคา</div><div class="OV-price-sale"><div class="OV-price-original">'+fmt(p.price)+'</div><div class="OV-price-new">'+fmt(sale)+'</div></div></div>'
     :'<div class="OV-price"><div class="OV-price-lbl">ราคา</div><div class="OV-price-num">'+fmt(p.price)+'</div></div>';
 
-  if(layout==='horizontal'){
-    // ── Layout A: รหัส+ราคา ซ้าย | ตาราง ขวา (35:65) ──
-    var totalCols=co.length+1;
-    var cellW=Math.floor(451/totalCols);
-    var hdrFs=totalCols<=3?30:totalCols<=5?26:22;
-    var tdFs=35, tdSzFs=35;
+  /* ── ขนาด cell สำหรับตาราง ── */
+  var totalCols=co.length+1;
+  var OVW=isH?1200:720; /* horizontal กว้างขึ้น */
+  var tableW=isH?Math.round(OVW*0.58):OVW-48;
+  var cellW=Math.floor(tableW/totalCols);
+  var hdrFs=totalCols<=3?28:totalCols<=5?26:22;
+  var tdBase=isH?44:44; /* ใช้ขนาดเดียวกัน */
+  var tdMin=isH?18:18;
 
-    var infoHtml='';
-    if(p.color) infoHtml+='<div class="OV-info"><div class="OV-info-lbl">สี</div><div class="OV-info-val" style="font-size:26px;">'+p.color+'</div></div>';
-    if(p.material) infoHtml+='<div class="OV-info"><div class="OV-info-lbl">วัสดุ</div><div class="OV-info-val" style="font-size:26px;">'+p.material+'</div></div>';
-    if(infoHtml) infoHtml='<div class="OV-inforow">'+infoHtml+'</div>';
+  /* infoVal size เท่ากันทั้งสี+วัสดุ */
+  var ivFs=infoValFs(p.color,p.material,44);
 
-    var leftHtml='<div class="OV-col-left">'
-      +'<div class="OV-box"><div class="OV-box-lbl">รหัสสินค้า</div><div class="OV-box-code">'+p.code+'</div></div>'
-      +ph
-      +'<div class="OV-name" style="font-size:30px;text-align:left;">'+p.name+'</div>'
-      +infoHtml
-      +'</div>';
+  /* สร้าง inforow */
+  function makeInfoRow(){
+    if(!p.color&&!p.material)return '';
+    var inner='';
+    if(p.color)    inner+='<div class="OV-info"><div class="OV-info-lbl">สี</div><div class="OV-info-val" style="font-size:'+ivFs+'px;">'+p.color+'</div></div>';
+    if(p.material) inner+='<div class="OV-info"><div class="OV-info-lbl">วัสดุ</div><div class="OV-info-val" style="font-size:'+ivFs+'px;">'+p.material+'</div></div>';
+    return '<div class="OV-inforow">'+inner+'</div>';
+  }
 
-    var rightContent='';
-    if(p.type==='misc'){
-      var ms=p.size||(p.sizes&&p.sizes.length?p.sizes.map(function(s){return s.size;}).filter(Boolean).join(', '):'');
-      rightContent=(ms?'<div class="OV-box"><div class="OV-box-lbl">ขนาดสินค้า</div><div class="OV-box-sizes">'+ms+'</div></div>':'');
-    } else {
-      var rows=av.map(function(s){
-        var sFs=autoFs(s.size,cellW,tdSzFs,18);
-        var cells='<td style="font-size:'+sFs+'px;font-weight:800;color:var(--ov-code);font-family:\'Kanit\',sans-serif;padding:10px 5px;">'+s.size+'</td>';
-        co.forEach(function(col){
-          var val=s[col]||'—';
-          var vFs=autoFs(val,cellW,tdFs,18);
-          cells+='<td style="font-size:'+vFs+'px;padding:10px 5px;">'+val+'</td>';
-        });
-        return '<tr>'+cells+'</tr>';
-      }).join('');
-      rightContent='<div class="OV-box"><div class="OV-box-lbl">ไซส์เหลือ</div><div class="OV-box-sizes">'+(lb.join(', ')||'—')+'</div></div>'
-        +(rows?'<table class="OV-table"><thead><tr><th style="font-size:'+hdrFs+'px;padding:12px 5px;">ไซส์</th>'+co.map(function(col){return '<th style="font-size:'+hdrFs+'px;padding:12px 5px;">'+col+'</th>';}).join('')+'</tr></thead><tbody>'+rows+'</tbody></table>':'');
-    }
-    var rightHtml='<div class="OV-col-right">'+rightContent+'</div>';
+  /* สร้างตาราง */
+  function makeTable(){
+    if(p.type==='misc'||!av.length)return '';
+    var rows=av.map(function(s){
+      var sFs=autoFs(s.size,cellW,40,16);
+      var cells='<td style="font-size:'+sFs+'px;font-weight:800;color:var(--ov-code);font-family:\'Kanit\',sans-serif;padding:10px 4px;">'+s.size+'</td>';
+      co.forEach(function(col){
+        var val=s[col]||'—';
+        var vFs=autoFs(val,cellW,tdBase,tdMin);
+        cells+='<td style="font-size:'+vFs+'px;padding:10px 4px;">'+val+'</td>';
+      });
+      return '<tr>'+cells+'</tr>';
+    }).join('');
+    var thead='<tr><th style="font-size:'+hdrFs+'px;padding:12px 4px;">ไซส์</th>'+co.map(function(col){return '<th style="font-size:'+hdrFs+'px;padding:12px 4px;">'+col+'</th>';}).join('')+'</tr>';
+    return '<table class="OV-table"><thead>'+thead+'</thead><tbody>'+rows+'</tbody></table>';
+  }
 
-    ov.innerHTML='<div class="OV-brand-full">'+brand+'</div>'
-      +'<div class="OV-content-row">'+leftHtml+rightHtml+'</div>'
-      +'<div class="OV-footer-full">Chiccoco Live @ 2025</div>';
+  /* ── HORIZONTAL ── */
+  if(isH){
+    var miscSize=p.size||(p.sizes&&p.sizes.length?p.sizes.map(function(s){return s.size;}).filter(Boolean).join(', '):'');
+    var rightContent=p.type==='misc'
+      ?(miscSize?'<div class="OV-box"><div class="OV-box-lbl">ขนาดสินค้า</div><div class="OV-box-sizes">'+miscSize+'</div></div>':'')
+      :'<div class="OV-box"><div class="OV-box-lbl">ไซส์เหลือ</div><div class="OV-box-sizes">'+(lb.join(', ')||'—')+'</div></div>'+makeTable();
+
+    ov.style.width=OVW+'px';
+    ov.innerHTML=
+      '<div class="OV-brand">'+brand+'</div>'
+      +'<div style="display:flex;gap:16px;align-items:stretch;width:100%;">'
+        +'<div class="OV-col-L">'
+          +'<div class="OV-box"><div class="OV-box-lbl">รหัสสินค้า</div><div class="OV-box-code">'+p.code+'</div></div>'
+          +ph
+          +'<div class="OV-name" style="text-align:left;font-size:32px;">'+p.name+'</div>'
+          +makeInfoRow()
+        +'</div>'
+        +'<div class="OV-col-R">'+rightContent+'</div>'
+      +'</div>'
+      +'<div class="OV-footer">'+brand+' Live @ 2025</div>';
     ov.className='OV horizontal visible';
 
+  /* ── VERTICAL ── */
   } else {
-    // ── แนวตั้ง ──
-    var totalColsV=co.length+1;
-    var cellWV=Math.floor(660/totalColsV);
-    var hdrFsV=totalColsV<=3?26:totalColsV<=5?22:18;
+    ov.style.width='720px';
     var h='';
-
     if(p.type==='misc'){
       var ms2=p.size||(p.sizes&&p.sizes.length?p.sizes.map(function(s){return s.size;}).filter(Boolean).join(', '):'');
       h='<div class="OV-brand">'+brand+'</div>'
-        +'<div class="OV-toprow" style="display:flex;gap:12px;">'
-        +'<div class="OV-box" style="flex:1.1"><div class="OV-box-lbl">รหัสสินค้า</div><div class="OV-box-code">'+p.code+'</div></div>'
-        +ph.replace('class="OV-price"','class="OV-price" style="flex:1"')
+        +'<div class="OV-toprow">'
+          +'<div class="OV-box"><div class="OV-box-lbl">รหัสสินค้า</div><div class="OV-box-code">'+p.code+'</div></div>'
+          +ph.replace('class="OV-price"','class="OV-price" style="flex:1"')
         +'</div>'
         +'<div class="OV-name">'+p.name+'</div>'
-        +'<div class="OV-inforow">'
-        +(p.color?'<div class="OV-info"><div class="OV-info-lbl">สี</div><div class="OV-info-val">'+p.color+'</div></div>':'')
-        +(ms2?'<div class="OV-info"><div class="OV-info-lbl">ขนาด</div><div class="OV-info-val" style="font-size:30px;">'+ms2+'</div></div>':'')
-        +'</div>'
-        +(p.material?'<div class="OV-inforow"><div class="OV-info"><div class="OV-info-lbl">วัสดุ</div><div class="OV-info-val" style="font-size:26px;">'+p.material+'</div></div></div>':'')
+        +makeInfoRow()
+        +(ms2?'<div class="OV-inforow"><div class="OV-info"><div class="OV-info-lbl">ขนาด</div><div class="OV-info-val" style="font-size:30px;">'+ms2+'</div></div></div>':'')
         +'<div class="OV-footer">Chiccoco Live @ 2025</div>';
     } else {
-      var rowsV=av.map(function(s){
-        var sFs=autoFs(s.size,cellWV,40,18);
-        var cells='<td style="font-size:'+sFs+'px;font-weight:800;color:var(--ov-code);font-family:\'Kanit\',sans-serif;">'+s.size+'</td>';
-        co.forEach(function(col){ var val=s[col]||'—'; var vFs=autoFs(val,cellWV,44,18); cells+='<td style="font-size:'+vFs+'px;">'+val+'</td>'; });
-        return '<tr>'+cells+'</tr>';
-      }).join('');
       h='<div class="OV-brand">'+brand+'</div>'
-        +'<div class="OV-toprow" style="display:flex;gap:12px;">'
-        +'<div class="OV-box"><div class="OV-box-lbl">รหัสสินค้า</div><div class="OV-box-code">'+p.code+'</div></div>'
-        +'<div class="OV-box"><div class="OV-box-lbl">ไซส์</div><div class="OV-box-sizes">'+(lb.join(', ')||'—')+'</div></div>'
+        +'<div class="OV-toprow">'
+          +'<div class="OV-box"><div class="OV-box-lbl">รหัสสินค้า</div><div class="OV-box-code">'+p.code+'</div></div>'
+          +'<div class="OV-box"><div class="OV-box-lbl">ไซส์</div><div class="OV-box-sizes">'+(lb.join(', ')||'—')+'</div></div>'
         +'</div>'
         +ph
         +'<div class="OV-name">'+p.name+'</div>'
-        +'<div class="OV-inforow">'
-        +(p.color?'<div class="OV-info"><div class="OV-info-lbl">สี</div><div class="OV-info-val">'+p.color+'</div></div>':'')
-        +(p.material?'<div class="OV-info"><div class="OV-info-lbl">วัสดุ</div><div class="OV-info-val" style="font-size:26px;">'+p.material+'</div></div>':'')
-        +'</div>'
-        +(rowsV?'<table class="OV-table"><thead><tr><th style="font-size:'+hdrFsV+'px;">ไซส์</th>'+co.map(function(col){return '<th style="font-size:'+hdrFsV+'px;">'+col+'</th>';}).join('')+'</tr></thead><tbody>'+rowsV+'</tbody></table>':'')
+        +makeInfoRow()
+        +makeTable()
         +'<div class="OV-footer">Chiccoco Live @ 2025</div>';
     }
     ov.innerHTML=h;
