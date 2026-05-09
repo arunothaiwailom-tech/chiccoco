@@ -196,10 +196,11 @@ function autoFs(val,cellW,base,min){
 /* infoVal font-size: ขนาดเท่ากันทั้งสี+วัสดุ แต่ถ้ายาวให้เล็กลง */
 function infoValFs(color,material,base){
   var maxLen=Math.max((color||'').length,(material||'').length);
-  if(maxLen<=4) return base;
-  if(maxLen<=8) return Math.round(base*0.85);
-  if(maxLen<=14) return Math.round(base*0.7);
-  return Math.round(base*0.55);
+  if(maxLen<=4)  return 44;   /* ดำ, แดง, ขาว */
+  if(maxLen<=8)  return 40;   /* Cotton, ครีม */
+  if(maxLen<=14) return 36;   /* 92% Polyamide */
+  if(maxLen<=22) return 30;   /* 92% Polyamide, 8% */
+  return 26;                  /* ยาวมาก */
 }
 
 /* ── Draw ── */
