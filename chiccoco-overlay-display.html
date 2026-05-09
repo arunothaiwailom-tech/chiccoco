@@ -196,13 +196,7 @@ function autoFs(val,cellW,base,min){
 
 /* infoVal font-size: ขนาดเท่ากันทั้งสี+วัสดุ แต่ถ้ายาวให้เล็กลง */
 function infoValFs(color,material,base){
-  /* ขนาดตามความยาวข้อความ — ขั้นต่ำ 50px ถ้าสั้น */
-  var maxLen=Math.max((color||'').length,(material||'').length);
-  if(maxLen<=4)  return 50;
-  if(maxLen<=8)  return 46;
-  if(maxLen<=14) return 40;
-  if(maxLen<=22) return 34;
-  return 28;
+  return 50; /* 50px คงที่ — ตัดบรรทัดอัตโนมัติถ้ายาว */
 }
 
 /* ── Draw ── */
