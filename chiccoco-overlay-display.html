@@ -55,6 +55,11 @@ body.theme-gold { --ov-bg:#fdf8ee; --ov-accent:#b8860b; --ov-code:#8b1a1a; --ov-
 .OV-table tbody tr:nth-child(odd) { background:var(--ov-row-odd); }
 .OV-table tbody tr:nth-child(even) { background:var(--ov-row-even); }
 .OV-table tbody td { padding:10px 4px; text-align:center; font-weight:600; color:var(--ov-text); font-family:'Sarabun',sans-serif; overflow:hidden; white-space:nowrap; }
+.OV-brand-full { text-align:center; font-family:'Kanit',sans-serif; font-size:40px; font-weight:700; letter-spacing:6px; color:var(--ov-brand); text-transform:uppercase; width:100%; }
+.OV-footer-full { text-align:center; font-family:'Kanit',sans-serif; font-size:18px; color:var(--ov-footer); letter-spacing:4px; width:100%; }
+.OV-content-row { display:flex; gap:14px; align-items:stretch; }
+.OV-col-left { width:245px; flex-shrink:0; display:flex; flex-direction:column; gap:10px; }
+.OV-col-right { flex:1; display:flex; flex-direction:column; gap:10px; }
 .OV-footer { text-align:center; font-family:'Kanit',sans-serif; font-size:18px; font-weight:400; color:var(--ov-footer); letter-spacing:4px; padding-top:2px; }
 
 /* ── HORIZONTAL LAYOUT A ── */
@@ -62,14 +67,14 @@ body.theme-gold { --ov-bg:#fdf8ee; --ov-accent:#b8860b; --ov-code:#8b1a1a; --ov-
 .OV.horizontal .OV-left { display:flex; flex-direction:column; gap:12px; width:210px; flex-shrink:0; }
 .OV.horizontal .OV-right { flex:1; display:flex; flex-direction:column; gap:12px; justify-content:space-between; }
 .OV.horizontal .OV-brand { font-size:11px; letter-spacing:4px; }
-.OV.horizontal .OV-box-code { font-size:48px !important; }
-.OV.horizontal .OV-price-num { font-size:48px !important; }
-.OV.horizontal .OV-price-new { font-size:48px !important; }
-.OV.horizontal .OV-price-original { font-size:26px !important; }
-.OV.horizontal .OV-name { font-size:15px !important; }
-.OV.horizontal .OV-info-val { font-size:18px !important; }
-.OV.horizontal .OV-table thead th { font-size:16px !important; padding:8px 4px; }
-.OV.horizontal .OV-table tbody td { font-size:22px !important; padding:7px 4px; }
+.OV.horizontal .OV-box-code { font-size:64px !important; }
+.OV.horizontal .OV-price-num { font-size:64px !important; }
+.OV.horizontal .OV-price-new { font-size:64px !important; }
+.OV.horizontal .OV-price-original { font-size:30px !important; }
+.OV.horizontal .OV-name { font-size:30px !important; }
+.OV.horizontal .OV-info-val { font-size:26px !important; }
+.OV.horizontal .OV-table thead th { font-size:26px !important; padding:10px 5px; }
+.OV.horizontal .OV-table tbody td { font-size:35px !important; padding:10px 5px; }
 </style>
 </head>
 <body>
@@ -225,59 +230,77 @@ function draw(){
   var lb=av.map(function(s){ return s.size; }).filter(Boolean);
   var co=p.activeCols||[];
   var brand=_shopName||'CHICCOCO';
-  var layout=(_state.layout==='horizontal')?'horizontal':'vertical';
+  var layout=(_state&&_state.layout==='horizontal')?'horizontal':'vertical';
 
   var ph=sale
     ?'<div class="OV-price"><div class="OV-price-lbl">ราคา</div><div class="OV-price-sale"><div class="OV-price-original">'+fmt(p.price)+'</div><div class="OV-price-new">'+fmt(sale)+'</div></div></div>'
     :'<div class="OV-price"><div class="OV-price-lbl">ราคา</div><div class="OV-price-num">'+fmt(p.price)+'</div></div>';
 
-  var footer='<div class="OV-footer">Chiccoco Live @ 2025</div>';
-  var h='';
   var ov=document.getElementById('OV');
 
+  // ── BRAND & FOOTER (full width, centered) ──
+  var brandDiv='<div class="OV-brand-full">'+brand+'</div>';
+  var footerDiv='<div class="OV-footer-full">Chiccoco Live @ 2025</div>';
+
   if(layout==='horizontal'){
-    // แนวนอน แบบ A
+    // ── Layout A: ซ้าย=รหัส+ราคา+ชื่อ+สี | ขวา=ไซส์+ตาราง ──
+    // สัดส่วน 35:65 — ซ้าย 245px / ขวา flex:1
     var totalCols=co.length+1;
-    var cellW=Math.floor(440/totalCols);
-    var hdrFs=totalCols<=3?22:totalCols<=5?18:15;
+    var cellW=Math.floor(451/totalCols); // ตาราง ~451px
+    var hdrFs=totalCols<=3?30:totalCols<=5?26:22;
+    var tdFs=35; // ✅ ตัวเลขในตาราง 35px
+    var tdSzFs=35;
+
     var infoHtml='';
-    if(p.color) infoHtml+='<div class="OV-info"><div class="OV-info-lbl">สี</div><div class="OV-info-val" style="font-size:18px">'+p.color+'</div></div>';
-    if(p.material) infoHtml+='<div class="OV-info"><div class="OV-info-lbl">วัสดุ</div><div class="OV-info-val" style="font-size:14px">'+p.material+'</div></div>';
+    if(p.color||p.material){
+      infoHtml='<div class="OV-inforow">';
+      if(p.color) infoHtml+='<div class="OV-info"><div class="OV-info-lbl">สี</div><div class="OV-info-val" style="font-size:26px;">'+p.color+'</div></div>';
+      if(p.material) infoHtml+='<div class="OV-info"><div class="OV-info-lbl">วัสดุ</div><div class="OV-info-val" style="font-size:26px;">'+p.material+'</div></div>';
+      infoHtml+='</div>';
+    }
+
+    var leftHtml='<div class="OV-col-left">'
+      +'<div class="OV-box"><div class="OV-box-lbl">รหัสสินค้า</div><div class="OV-box-code">'+p.code+'</div></div>'
+      +ph
+      +'<div class="OV-name" style="font-size:30px;">'+p.name+'</div>'
+      +infoHtml
+      +'</div>';
 
     var rightContent='';
     if(p.type==='misc'){
       var ms=p.size||(p.sizes&&p.sizes.length?p.sizes.map(function(s){return s.size;}).filter(Boolean).join(', '):'');
-      rightContent=(ms?'<div class="OV-box"><div class="OV-box-lbl">ขนาด</div><div class="OV-box-sizes">'+ms+'</div></div>':'')+footer;
+      rightContent=(ms?'<div class="OV-box"><div class="OV-box-lbl">ขนาดสินค้า</div><div class="OV-box-sizes">'+ms+'</div></div>':'');
+      if(p.color&&!infoHtml) rightContent+='<div class="OV-inforow"><div class="OV-info"><div class="OV-info-lbl">สี</div><div class="OV-info-val">'+p.color+'</div></div></div>';
     } else {
       var rows=av.map(function(s){
-        var sFs=autoFs(s.size,cellW,26,14);
-        var cells='<td style="font-size:'+sFs+'px;font-weight:800;color:var(--ov-code);font-family:\'Kanit\',sans-serif;">'+s.size+'</td>';
-        co.forEach(function(col){ var val=s[col]||'—'; var vFs=autoFs(val,cellW,28,14); cells+='<td style="font-size:'+vFs+'px;">'+val+'</td>'; });
+        var cells='<td style="font-size:'+tdSzFs+'px;font-weight:800;color:var(--ov-code);font-family:'Kanit',sans-serif;padding:10px 5px;">'+s.size+'</td>';
+        co.forEach(function(col){
+          var val=s[col]||'—';
+          var vFs=autoFs(val,cellW,tdFs,16);
+          cells+='<td style="font-size:'+vFs+'px;padding:10px 5px;">'+val+'</td>';
+        });
         return '<tr>'+cells+'</tr>';
       }).join('');
       rightContent='<div class="OV-box"><div class="OV-box-lbl">ไซส์เหลือ</div><div class="OV-box-sizes">'+(lb.join(', ')||'—')+'</div></div>'
-        +(rows?'<table class="OV-table"><thead><tr><th style="font-size:'+hdrFs+'px;">ไซส์</th>'+co.map(function(c){return '<th style="font-size:'+hdrFs+'px;">'+c+'</th>';}).join('')+'</tr></thead><tbody>'+rows+'</tbody></table>':'')
-        +footer;
+        +(rows?'<table class="OV-table"><thead><tr>'
+          +'<th style="font-size:'+hdrFs+'px;padding:12px 5px;">ไซส์</th>'
+          +co.map(function(col){return '<th style="font-size:'+hdrFs+'px;padding:12px 5px;">'+col+'</th>';}).join('')
+          +'</tr></thead><tbody>'+rows+'</tbody></table>':'');
     }
 
-    h='<div class="OV-left">'
-      +'<div class="OV-brand">'+brand+'</div>'
-      +'<div class="OV-box"><div class="OV-box-lbl">รหัสสินค้า</div><div class="OV-box-code">'+p.code+'</div></div>'
-      +ph
-      +'<div class="OV-name" style="font-size:14px;text-align:left;">'+p.name+'</div>'
-      +(infoHtml?'<div class="OV-inforow">'+infoHtml+'</div>':'')
-      +'</div>'
-      +'<div class="OV-right">'+rightContent+'</div>';
+    var rightHtml='<div class="OV-col-right">'+rightContent+'</div>';
+    var contentRow='<div class="OV-content-row">'+leftHtml+rightHtml+'</div>';
 
-    ov.innerHTML=h;
-    ov.className='OV horizontal visible';
+    ov.innerHTML=brandDiv+contentRow+footerDiv;
+    ov.className='OV visible';
 
   } else {
-    // แนวตั้ง
+    // ── แนวตั้ง (เดิม) ──
     var totalColsV=co.length+1;
     var cellWV=Math.floor(660/totalColsV);
     var hdrFsV=totalColsV<=3?26:totalColsV<=5?22:18;
 
+    var h='';
     if(p.type==='misc'){
       var ms2=p.size||(p.sizes&&p.sizes.length?p.sizes.map(function(s){return s.size;}).filter(Boolean).join(', '):'');
       h='<div class="OV-brand">'+brand+'</div>'
@@ -288,18 +311,21 @@ function draw(){
         +'<div class="OV-name">'+p.name+'</div>'
         +'<div class="OV-inforow">'
         +(p.color?'<div class="OV-info"><div class="OV-info-lbl">สี</div><div class="OV-info-val">'+p.color+'</div></div>':'')
-        +(ms2?'<div class="OV-info"><div class="OV-info-lbl">ขนาด</div><div class="OV-info-val" style="font-size:30px">'+ms2+'</div></div>':'')
+        +(ms2?'<div class="OV-info"><div class="OV-info-lbl">ขนาด</div><div class="OV-info-val" style="font-size:30px;">'+ms2+'</div></div>':'')
         +'</div>'
-        +(p.material?'<div class="OV-inforow"><div class="OV-info"><div class="OV-info-lbl">วัสดุ</div><div class="OV-info-val" style="font-size:26px">'+p.material+'</div></div></div>':'')
-        +footer;
+        +(p.material?'<div class="OV-inforow"><div class="OV-info"><div class="OV-info-lbl">วัสดุ</div><div class="OV-info-val" style="font-size:26px;">'+p.material+'</div></div></div>':'')
+        +'<div class="OV-footer">Chiccoco Live @ 2025</div>';
     } else {
       var rowsV=av.map(function(s){
         var sFs=autoFs(s.size,cellWV,40,18);
-        var cells='<td style="font-size:'+sFs+'px;font-weight:800;color:var(--ov-code);font-family:\'Kanit\',sans-serif;">'+s.size+'</td>';
-        co.forEach(function(col){ var val=s[col]||'—'; var vFs=autoFs(val,cellWV,44,18); cells+='<td style="font-size:'+vFs+'px;">'+val+'</td>'; });
+        var cells='<td style="font-size:'+sFs+'px;font-weight:800;color:var(--ov-code);font-family:'Kanit',sans-serif;">'+s.size+'</td>';
+        co.forEach(function(col){
+          var val=s[col]||'—';
+          var vFs=autoFs(val,cellWV,44,18);
+          cells+='<td style="font-size:'+vFs+'px;">'+val+'</td>';
+        });
         return '<tr>'+cells+'</tr>';
       }).join('');
-
       h='<div class="OV-brand">'+brand+'</div>'
         +'<div class="OV-toprow">'
         +'<div class="OV-box"><div class="OV-box-lbl">รหัสสินค้า</div><div class="OV-box-code">'+p.code+'</div></div>'
@@ -309,16 +335,16 @@ function draw(){
         +'<div class="OV-name">'+p.name+'</div>'
         +'<div class="OV-inforow">'
         +(p.color?'<div class="OV-info"><div class="OV-info-lbl">สี</div><div class="OV-info-val">'+p.color+'</div></div>':'')
-        +(p.material?'<div class="OV-info"><div class="OV-info-lbl">วัสดุ</div><div class="OV-info-val" style="font-size:26px">'+p.material+'</div></div>':'')
+        +(p.material?'<div class="OV-info"><div class="OV-info-lbl">วัสดุ</div><div class="OV-info-val" style="font-size:26px;">'+p.material+'</div></div>':'')
         +'</div>'
-        +(rowsV?'<table class="OV-table"><thead><tr><th style="font-size:'+hdrFsV+'px;">ไซส์</th>'+co.map(function(c){return '<th style="font-size:'+hdrFsV+'px;">'+c+'</th>';}).join('')+'</tr></thead><tbody>'+rowsV+'</tbody></table>':'')
-        +footer;
+        +(rowsV?'<table class="OV-table"><thead><tr><th style="font-size:'+hdrFsV+'px;">ไซส์</th>'+co.map(function(col){return '<th style="font-size:'+hdrFsV+'px;">'+col+'</th>';}).join('')+'</tr></thead><tbody>'+rowsV+'</tbody></table>':'')
+        +'<div class="OV-footer">Chiccoco Live @ 2025</div>';
     }
-
     ov.innerHTML=h;
     ov.className='OV visible';
   }
 }
+
 </script>
 </body>
 </html>
