@@ -213,7 +213,6 @@ window.doLogin = async function() {
     const data = snap.data();
     const status = data.status || 'active';
     const expireDate = data.expireDate || '2099-12-31';
-    const today = new Date().toISOString().split('T')[0];
     const isAdmin = data.role === 'admin';
 
     // บันทึก session
@@ -228,6 +227,9 @@ window.doLogin = async function() {
         showError('บัญชีถูกระงับ กรุณาติดต่อ @395vujby ค่ะ');
         btn.disabled = false; btn.textContent = 'เข้าสู่ระบบ'; return;
       }
+      // ใช้ local date เพื่อป้องกัน timezone offset (UTC vs UTC+7)
+      const now = new Date();
+      const today = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
       if (expireDate < today) {
         window.location.href = 'renew.html'; return;
       }
