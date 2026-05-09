@@ -56,11 +56,11 @@ body.theme-gold    { --ov-bg:#fdf8ee; --ov-accent:#b8860b; --ov-code:#8b1a1a; --
   white-space:normal; overflow-wrap:break-word; word-break:break-word; }
 .OV-table   { width:100%; border-collapse:separate; border-spacing:0; border-radius:18px; overflow:hidden; box-shadow:0 2px 10px rgba(0,0,0,.07); table-layout:fixed; }
 .OV-table thead tr { background:var(--ov-header); }
-.OV-table thead th { color:white; padding:12px 6px; font-size:30px; font-weight:700; text-align:center; font-family:'Sarabun',sans-serif; }
+.OV-table thead th { color:white; padding:12px 6px; font-size:35px; font-weight:700; text-align:center; font-family:'Sarabun',sans-serif; }
 .OV-table tbody tr:nth-child(odd)  { background:var(--ov-row-odd); }
 .OV-table tbody tr:nth-child(even) { background:var(--ov-row-even); }
-.OV-table tbody td { padding:10px 4px; text-align:center; font-size:44px; font-weight:600; color:var(--ov-text); overflow:hidden; }
-.OV-table tbody td:first-child { font-size:40px; font-weight:800; color:var(--ov-code); font-family:'Kanit',sans-serif; }
+.OV-table tbody td { padding:10px 4px; text-align:center; font-size:44px; font-weight:600; color:var(--ov-text); white-space:normal; overflow-wrap:break-word; word-break:break-word; }
+.OV-table tbody td:first-child { font-size:40px; font-weight:800; color:var(--ov-code); font-family:'Kanit',sans-serif; white-space:nowrap; }
 
 /* ── HORIZONTAL layout ── */
 .OV.horizontal {
@@ -227,8 +227,8 @@ function draw(){
   var OVW=isH?1200:720; /* horizontal กว้างขึ้น */
   var tableW=isH?Math.round(OVW*0.58):OVW-48;
   var cellW=Math.floor(tableW/totalCols);
-  var hdrFs=totalCols<=3?30:totalCols<=5?28:24;
-  var tdBase=isH?44:44; /* ใช้ขนาดเดียวกัน */
+  var hdrFs=35;
+  var tdBase=44; /* ใช้ขนาดเดียวกัน */
   var tdMin=isH?18:18;
 
   /* infoVal size เท่ากันทั้งสี+วัสดุ */
@@ -247,12 +247,12 @@ function draw(){
   function makeTable(){
     if(p.type==='misc'||!av.length)return '';
     var rows=av.map(function(s){
-      var sFs=autoFs(s.size,cellW,40,16);
+      var sFs=40;
       var cells='<td style="font-size:'+sFs+'px;font-weight:800;color:var(--ov-code);font-family:\'Kanit\',sans-serif;padding:10px 4px;">'+s.size+'</td>';
       co.forEach(function(col){
         var val=s[col]||'—';
-        var vFs=autoFs(val,cellW,tdBase,tdMin);
-        cells+='<td style="font-size:'+vFs+'px;padding:10px 4px;">'+val+'</td>';
+        var vFs=44;
+        cells+='<td style="font-size:'+vFs+'px;padding:10px 4px;white-space:normal;overflow-wrap:break-word;word-break:break-word;">'+val+'</td>';
       });
       return '<tr>'+cells+'</tr>';
     }).join('');
