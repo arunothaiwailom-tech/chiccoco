@@ -519,29 +519,89 @@ async function openCamera(){
   const modal=document.getElementById('cameraModal'), video=document.getElementById('cameraVideo');
   modal.classList.add('open');
   try{
-    _cameraStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});
-    video.srcObject=_cameraStream; await video.play();
+    // ✅ ขอกล้องหลัง (environment) ก่อน ถ้าไม่มีค่อยใช้กล้องหน้า
+    try{
+      _cameraStream=await navigator.mediaDevices.getUserMedia({
+        video:{ facingMode:{exact:'environment'}, width:{ideal:1280}, height:{ideal:720} }
+      });
+    }catch(e){
+      _cameraStream=await navigator.mediaDevices.getUserMedia({
+        video:{ facingMode:'environment', width:{ideal:1280}, height:{ideal:720} }
+      });
+    }
+    video.srcObject=_cameraStream;
+    await video.play();
     if(!window.ZXing){
       showToast('⏳ กำลังโหลด Scanner...');
       const s=document.createElement('script');
       s.src='https://unpkg.com/@zxing/library@0.19.1/umd/index.min.js';
-      s.onload=()=>{ showToast('📷 พร้อมสแกนแล้วค่ะ'); startScan(video); };
+      s.onload=()=>{ showToast('📷 พร้อมสแกนค่ะ'); startScan(video); };
       s.onerror=()=>{ showToast('❌ โหลด Scanner ไม่ได้ค่ะ'); closeCamera(); };
       document.head.appendChild(s);
     } else { startScan(video); }
-  }catch(e){ closeCamera(); showToast(e.name==='NotAllowedError'?'❌ กรุณาอนุญาตให้ใช้กล้องค่ะ':'❌ ไม่สามารถเปิดกล้องได้ค่ะ'); }
+  }catch(e){
+    closeCamera();
+    if(e.name==='NotAllowedError') showToast('❌ กรุณาอนุญาตให้ใช้กล้องค่ะ');
+    else if(e.name==='NotFoundError') showToast('❌ ไม่พบกล้องในอุปกรณ์นี้ค่ะ');
+    else showToast('❌ เปิดกล้องไม่ได้: '+e.message);
+  }
 }
+
 function startScan(video){
   try{
-    const r=new ZXing.BrowserMultiFormatReader();
-    r.decodeFromVideoElement(video,(result,err)=>{ if(result){ const code=result.getText().trim().toUpperCase(); closeCamera(); const found=Object.keys(products).find(k=>k.toLowerCase()===code.toLowerCase()); if(found){ selectProduct(found); showToast('📷 สแกนได้ '+found+' ค่ะ'); }else{ showToast('❌ ไม่พบรหัส '+code+' ค่ะ'); } } });
-    window._zxingReader=r;
-  }catch(e){ showToast('❌ ไม่รองรับการสแกนในอุปกรณ์นี้ค่ะ'); closeCamera(); }
+    const hints=new Map();
+    // ✅ รองรับบาร์โค้ดหลายรูปแบบ
+    hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS,[
+      ZXing.BarcodeFormat.CODE_128,
+      ZXing.BarcodeFormat.CODE_39,
+      ZXing.BarcodeFormat.EAN_13,
+      ZXing.BarcodeFormat.EAN_8,
+      ZXing.BarcodeFormat.QR_CODE,
+      ZXing.BarcodeFormat.DATA_MATRIX,
+      ZXing.BarcodeFormat.ITF,
+      ZXing.BarcodeFormat.UPC_A,
+      ZXing.BarcodeFormat.UPC_E,
+    ]);
+    hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
+
+    const reader=new ZXing.BrowserMultiFormatReader(hints);
+    window._zxingReader=reader;
+
+    // ✅ ใช้ decodeFromStream แทน decodeFromVideoElement
+    const stream=video.srcObject;
+    reader.decodeFromStream(stream, video, (result, err)=>{
+      if(result){
+        const code=result.getText().trim().toUpperCase();
+        closeCamera();
+        const found=Object.keys(products).find(k=>k.toLowerCase()===code.toLowerCase());
+        if(found){
+          selectProduct(found);
+          showToast('📷 สแกนได้ '+found+' ค่ะ');
+        } else {
+          // ✅ ถ้าไม่เจอใน products ให้ใส่ในช่อง scan แทน
+          document.getElementById('scanInput').value=code;
+          showToast('📷 สแกนได้: '+code+' (กด ยืนยัน เพื่อค้นหาค่ะ)');
+        }
+      }
+      // err ที่เกิดขึ้นตลอดเวลา (ยังไม่เจอบาร์โค้ด) ไม่ต้อง handle
+    });
+  }catch(e){
+    console.error('ZXing error:', e);
+    showToast('❌ Scanner error: '+e.message);
+    closeCamera();
+  }
 }
+
 function closeCamera(){
   document.getElementById('cameraModal').classList.remove('open');
-  if(window._zxingReader){ try{ window._zxingReader.reset(); }catch(e){} window._zxingReader=null; }
-  if(_cameraStream){ _cameraStream.getTracks().forEach(t=>t.stop()); _cameraStream=null; }
+  if(window._zxingReader){
+    try{ window._zxingReader.reset(); }catch(e){}
+    window._zxingReader=null;
+  }
+  if(_cameraStream){
+    _cameraStream.getTracks().forEach(t=>t.stop());
+    _cameraStream=null;
+  }
   focusScan();
 }
 
