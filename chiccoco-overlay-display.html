@@ -75,7 +75,7 @@ body.theme-gold    { --ov-bg:#fdf8ee; --ov-accent:#b8860b; --ov-code:#8b1a1a; --
 .OV-col-L { display:flex; flex-direction:column; gap:12px; flex:0 0 40%; }
 .OV-col-R { display:flex; flex-direction:column; gap:12px; flex:1; }
 /* ข้อความใน horizontal = แนวตั้ง เปลี่ยนแค่บางส่วน */
-.OV.horizontal .OV-name { text-align:left; font-size:32px; }
+.OV.horizontal .OV-name { text-align:center; font-size:32px; }
 /* info-val auto-shrink: ใช้ขนาดเดียวกับแนวตั้ง แต่ถ้าข้อความยาวให้ shrink */
 .OV.horizontal .OV-info-val {
   font-size:44px;
@@ -196,8 +196,13 @@ function autoFs(val,cellW,base,min){
 
 /* infoVal font-size: ขนาดเท่ากันทั้งสี+วัสดุ แต่ถ้ายาวให้เล็กลง */
 function infoValFs(color,material,base){
-  /* ใช้ขนาดเท่า OV-name (38px) เสมอ — wrap เป็นหลายบรรทัดถ้ายาว */
-  return 38;
+  /* ขนาดตามความยาวข้อความ — ขั้นต่ำ 50px ถ้าสั้น */
+  var maxLen=Math.max((color||'').length,(material||'').length);
+  if(maxLen<=4)  return 50;
+  if(maxLen<=8)  return 46;
+  if(maxLen<=14) return 40;
+  if(maxLen<=22) return 34;
+  return 28;
 }
 
 /* ── Draw ── */
@@ -274,7 +279,7 @@ function draw(){
         +'<div class="OV-col-L">'
           +'<div class="OV-box"><div class="OV-box-lbl">รหัสสินค้า</div><div class="OV-box-code">'+p.code+'</div></div>'
           +ph
-          +'<div class="OV-name" style="text-align:left;font-size:32px;">'+p.name+'</div>'
+          +'<div class="OV-name" style="text-align:center;font-size:32px;">'+p.name+'</div>'
           +makeInfoRow()
         +'</div>'
         +'<div class="OV-col-R">'+rightContent+'</div>'
