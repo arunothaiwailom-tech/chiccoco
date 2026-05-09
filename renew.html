@@ -208,6 +208,7 @@ input[type="file"] { display:none; }
   let currentUser = null;
   let userData = null;
   let selectedFile = null;
+  let authReady = false;
 
   function formatDate(d) {
     if (!d) return '—';
@@ -225,6 +226,7 @@ input[type="file"] { display:none; }
   }
 
   onAuthStateChanged(auth, async (user) => {
+    authReady = true;
     if (!user) {
       // fallback sessionStorage
       const sn = sessionStorage.getItem('shopName');
@@ -234,12 +236,14 @@ input[type="file"] { display:none; }
         document.getElementById('infoExpire').textContent = formatDate(se);
         document.getElementById('infoNewExpire').textContent = formatDate(calcNewExpire(se));
       }
+      if (!sn) { window.location.href = 'login.html'; }
       return;
     }
     currentUser = user;
     const snap = await getDoc(doc(db, 'users', user.uid));
     if (!snap.exists()) return;
     userData = snap.data();
+    if (selectedFile) document.getElementById('submitBtn').disabled = false;
 
     const expire = userData.expireDate || '';
     const today = new Date().toISOString().split('T')[0];
@@ -277,14 +281,20 @@ input[type="file"] { display:none; }
       document.getElementById('uploadBox').classList.add('has-file');
       document.querySelector('.upload-text').textContent = '✅ เลือกรูปแล้วค่ะ';
       document.querySelector('.upload-sub').textContent = file.name;
-      document.getElementById('submitBtn').disabled = false;
+      // เปิด submit เฉพาะเมื่อ auth พร้อมแล้ว
+      document.getElementById('submitBtn').disabled = !(authReady && currentUser);
     };
     reader.readAsDataURL(file);
   };
 
   window.submitSlip = async function() {
     if (!selectedFile) { showToast('กรุณาเลือกรูปสลิปก่อนค่ะ'); return; }
-    if (!currentUser) { showToast('กรุณา login ก่อนค่ะ'); return; }
+    if (!authReady) { showToast('⏳ กำลังโหลด กรุณารอสักครู่ค่ะ'); return; }
+    if (!currentUser) {
+      showToast('❌ กรุณาเข้าสู่ระบบก่อนค่ะ');
+      setTimeout(() => { window.location.href = 'login.html'; }, 1500);
+      return;
+    }
 
     const btn = document.getElementById('submitBtn');
     btn.disabled = true;
