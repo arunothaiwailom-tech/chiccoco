@@ -145,6 +145,8 @@ body.theme-gold { --ov-bg:#fdf8ee; --ov-accent:#b8860b; --ov-code:#8b1a1a; --ov-
 .camera-scan-line { position:absolute; width:180px; height:2px; background:linear-gradient(90deg,transparent,#5c7a6b,transparent); animation:scan 2s linear infinite; }
 @keyframes scan { 0%{top:calc(50% - 90px)} 100%{top:calc(50% + 90px)} }
 .camera-close { margin-top:20px; padding:12px 32px; background:#fee; color:#c0392b; border:none; border-radius:12px; font-family:'Kanit',sans-serif; font-size:14px; font-weight:700; cursor:pointer; }
+.btn-flash { padding:12px 24px; background:rgba(255,255,255,0.15); color:white; border:2px solid rgba(255,255,255,0.4); border-radius:12px; font-family:'Kanit',sans-serif; font-size:14px; font-weight:700; cursor:pointer; margin-top:12px; }
+.btn-flash.on { background:#f5c842; color:#333; border-color:#f5c842; }
 .camera-hint { color:rgba(255,255,255,.7); font-size:13px; margin-top:12px; font-family:'Kanit',sans-serif; text-align:center; }
 @media (max-width: 390px) {
   .app-title { font-size:16px; letter-spacing:2px; }
@@ -399,7 +401,10 @@ body.theme-gold { --ov-bg:#fdf8ee; --ov-accent:#b8860b; --ov-code:#8b1a1a; --ov-
     <div class="camera-overlay-frame"><div class="camera-frame"></div><div class="camera-scan-line"></div></div>
   </div>
   <div class="camera-hint">วางบาร์โค้ดในกรอบสีเขียวค่ะ</div>
-  <button class="camera-close" onclick="closeCamera()">✕ ปิดกล้อง</button>
+  <div style="display:flex;gap:12px;margin-top:16px;">
+    <button class="btn-flash" id="btnFlash" onclick="toggleFlash()">🔦 เปิดแฟลช</button>
+    <button class="camera-close" style="margin-top:0;" onclick="closeCamera()">✕ ปิดกล้อง</button>
+  </div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -598,7 +603,30 @@ function startScan(video){
   }
 }
 
+function toggleFlash(){
+  const btn=document.getElementById('btnFlash');
+  const track=_cameraStream&&_cameraStream.getVideoTracks()[0];
+  if(!track){ showToast('❌ ไม่รองรับแฟลชในอุปกรณ์นี้ค่ะ'); return; }
+  const caps=track.getCapabilities&&track.getCapabilities();
+  if(!caps||!caps.torch){ showToast('❌ กล้องนี้ไม่มีแฟลชค่ะ'); return; }
+  const isOn=btn.classList.contains('on');
+  track.applyConstraints({advanced:[{torch:!isOn}]})
+    .then(()=>{
+      btn.classList.toggle('on',!isOn);
+      btn.textContent=isOn?'🔦 เปิดแฟลช':'💡 ปิดแฟลช';
+    })
+    .catch(()=>showToast('❌ เปิดแฟลชไม่ได้ค่ะ'));
+}
+
 function closeCamera(){
+  // ✅ ปิดแฟลชก่อนปิดกล้อง
+  const track=_cameraStream&&_cameraStream.getVideoTracks()[0];
+  if(track){
+    const caps=track.getCapabilities&&track.getCapabilities();
+    if(caps&&caps.torch) track.applyConstraints({advanced:[{torch:false}]}).catch(()=>{});
+  }
+  const btn=document.getElementById('btnFlash');
+  if(btn){ btn.classList.remove('on'); btn.textContent='🔦 เปิดแฟลช'; }
   document.getElementById('cameraModal').classList.remove('open');
   if(window._zxingReader){
     try{ window._zxingReader.reset(); }catch(e){}
