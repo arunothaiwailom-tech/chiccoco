@@ -689,7 +689,7 @@ function doInit(apiKey,projectId,dbUrl){
     db.ref(shopPath+'/edits').on('value',snap=>{ edits=snap.val()||{}; updatePreview(); });
     db.ref(shopPath+'/products').once('value',snap=>{
       const d=snap.val();
-      if(d&&Object.keys(d).length>0){ products=d; document.getElementById('stockInfo').textContent=Object.keys(products).length+' รายการ (โหลดจาก Firebase)'; showToast('📦 โหลดสต๊อก '+Object.keys(products).length+' รายการแล้วค่ะ'); }
+      if(d&&Object.keys(d).length>0){ products=d; document.getElementById('stockInfo').textContent=Object.keys(products).length+' รายการ ✅'; showToast('📦 โหลดสต๊อก '+Object.keys(products).length+' รายการแล้วค่ะ ✅'); }
     });
   }catch(e){ console.error('doInit error',e); setStatus('error','❌ เชื่อมต่อไม่สำเร็จ: '+e.message); document.getElementById('configSection').style.display='block'; }
 }
@@ -940,15 +940,15 @@ function loadStock(input){
       done++;
       if(done===files.length){
         products=allProducts;
-        document.getElementById('stockInfo').textContent=total+' รายการ ('+files.length+' ไฟล์)';
+        document.getElementById('stockInfo').textContent=total+' รายการ ✅ ('+files.length+' ไฟล์)';
         showToast('โหลดสำเร็จ '+total+' รายการค่ะ');
         if(db&&fbConnected){
           db.ref(shopPath+'/products').set(products)
-            .then(()=>showToast('✅ บันทึกลง Firebase สำเร็จค่ะ'))
+            .then(()=>showToast('✅ บันทึกข้อมูลสำเร็จแล้วค่ะ'))
             .catch(e=>showToast('❌ บันทึก Firebase ผิดพลาด: '+e.message));
         } else {
-          showToast('⚠️ โหลดสำเร็จ '+total+' รายการ (รอ Firebase...)');
-          const retry=setInterval(()=>{ if(db&&fbConnected){ clearInterval(retry); db.ref(shopPath+'/products').set(products).then(()=>showToast('✅ บันทึกลง Firebase สำเร็จค่ะ')).catch(e=>showToast('❌ '+e.message)); } },1000);
+          showToast('⚠️ โหลดสำเร็จ '+total+' รายการ กรุณารอสักครู่...');
+          const retry=setInterval(()=>{ if(db&&fbConnected){ clearInterval(retry); db.ref(shopPath+'/products').set(products).then(()=>showToast('✅ บันทึกข้อมูลสำเร็จแล้วค่ะ')).catch(e=>showToast('❌ '+e.message)); } },1000);
           setTimeout(()=>clearInterval(retry),30000);
         }
       }
