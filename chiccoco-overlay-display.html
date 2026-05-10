@@ -6,8 +6,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&family=Kanit:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
 * { box-sizing:border-box; margin:0; padding:0; }
-html { background:transparent !important; }
-body { background:transparent !important; overflow:visible; font-family:'Sarabun',sans-serif; margin:0; padding:0; }
+html { background:transparent !important; max-width:100%; }
+body { background:transparent !important; overflow:hidden; font-family:'Sarabun',sans-serif; margin:0; padding:0; max-width:100%; }
 
 /* ── CSS VARIABLES & THEMES ── */
 :root {
@@ -23,14 +23,14 @@ body.theme-minimal { --ov-bg:#ffffff; --ov-accent:#333333; --ov-code:#111111; --
 body.theme-gold    { --ov-bg:#fdf8ee; --ov-accent:#b8860b; --ov-code:#8b1a1a; --ov-price-bg:#e8d5a3; --ov-header:#7a5c00; --ov-text:#2c2c2c; --ov-muted:#c8a96e; --ov-border:#e8d5a3; --ov-row-odd:#fffdf5; --ov-row-even:#fdf3d0; --ov-footer:#b8860b; --ov-brand:#b8860b; }
 
 /* ── TIMER ── */
-.OV-timer { background:linear-gradient(135deg,#8b1a1a,#c0392b); border-radius:24px; padding:18px 28px; display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:12px; opacity:0; transition:opacity .4s; }
+.OV-timer { background:linear-gradient(135deg,#8b1a1a,#c0392b); border-radius:24px; padding:18px 28px; display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:12px; opacity:0; transition:opacity .4s; max-width:100%; box-sizing:border-box; }
 .OV-timer.visible { opacity:1; }
 .OV-timer-label { font-family:'Kanit',sans-serif; font-size:32px; font-weight:700; color:rgba(255,255,255,.9); flex:1; }
 .OV-timer-count { font-family:'Kanit',sans-serif; font-size:72px; font-weight:800; color:white; line-height:1; }
 .OV-timer-count.warning { color:#ffd700; }
 
 /* ── OV BASE (แนวตั้ง) ── */
-.OV { display:inline-flex; flex-direction:column; background:var(--ov-bg); border-radius:28px; padding:28px 24px; gap:14px; opacity:0; transition:opacity .4s; vertical-align:top; }
+.OV { display:inline-flex; flex-direction:column; background:var(--ov-bg); border-radius:28px; padding:28px 24px; gap:14px; opacity:0; transition:opacity .4s; vertical-align:top; max-width:100%; box-sizing:border-box; }
 .OV.visible { opacity:1; }
 
 /* ── shared components ── */
@@ -271,7 +271,7 @@ function draw(){
       ?(miscSize?'<div class="OV-box"><div class="OV-box-lbl">ขนาดสินค้า</div><div class="OV-box-sizes">'+miscSize+'</div></div>':'')
       :'<div class="OV-box"><div class="OV-box-lbl">ไซส์เหลือ</div><div class="OV-box-sizes">'+(lb.join(', ')||'—')+'</div></div>'+makeTable();
 
-    ov.style.width=OVW+'px';
+    ov.style.width=Math.min(OVW, window.innerWidth || 720)+'px';
     ov.innerHTML=
       '<div class="OV-brand">'+brand+'</div>'
       +'<div style="display:flex;gap:16px;align-items:stretch;width:100%;">'
@@ -288,7 +288,7 @@ function draw(){
 
   /* ── VERTICAL ── */
   } else {
-    ov.style.width='720px';
+    ov.style.width=Math.min(720, window.innerWidth || 720)+'px';
     var h='';
     if(p.type==='misc'){
       var ms2=p.size||(p.sizes&&p.sizes.length?p.sizes.map(function(s){return s.size;}).filter(Boolean).join(', '):'');
