@@ -35,6 +35,11 @@ body.theme-gold    { --ov-bg:#fdf8ee; --ov-accent:#b8860b; --ov-code:#8b1a1a; --
 
 /* ── shared components ── */
 .OV-brand   { text-align:center; font-family:'Kanit',sans-serif; font-size:40px; font-weight:700; letter-spacing:4px; color:var(--ov-brand); text-transform:uppercase; }
+.OV-color-group { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; padding:6px 0; }
+.OV-color-card { padding:12px 20px; border-radius:14px; text-align:center; min-width:80px; box-shadow:0 2px 8px rgba(0,0,0,.08); }
+.OV-color-card.active { border:3px solid var(--ov-code); box-shadow:0 0 0 3px rgba(139,26,26,.2); }
+.OV-color-card-code { font-size:22px; font-weight:800; font-family:'Kanit',sans-serif; color:var(--ov-code); }
+.OV-color-card-name { font-size:26px; font-weight:600; color:var(--ov-text); margin-top:2px; font-family:'Sarabun',sans-serif; }
 .OV-footer  { text-align:center; font-family:'Kanit',sans-serif; font-size:18px; color:var(--ov-footer); letter-spacing:4px; }
 .OV-toprow  { display:flex; gap:12px; width:100%; }
 .OV-box     { background:var(--ov-white); border-radius:18px; padding:14px 16px; text-align:center; box-shadow:0 2px 10px rgba(0,0,0,.07); flex:1; }
@@ -101,7 +106,7 @@ var DB_URL     = 'https://chiccoco-live-default-rtdb.asia-southeast1.firebasedat
 
 var _shopId   = new URLSearchParams(window.location.search).get('shop') || 'default';
 var _shopPath = 'chiccoco/shops/' + _shopId;
-var _db=null, _state=null, _prod={}, _edits={}, _shopName='';
+var _db=null, _state=null, _prod={}, _edits={}, _shopName='', _hiddenCodes={};
 var _timerLocal=0, _timerInterval=null;
 
 /* ── Timer ── */
@@ -172,7 +177,12 @@ function startDB(){
 
     _db.ref(_shopPath+'/products').on('value',function(s){var d=s.val();if(d){_prod=d;draw();}});
     _db.ref(_shopPath+'/state').on('value',function(s){
-      var d=s.val();if(d){_state=d;if(d.theme!==undefined)applyTheme(d.theme,d.customColors);draw();}
+      var d=s.val();if(d){
+        _state=d;
+        _hiddenCodes=d.hiddenCodes||{};
+        if(d.theme!==undefined)applyTheme(d.theme,d.customColors);
+        draw();
+      }
     });
     _db.ref(_shopPath+'/timer').on('value',function(s){
       drawTimer(s.val());
@@ -194,6 +204,26 @@ function getP(code){
   return p2;
 }
 function fmt(v){var n=Number(v);return isNaN(n)?v:n.toLocaleString();}
+
+function makeColorGroup(currentCode){
+  // หาสินค้าที่มี groupId เดียวกัน
+  var p=_prod[currentCode]; if(!p||!p.groupId) return '';
+  var group=Object.keys(_prod).filter(function(k){
+    return _prod[k].groupId===p.groupId && !_hiddenCodes[k];
+  });
+  if(group.length<=1) return ''; // ไม่แสดงถ้ามีสีเดียว
+  var cards=group.map(function(code){
+    var item=_prod[code];
+    var isActive=(code===currentCode);
+    var bg=isActive?'var(--ov-price-bg)':'var(--ov-white)';
+    var activeCls=isActive?' active':'';
+    return '<div class="OV-color-card'+activeCls+'" style="background:'+bg+';">'
+      +'<div class="OV-color-card-code">'+code+'</div>'
+      +'<div class="OV-color-card-name">'+(item.color||'ไม่ระบุ')+'</div>'
+      +'</div>';
+  }).join('');
+  return '<div class="OV-color-group">'+cards+'</div>';
+}
 
 /* autoFs: คำนวณ font-size ให้พอดีกับ cell — ใช้ทั้ง vertical และ horizontal */
 function autoFs(val,cellW,base,min){
@@ -313,7 +343,7 @@ function draw(){
         +'<div class="OV-name">'+p.name+'</div>'
         +makeInfoRow()
         +(ms2?'<div class="OV-inforow"><div class="OV-info"><div class="OV-info-lbl">ขนาด</div><div class="OV-info-val" style="font-size:38px;white-space:normal;overflow-wrap:break-word;word-break:break-word;">'+ms2+'</div></div></div>':'')
-        +'<div class="OV-footer">Chiccoco Live @ 2025</div>';
+        +makeColorGroup(p.code)+'<div class="OV-footer">Chiccoco Live @ 2025</div>';
     } else {
       h='<div class="OV-brand">'+brand+'</div>'
         +'<div class="OV-toprow">'
@@ -324,7 +354,7 @@ function draw(){
         +'<div class="OV-name">'+p.name+'</div>'
         +makeInfoRow()
         +makeTable()
-        +'<div class="OV-footer">Chiccoco Live @ 2025</div>';
+        +makeColorGroup(p.code)+'<div class="OV-footer">Chiccoco Live @ 2025</div>';
     }
     ov.innerHTML=h;
     ov.className='OV visible';
