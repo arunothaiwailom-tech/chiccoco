@@ -35,11 +35,15 @@ body.theme-gold    { --ov-bg:#fdf8ee; --ov-accent:#b8860b; --ov-code:#8b1a1a; --
 
 /* ── shared components ── */
 .OV-brand   { text-align:center; font-family:'Kanit',sans-serif; font-size:40px; font-weight:700; letter-spacing:4px; color:var(--ov-brand); text-transform:uppercase; }
-.OV-color-group { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; padding:6px 0; }
-.OV-color-card { padding:12px 20px; border-radius:14px; text-align:center; min-width:80px; box-shadow:0 2px 8px rgba(0,0,0,.08); }
-.OV-color-card.active { border:3px solid var(--ov-code); box-shadow:0 0 0 3px rgba(139,26,26,.2); }
-.OV-color-card-code { font-size:22px; font-weight:800; font-family:'Kanit',sans-serif; color:var(--ov-code); }
-.OV-color-card-name { font-size:26px; font-weight:600; color:var(--ov-text); margin-top:2px; font-family:'Sarabun',sans-serif; }
+.OV-color-group { background:var(--ov-white); border-radius:18px; padding:14px 16px; box-shadow:0 2px 10px rgba(0,0,0,.07); }
+.OV-color-group-lbl { font-size:22px; color:var(--ov-muted); text-align:center; margin-bottom:10px; }
+.OV-color-pills { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; }
+.OV-color-pill { padding:10px 22px; border-radius:30px; font-size:38px; font-weight:700; font-family:'Kanit',sans-serif; background:var(--ov-bg); color:var(--ov-text); border:2px solid var(--ov-border); white-space:nowrap; }
+.OV-color-pill.active { background:var(--ov-price-bg); color:var(--ov-code); border:3px solid var(--ov-code); font-size:42px; }
+.OV-color-group-lbl { font-size:22px; color:var(--ov-muted); text-align:center; margin-bottom:10px; }
+.OV-color-pills { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; }
+.OV-color-pill { padding:10px 22px; border-radius:30px; font-size:38px; font-weight:700; font-family:'Kanit',sans-serif; background:var(--ov-bg); color:var(--ov-text); border:2px solid var(--ov-border); white-space:nowrap; }
+.OV-color-pill.active { background:var(--ov-price-bg); color:var(--ov-code); border:3px solid var(--ov-code); font-size:42px; }
 .OV-footer  { text-align:center; font-family:'Kanit',sans-serif; font-size:18px; color:var(--ov-footer); letter-spacing:4px; }
 .OV-toprow  { display:flex; gap:12px; width:100%; }
 .OV-box     { background:var(--ov-white); border-radius:18px; padding:14px 16px; text-align:center; box-shadow:0 2px 10px rgba(0,0,0,.07); flex:1; }
@@ -212,17 +216,18 @@ function makeColorGroup(currentCode){
     return _prod[k].groupId===p.groupId && !_hiddenCodes[k];
   });
   if(group.length<=1) return ''; // ไม่แสดงถ้ามีสีเดียว
-  var cards=group.map(function(code){
+  var pills=group.map(function(code){
     var item=_prod[code];
     var isActive=(code===currentCode);
-    var bg=isActive?'var(--ov-price-bg)':'var(--ov-white)';
     var activeCls=isActive?' active':'';
-    return '<div class="OV-color-card'+activeCls+'" style="background:'+bg+';">'
-      +'<div class="OV-color-card-code">'+code+'</div>'
-      +'<div class="OV-color-card-name">'+(item.color||'ไม่ระบุ')+'</div>'
+    return '<div class="OV-color-pill'+activeCls+'">'
+      +code+' '+( item.color||'')
       +'</div>';
   }).join('');
-  return '<div class="OV-color-group">'+cards+'</div>';
+  return '<div class="OV-color-group">'
+    +'<div class="OV-color-group-lbl">สีที่มี</div>'
+    +'<div class="OV-color-pills">'+pills+'</div>'
+    +'</div>';
 }
 
 /* autoFs: คำนวณ font-size ให้พอดีกับ cell — ใช้ทั้ง vertical และ horizontal */
