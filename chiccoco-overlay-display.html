@@ -136,6 +136,31 @@ function renderCount(el,sec){
 }
 
 /* ── Theme ── */
+function applyBgOpacity(transparent){
+  // แก้แค่ --ov-bg ให้โปร่งหรือทึบ ไม่แตะส่วนอื่น
+  var root=document.documentElement;
+  var bg=root.style.getPropertyValue('--ov-bg')||'#f0ece6';
+  // แทนที่ rgba หรือ hex ให้เป็น opacity ที่ต้องการ
+  var map={
+    'rgba(240,236,230,0.80)':'#f0ece6','rgba(253,240,245,0.80)':'#fdf0f5',
+    'rgba(30,30,46,0.80)':'#1e1e2e','rgba(255,255,255,0.80)':'#ffffff',
+    'rgba(253,248,238,0.80)':'#fdf8ee'
+  };
+  var opaqueMap={
+    '#f0ece6':'rgba(240,236,230,0.80)','#fdf0f5':'rgba(253,240,245,0.80)',
+    '#1e1e2e':'rgba(30,30,46,0.80)','#ffffff':'rgba(255,255,255,0.80)',
+    '#fdf8ee':'rgba(253,248,238,0.80)'
+  };
+  // หา base color จาก current --ov-bg
+  var current=getComputedStyle(root).getPropertyValue('--ov-bg').trim();
+  var base=map[current]||current; // convert rgba→hex ถ้ามี
+  if(transparent){
+    var rgba=opaqueMap[base]||base;
+    root.style.setProperty('--ov-bg', rgba);
+  } else {
+    root.style.setProperty('--ov-bg', base);
+  }
+}
 function applyTheme(theme,cc){
   document.body.className=document.body.className.replace(/theme-\S+/g,'').trim();
   var r=document.documentElement;
@@ -185,6 +210,8 @@ function startDB(){
         _state=d;
         _hiddenCodes=d.hiddenCodes||{};
         if(d.theme!==undefined)applyTheme(d.theme,d.customColors);
+        // แก้แค่ --ov-bg ไม่แตะส่วนอื่น
+        applyBgOpacity(d.bgTransparent||false);
         draw();
       }
     });
