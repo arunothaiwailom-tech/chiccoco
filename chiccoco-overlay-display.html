@@ -152,7 +152,7 @@ function applyBgOpacity(transparent){
       if(document.body.classList.contains(t)) theme=t;
     });
     var rgba=themeMap[theme]||'rgba(240,236,230,0.80)';
-    tag.textContent=':root{--ov-bg:'+rgba+' !important;}';
+    tag.textContent='body,.OV,.OV.horizontal,.OV.visible{--ov-bg:'+rgba+' !important;}';
   } else {
     tag.textContent=''; // ลบ override ออก คืนค่า hex ทึบจาก :root CSS
   }
@@ -209,7 +209,7 @@ function startDB(){
         _hiddenCodes=d.hiddenCodes||{};
         _bgTransparent=d.bgTransparent||false; // set ก่อนเสมอ
         if(d.theme!==undefined) applyTheme(d.theme,d.customColors);
-        else applyBgOpacity(_bgTransparent); // ถ้าไม่มี theme change ก็ apply opacity เอง
+        applyBgOpacity(_bgTransparent); // เรียกเสมอหลัง applyTheme
         draw();
       }
     });
