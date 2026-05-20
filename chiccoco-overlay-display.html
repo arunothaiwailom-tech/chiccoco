@@ -110,7 +110,7 @@ var DB_URL     = 'https://chiccoco-live-default-rtdb.asia-southeast1.firebasedat
 
 var _shopId   = new URLSearchParams(window.location.search).get('shop') || 'default';
 var _shopPath = 'chiccoco/shops/' + _shopId;
-var _db=null, _state=null, _prod={}, _edits={}, _shopName='', _hiddenCodes={};
+var _db=null, _state=null, _prod={}, _edits={}, _shopName='', _hiddenCodes={}, _bgTransparent=false;
 var _timerLocal=0, _timerInterval=null;
 
 /* ── Timer ── */
@@ -162,6 +162,8 @@ function applyTheme(theme,cc){
     r.style.setProperty('--ov-accent',cc.accent||'#5c7a6b');r.style.setProperty('--ov-brand',cc.accent||'#5c7a6b');
     r.style.setProperty('--ov-text',cc.text||'#2c2c2c');
   } else if(theme&&theme!=='theme-custom'){document.body.classList.add(theme);}
+  // ✅ apply opacity ทันทีหลัง set theme
+  applyBgOpacity(_bgTransparent);
 }
 
 /* ── Firebase ── */
@@ -200,9 +202,10 @@ function startDB(){
       var d=s.val();if(d){
         _state=d;
         _hiddenCodes=d.hiddenCodes||{};
+        _bgTransparent=d.bgTransparent||false; // set ก่อนเสมอ
         if(d.theme!==undefined) applyTheme(d.theme,d.customColors);
-        try{ applyBgOpacity(d.bgTransparent||false); }catch(e){}
-        draw(); // draw() ถูกเรียกเสมอ ไม่ขึ้นกับ bgTransparent
+        else applyBgOpacity(_bgTransparent); // ถ้าไม่มี theme change ก็ apply opacity เอง
+        draw();
       }
     });
     _db.ref(_shopPath+'/timer').on('value',function(s){
