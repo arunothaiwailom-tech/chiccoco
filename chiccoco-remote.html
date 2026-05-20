@@ -765,7 +765,7 @@ function syncFromRemote(d){
 function pushState(){
   if(!db||!fbConnected) return;
   if(!currentCode||!products[currentCode]) return;
-  db.ref(shopPath+'/state').update({code:currentCode,soldSizes,salePrice,hidden:overlayHidden,hiddenCodes,ts:Date.now()});
+  db.ref(shopPath+'/state').update({code:currentCode,soldSizes,salePrice,hidden:overlayHidden,hiddenCodes,bgTransparent,ts:Date.now()});
 }
 
 function getProduct(code){
