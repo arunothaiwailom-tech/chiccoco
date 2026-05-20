@@ -137,20 +137,25 @@ function renderCount(el,sec){
 
 /* ── Theme ── */
 function applyBgOpacity(transparent){
-  // lookup ตามธีมปัจจุบัน — แก้แค่ --ov-bg ไม่แตะส่วนอื่น
-  var themeMap={
-    'theme-pink':  ['#fdf0f5','rgba(253,240,245,0.80)'],
-    'theme-dark':  ['#1e1e2e','rgba(30,30,46,0.80)'],
-    'theme-minimal':['#ffffff','rgba(255,255,255,0.80)'],
-    'theme-gold':  ['#fdf8ee','rgba(253,248,238,0.80)'],
-  };
-  var body=document.body;
-  var theme='';
-  ['theme-pink','theme-dark','theme-minimal','theme-gold'].forEach(function(t){
-    if(body.classList.contains(t)) theme=t;
-  });
-  var pair=themeMap[theme]||['#f0ece6','rgba(240,236,230,0.80)'];
-  document.documentElement.style.setProperty('--ov-bg', transparent?pair[1]:pair[0]);
+  // inject <style> tag แทน inline style เพื่อไม่ถูก removeProperty ลบทิ้ง
+  var tag=document.getElementById('_bg_opacity_style');
+  if(!tag){ tag=document.createElement('style'); tag.id='_bg_opacity_style'; document.head.appendChild(tag); }
+  if(transparent){
+    var themeMap={
+      'theme-pink':'rgba(253,240,245,0.80)',
+      'theme-dark':'rgba(30,30,46,0.80)',
+      'theme-minimal':'rgba(255,255,255,0.80)',
+      'theme-gold':'rgba(253,248,238,0.80)',
+    };
+    var theme='';
+    ['theme-pink','theme-dark','theme-minimal','theme-gold'].forEach(function(t){
+      if(document.body.classList.contains(t)) theme=t;
+    });
+    var rgba=themeMap[theme]||'rgba(240,236,230,0.80)';
+    tag.textContent=':root{--ov-bg:'+rgba+' !important;}';
+  } else {
+    tag.textContent=''; // ลบ override ออก คืนค่า hex ทึบจาก :root CSS
+  }
 }
 function applyTheme(theme,cc){
   document.body.className=document.body.className.replace(/theme-\S+/g,'').trim();
