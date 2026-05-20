@@ -286,6 +286,10 @@ body.theme-gold { --ov-bg:#fdf8ee; --ov-accent:#b8860b; --ov-code:#8b1a1a; --ov-
     <div class="current-price" id="curPrice"></div>
     <div class="current-actions">
       <button class="btn-hide-overlay" id="btnHide" onclick="toggleOverlay()">👁 ซ่อน Overlay</button>
+      <button id="btnBgOpacity" onclick="toggleBgOpacity()"
+        style="padding:8px 16px;border-radius:10px;font-family:'Kanit',sans-serif;font-size:13px;font-weight:700;cursor:pointer;border:2px solid #5c7a6b;background:#f0ece6;color:#5c7a6b;">
+        พื้นหลังทึบ
+      </button>
       <button class="btn-reset-all" onclick="resetAll()">🔄 รีเซ็ตทั้งหมด</button>
     </div>
   </div>
@@ -745,6 +749,16 @@ function syncFromRemote(d){
     if(d.layout==='horizontal'){ btnH.style.background='#5c7a6b'; btnH.style.color='white'; btnH.style.border='none'; btnV.style.background='#f0ece6'; btnV.style.color='#5c7a6b'; btnV.style.border='2px solid #5c7a6b'; }
     else { btnV.style.background='#5c7a6b'; btnV.style.color='white'; btnV.style.border='none'; btnH.style.background='#f0ece6'; btnH.style.color='#5c7a6b'; btnH.style.border='2px solid #5c7a6b'; }
   }
+  // sync bgTransparent button state
+  if(d.bgTransparent!==undefined){
+    bgTransparent=d.bgTransparent;
+    const btn=document.getElementById('btnBgOpacity');
+    if(btn){
+      btn.textContent=bgTransparent?'พื้นหลังโปร่ง 80%':'พื้นหลังทึบ';
+      btn.style.background=bgTransparent?'#5c7a6b':'#f0ece6';
+      btn.style.color=bgTransparent?'white':'#5c7a6b';
+    }
+  }
   renderSizePills(); renderGroupColors(); updatePreview();
 }
 
@@ -836,6 +850,15 @@ function renderSizePills(){
 }
 
 var hiddenCodes={};
+function toggleBgOpacity(){
+  bgTransparent=!bgTransparent;
+  const btn=document.getElementById('btnBgOpacity');
+  btn.textContent=bgTransparent?'พื้นหลังโปร่ง 80%':'พื้นหลังทึบ';
+  btn.style.background=bgTransparent?'#5c7a6b':'#f0ece6';
+  btn.style.color=bgTransparent?'white':'#5c7a6b';
+  pushState();
+  showToast(bgTransparent?'พื้นหลัง Overlay โปร่ง 80% แล้วค่ะ':'พื้นหลัง Overlay ทึบแล้วค่ะ');
+}
 function toggleOverlay(){
   overlayHidden=!overlayHidden;
   const btn=document.getElementById('btnHide');
