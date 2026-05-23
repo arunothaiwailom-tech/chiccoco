@@ -294,7 +294,7 @@ function makeSecondOV(){
   // table
   var rows=av.map(function(s){
     var sFs=autoFs(s.size,cellW,40,16);
-    var cells='<td style="font-size:'+sFs+'px;font-weight:800;color:var(--ov-code);font-family:'Kanit',sans-serif;">'+s.size+'</td>';
+    var cells='<td style="font-size:'+sFs+'px;font-weight:800;color:var(--ov-code);font-family:\'Kanit\',sans-serif;">'+s.size+'</td>';
     co.forEach(function(col){
       var val=s[col]||'—';
       var vFs=autoFs(val,cellW,44,16);
