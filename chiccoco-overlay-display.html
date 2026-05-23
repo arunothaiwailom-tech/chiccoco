@@ -130,7 +130,7 @@ var DB_URL     = 'https://chiccoco-live-default-rtdb.asia-southeast1.firebasedat
 
 var _shopId   = new URLSearchParams(window.location.search).get('shop') || 'default';
 var _shopPath = 'chiccoco/shops/' + _shopId;
-var _db=null, _state=null, _prod={}, _edits={}, _shopName='', _hiddenCodes={}, _bgTransparent=false, _productImages={}, _secondCode=null;
+var _db=null, _state=null, _prod={}, _edits={}, _shopName='', _hiddenCodes={}, _bgTransparent=false, _productImages={}, _secondCode=null, _imagesLoaded=false;
 var _timerLocal=0, _timerInterval=null;
 
 /* ── Timer ── */
@@ -240,8 +240,8 @@ function startDB(){
             _productImages[code]=url;
           });
         }));
-      }).then(function(){ draw(); }).catch(function(e){ console.warn('loadImgs:',e); });
-    }catch(e){ console.warn('storage not ready:',e); }
+      }).then(function(){ _imagesLoaded=true; draw(); }).catch(function(e){ _imagesLoaded=true; console.warn('loadImgs:',e); });
+    }catch(e){ _imagesLoaded=true; console.warn('storage not ready:',e); }
 
     _db.ref(_shopPath+'/products').on('value',function(s){var d=s.val();if(d){_prod=d;draw();}});
     _db.ref(_shopPath+'/state').on('value',function(s){
