@@ -244,16 +244,16 @@ function startDB(){
       }).then(function(){ _imagesLoaded=true; draw(); }).catch(function(e){ _imagesLoaded=true; console.warn('loadImgs:',e); });
     }catch(e){ _imagesLoaded=true; console.warn('storage not ready:',e); }
 
-    _db.ref(_shopPath+'/products').on('value',function(s){var d=s.val();if(d){_prod=d;draw();}});
+    _db.ref(_shopPath+'/products').on('value',function(s){var d=s.val();if(d){_prod=d;try{draw();}catch(e){console.error('draw/products err:',e);}}});
     _db.ref(_shopPath+'/state').on('value',function(s){
       var d=s.val();if(d){
         _state=d;
         _hiddenCodes=d.hiddenCodes||{};
         _secondCode=d.secondCode||null;
-        _bgTransparent=d.bgTransparent||false; // set ก่อนเสมอ
-        if(d.theme!==undefined) applyTheme(d.theme,d.customColors);
-        applyBgOpacity(_bgTransparent); // เรียกเสมอหลัง applyTheme
-        draw();
+        _bgTransparent=d.bgTransparent||false;
+        try{ if(d.theme!==undefined) applyTheme(d.theme,d.customColors); }catch(e){ console.warn('applyTheme err:',e); }
+        try{ applyBgOpacity(_bgTransparent); }catch(e){ console.warn('applyBgOpacity err:',e); }
+        try{ draw(); }catch(e){ console.error('draw() err:',e); }
       }
     });
     _db.ref(_shopPath+'/timer').on('value',function(s){
@@ -363,10 +363,11 @@ function infoValFs(color,material,base){
 /* ── Draw ── */
 function draw(){
   if(!_state||!_state.code)return;
-  // ✅ ถ้า hidden=true ให้ซ่อน overlay ทั้งหมด
   var ov=document.getElementById('OV');
+  if(!ov){ console.error('OV element not found'); return; }
+  // ✅ ถ้า hidden=true ให้ซ่อน overlay ทั้งหมด
   if(_state.hidden){
-    ov.className='OV'; // ลบ visible
+    ov.className='OV';
     return;
   }
   var p=getP(_state.code);if(!p)return;
@@ -376,7 +377,6 @@ function draw(){
   var co=p.activeCols||[];
   var brand=_shopName||'CHICCOCO';
   var isH=(_state.layout==='horizontal');
-  var ov=document.getElementById('OV');
 
   var ph=sale
     ?'<div class="OV-price"><div class="OV-price-lbl">ราคา</div><div class="OV-price-sale"><div class="OV-price-original">'+fmt(p.price)+'</div><div class="OV-price-new">'+fmt(sale)+'</div></div></div>'
