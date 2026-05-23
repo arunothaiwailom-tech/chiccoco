@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>Test Firebase Storage</title>
+<style>
+body { font-family: sans-serif; padding: 20px; background: #1a1a2e; color: white; }
+.log { background: #16213e; padding: 12px; border-radius: 8px; margin: 8px 0; font-size: 13px; font-family: monospace; }
+.ok  { border-left: 4px solid #00ff88; }
+.err { border-left: 4px solid #ff4444; }
+.info{ border-left: 4px solid #4488ff; }
+</style>
+</head>
+<body>
+<h2>🔍 Firebase Storage Test</h2>
+<div id="logs"></div>
+
+<script>
+function log(msg, type='info') {
+  const d = document.createElement('div');
+  d.className = 'log ' + type;
+  d.textContent = new Date().toLocaleTimeString() + ' — ' + msg;
+  document.getElementById('logs').appendChild(d);
+  console.log(msg);
+}
+
+const shopId = new URLSearchParams(window.location.search).get('shop') || 'shop_001';
+log('shopId = ' + shopId, 'info');
+
+// Load Firebase
+const s1 = document.createElement('script');
+s1.src = 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js';
+s1.onload = () => {
+  log('✅ firebase-app loaded', 'ok');
+  const s2 = document.createElement('script');
+  s2.src = 'https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js';
+  s2.onload = () => {
+    log('✅ firebase-storage loaded', 'ok');
+    initTest();
+  };
+  s2.onerror = () => log('❌ firebase-storage FAILED to load', 'err');
+  document.head.appendChild(s2);
+};
+document.head.appendChild(s1);
+
+function initTest() {
+  try {
+    // ทดสอบทั้ง 2 bucket
+    const configs = [
+      { bucket: 'chiccoco-live.appspot.com',         label: 'appspot.com' },
+      { bucket: 'chiccoco-live.firebasestorage.app', label: 'firebasestorage.app' },
+    ];
+
+    configs.forEach((cfg, idx) => {
+      log('Testing bucket: ' + cfg.bucket, 'info');
+      try {
+        const appName = 'test' + idx;
+        const app = firebase.apps.find(a => a.name === appName) ||
+          firebase.initializeApp({
+            apiKey: 'AIzaSyBwIlvqugbNYNbFd44DtgKSZWsQrXNnSuI',
+            projectId: 'chiccoco-live',
+            storageBucket: cfg.bucket,
+          }, appName);
+
+        const storage = firebase.app(appName).storage();
+        const ref = storage.ref('products/' + shopId);
+
+        ref.listAll()
+          .then(res => {
+            log('✅ [' + cfg.label + '] listAll OK — ' + res.items.length + ' files found', 'ok');
+            res.items.forEach(item => {
+              log('   📷 ' + item.name, 'ok');
+              item.getDownloadURL().then(url => {
+                log('   🔗 URL: ' + url.substring(0, 80) + '...', 'ok');
+              }).catch(e => log('   ❌ getDownloadURL error: ' + e.message, 'err'));
+            });
+            if (res.items.length === 0) {
+              log('   ⚠️ โฟลเดอร์ว่าง — ยังไม่มีรูปอัปโหลดสำหรับ shop: ' + shopId, 'err');
+            }
+          })
+          .catch(e => log('❌ [' + cfg.label + '] listAll FAILED: ' + e.message, 'err'));
+      } catch(e) {
+        log('❌ [' + cfg.label + '] init error: ' + e.message, 'err');
+      }
+    });
+  } catch(e) {
+    log('❌ initTest error: ' + e.message, 'err');
+  }
+}
+</script>
+</body>
+</html>
