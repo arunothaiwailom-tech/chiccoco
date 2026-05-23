@@ -201,10 +201,15 @@ window.addEventListener('load',function(){
     s2.onload=function(){
       var s3=document.createElement('script');
       s3.src='https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js';
-      const s4=document.createElement('script');
-      s4.src='https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js';
-      document.head.appendChild(s4);
-      s3.onload=function(){startDB();};s3.onerror=function(){startDB();};
+      s3.onload=function(){
+        // โหลด Storage SDK แล้วค่อย startDB
+        const s4=document.createElement('script');
+        s4.src='https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js';
+        s4.onload=function(){startDB();};
+        s4.onerror=function(){startDB();}; // ถ้า storage โหลดไม่ได้ก็ยังทำงานได้
+        document.head.appendChild(s4);
+      };
+      s3.onerror=function(){startDB();};
       document.head.appendChild(s3);
     };
     document.head.appendChild(s2);
