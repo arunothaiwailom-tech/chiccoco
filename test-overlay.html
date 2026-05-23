@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>Overlay Debug</title>
+<style>
+body{font-family:sans-serif;padding:20px;background:#1a1a2e;color:white;}
+.log{padding:8px 12px;border-radius:6px;margin:4px 0;font-size:12px;font-family:monospace;}
+.ok {background:#0d3320;border-left:3px solid #00ff88;}
+.err{background:#3d0000;border-left:3px solid #ff4444;}
+.info{background:#0d1f3d;border-left:3px solid #4488ff;}
+.warn{background:#3d2200;border-left:3px solid #ffaa00;}
+</style>
+</head>
+<body>
+<h2>🔍 Overlay Debug</h2>
+<div id="logs"></div>
+<script>
+const shopId = new URLSearchParams(window.location.search).get('shop')||'shop_001';
+const DB_URL = 'https://chiccoco-live-default-rtdb.asia-southeast1.firebasedatabase.app';
+const API_KEY = 'AIzaSyBwIlvqugbNYNbFd44DtgKSZWsQrXNnSuI';
+const PROJECT_ID = 'chiccoco-live';
+const shopPath = 'chiccoco/shops/'+shopId;
+
+function log(msg,type='info'){
+  const d=document.createElement('div');
+  d.className='log '+type;
+  d.textContent=new Date().toLocaleTimeString()+' — '+msg;
+  document.getElementById('logs').appendChild(d);
+}
+
+log('shopId = '+shopId);
+log('shopPath = '+shopPath);
+
+// Load Firebase
+const s1=document.createElement('script');
+s1.src='https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js';
+s1.onload=()=>{
+  log('✅ firebase-app loaded','ok');
+  const s2=document.createElement('script');
+  s2.src='https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js';
+  s2.onload=()=>{
+    log('✅ firebase-database loaded','ok');
+    runTest();
+  };
+  s2.onerror=()=>log('❌ firebase-database FAILED','err');
+  document.head.appendChild(s2);
+};
+s1.onerror=()=>log('❌ firebase-app FAILED','err');
+document.head.appendChild(s1);
+
+function runTest(){
+  try{
+    if(!firebase.apps.length)
+      firebase.initializeApp({apiKey:API_KEY,projectId:PROJECT_ID,databaseURL:DB_URL});
+    log('✅ Firebase initialized','ok');
+    
+    const db=firebase.database();
+    log('✅ Database connected','ok');
+
+    // ทดสอบ /state
+    db.ref(shopPath+'/state').once('value',snap=>{
+      const d=snap.val();
+      if(d){
+        log('✅ /state received: code='+d.code+' hidden='+d.hidden,'ok');
+        if(!d.code) log('⚠️ state.code ว่างเปล่า — ยังไม่ได้เลือกสินค้า','warn');
+        if(d.hidden) log('⚠️ state.hidden=true — overlay ถูกซ่อนอยู่','warn');
+      } else {
+        log('❌ /state ว่างเปล่า — ยังไม่ได้เชื่อมต่อ Remote','err');
+      }
+    },e=>log('❌ /state error: '+e.message,'err'));
+
+    // ทดสอบ /products
+    db.ref(shopPath+'/products').once('value',snap=>{
+      const d=snap.val();
+      if(d){
+        const codes=Object.keys(d);
+        log('✅ /products: '+codes.length+' รหัส ('+codes.slice(0,5).join(', ')+'...)','ok');
+      } else {
+        log('❌ /products ว่าง — ยังไม่ได้อัปโหลด Excel สต็อก','err');
+      }
+    },e=>log('❌ /products error: '+e.message,'err'));
+
+    // realtime listener
+    db.ref(shopPath+'/state').on('value',snap=>{
+      const d=snap.val();
+      if(d) log('🔄 state update: code='+d.code+' layout='+d.layout+' hidden='+d.hidden,'info');
+    });
+
+  }catch(e){
+    log('❌ runTest error: '+e.message,'err');
+  }
+}
+</script>
+</body>
+</html>
