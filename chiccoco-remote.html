@@ -54,7 +54,7 @@ body { font-family:'Sarabun',sans-serif; background:#f0ede8; min-height:100vh; p
 .search-result-name { font-size:13px; color:#555; margin-top:2px; }
 .search-result-price { font-family:'Kanit',sans-serif; font-weight:700; color:#2c2c2c; font-size:13px; flex-shrink:0; margin-left:8px; }
 .scan-input-wrap { display:flex; gap:6px; width:100%; }
-.scan-input { flex:1; padding:14px 16px; border:2px solid #e0e0e0; border-radius:10px; font-size:22px; font-family:'Kanit',sans-serif; font-weight:700; color:#111; outline:none; text-transform:uppercase; }
+.scan-input { flex:1; padding:14px 16px; border:3px solid #2d5f47; border-radius:10px; box-shadow:0 0 0 3px rgba(92,122,107,0.12); font-size:22px; font-family:'Kanit',sans-serif; font-weight:700; color:#111; outline:none; text-transform:uppercase; }
 .scan-input:focus { border-color:#5c7a6b; }
 .btn-scan { padding:14px 20px; background:#5c7a6b; color:white; border:none; border-radius:10px; font-family:'Kanit',sans-serif; font-size:14px; font-weight:700; cursor:pointer; }
 .btn-camera { padding:14px 16px; background:#3d4f47; color:white; border:none; border-radius:10px; font-family:'Kanit',sans-serif; font-size:18px; cursor:pointer; flex-shrink:0; }
@@ -97,7 +97,7 @@ body { font-family:'Sarabun',sans-serif; background:#f0ede8; min-height:100vh; p
 .size-pill.sold { background:#fee; border-color:#f5b8b8; color:#c0392b; text-decoration:line-through; }
 .sizes-empty { font-size:13px; color:#aaa; }
 .price-row { display:flex; gap:6px; align-items:center; width:100%; }
-.price-input { flex:1; padding:12px 14px; border:2px solid #e0e0e0; border-radius:10px; font-size:20px; font-family:'Kanit',sans-serif; font-weight:700; outline:none; }
+.price-input { flex:1; padding:12px 14px; border:3px solid #c44f82; border-radius:10px; font-size:20px; box-shadow:0 0 0 3px rgba(196,79,130,0.12); font-family:'Kanit',sans-serif; font-weight:700; outline:none; }
 .price-input:focus { border-color:#c8a96e; }
 .btn-price { padding:12px 16px; background:#8b1a1a; color:white; border:none; border-radius:10px; font-family:'Kanit',sans-serif; font-size:13px; font-weight:700; cursor:pointer; }
 .btn-price-reset { padding:12px 14px; background:#f5f5f5; color:#888; border:none; border-radius:10px; font-family:'Kanit',sans-serif; font-size:13px; font-weight:700; cursor:pointer; }
@@ -133,8 +133,15 @@ body.theme-pink { --ov-bg:#fdf0f5; --ov-accent:#c0607a; --ov-code:#8b1a1a; --ov-
 body.theme-dark { --ov-bg:#1e1e2e; --ov-accent:#a78bfa; --ov-code:#f472b6; --ov-price-bg:#2d2d42; --ov-header:#1a1a2e; --ov-text:#e2e8f0; }
 body.theme-minimal { --ov-bg:#ffffff; --ov-accent:#555555; --ov-code:#333333; --ov-price-bg:#f0f0f0; --ov-header:#222222; --ov-text:#111111; }
 body.theme-gold { --ov-bg:#fdf8ee; --ov-accent:#b8860b; --ov-code:#8b1a1a; --ov-price-bg:#e8d5a3; --ov-header:#7a5c00; --ov-text:#2c2c2c; }
-.theme-swatches { display:flex; gap:8px; flex-wrap:wrap; }
-.theme-swatch { width:36px; height:36px; border-radius:50%; cursor:pointer; border:3px solid transparent; transition:all .2s; }
+.theme-swatches { display:flex; gap:6px; flex-wrap:wrap; }
+.theme-modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:999; align-items:center; justify-content:center; }
+.theme-modal-overlay.open { display:flex; }
+.theme-modal-box { background:white; border-radius:20px; padding:20px; width:92%; max-width:380px; max-height:80vh; overflow-y:auto; }
+.theme-modal-title { font-family:'Kanit',sans-serif; font-size:16px; font-weight:800; color:#333; margin-bottom:14px; display:flex; justify-content:space-between; align-items:center; }
+.theme-modal-close { background:none; border:none; font-size:20px; cursor:pointer; color:#888; }
+.theme-modal-group { font-size:10px; color:#aaa; letter-spacing:1px; margin:10px 0 6px; font-family:'Kanit',sans-serif; }
+.theme-swatches-grid { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:4px; }
+.theme-swatch { width:24px; height:24px; border-radius:50%; cursor:pointer; border:2px solid transparent; transition:all .2s; }
 .theme-swatch.active { border-color:#5c7a6b; transform:scale(1.15); }
 .camera-modal { position:fixed; inset:0; background:rgba(0,0,0,.9); z-index:500; display:none; flex-direction:column; align-items:center; justify-content:center; }
 .camera-modal.open { display:flex; }
@@ -269,32 +276,14 @@ body.theme-gold { --ov-bg:#fdf8ee; --ov-accent:#b8860b; --ov-code:#8b1a1a; --ov-
   <!-- Theme & Layout -->
   <div class="sec" style="padding:14px 16px;">
     <div class="sec-lbl">🎨 ธีม Overlay</div>
-    <div class="theme-swatches" style="margin-bottom:10px;">
-      <div class="theme-swatch active" data-theme="" style="background:linear-gradient(135deg,#f0ece6,#5c7a6b);" onclick="setTheme(this,'')"></div>
-      <div class="theme-swatch" data-theme="theme-pink" style="background:linear-gradient(135deg,#fdf0f5,#c0607a);" onclick="setTheme(this,'theme-pink')"></div>
-      <div class="theme-swatch" data-theme="theme-dark" style="background:linear-gradient(135deg,#1e1e2e,#a78bfa);" onclick="setTheme(this,'theme-dark')"></div>
-      <div class="theme-swatch" data-theme="theme-minimal" style="background:linear-gradient(135deg,#fff,#555);" onclick="setTheme(this,'theme-minimal')"></div>
-      <div class="theme-swatch" data-theme="theme-gold" style="background:linear-gradient(135deg,#fdf8ee,#b8860b);" onclick="setTheme(this,'theme-gold')"></div>
-      <div class="theme-swatch" data-theme="theme-custom" style="background:conic-gradient(red,yellow,green,blue,red);border:2px dashed #aaa;" onclick="toggleCustomPanel(this)" title="กำหนดสีเอง"></div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+      <button onclick="openThemeModal()" id="btnThemePicker"
+        style="padding:10px 18px;border-radius:10px;font-family:'Kanit',sans-serif;font-size:13px;font-weight:700;cursor:pointer;background:#f0ece6;border:2px solid #5c7a6b;color:#2d5f47;display:flex;align-items:center;gap:8px;">
+        <span id="themePreviewDot" style="display:inline-block;width:16px;height:16px;border-radius:50%;background:linear-gradient(135deg,#f0ece6,#5c7a6b);border:1px solid #ccc;flex-shrink:0;"></span>
+        <span id="themeLabel">ธรรมชาติ</span> ▾
+      </button>
     </div>
-    <!-- เทศกาลไทย -->
-    <div class="sec-lbl" style="margin-top:10px;font-size:10px;color:#888;letter-spacing:1px;">เทศกาลไทย</div>
-    <div class="theme-swatches" style="margin-bottom:8px;">
-      <div class="theme-swatch" data-theme="theme-songkran"    title="สงกรานต์"   style="background:linear-gradient(135deg,#e0f4ff,#0077b6);" onclick="setTheme(this,'theme-songkran')"></div>
-      <div class="theme-swatch" data-theme="theme-loykratong"  title="ลอยกระทง"  style="background:linear-gradient(135deg,#2d1b5e,#f7b731);" onclick="setTheme(this,'theme-loykratong')"></div>
-      <div class="theme-swatch" data-theme="theme-newyearthai" title="ปีใหม่ไทย" style="background:linear-gradient(135deg,#fff8f0,#e63946);" onclick="setTheme(this,'theme-newyearthai')"></div>
-      <div class="theme-swatch" data-theme="theme-mothersday"  title="วันแม่"     style="background:linear-gradient(135deg,#fff0f6,#e91e8c);" onclick="setTheme(this,'theme-mothersday')"></div>
-    </div>
-    <!-- เทศกาลสากล -->
-    <div class="sec-lbl" style="font-size:10px;color:#888;letter-spacing:1px;">เทศกาลสากล</div>
-    <div class="theme-swatches" style="margin-bottom:10px;">
-      <div class="theme-swatch" data-theme="theme-cny"        title="ตรุษจีน"    style="background:linear-gradient(135deg,#fff3e0,#d32f2f);" onclick="setTheme(this,'theme-cny')"></div>
-      <div class="theme-swatch" data-theme="theme-valentine"  title="วาเลนไทน์"  style="background:linear-gradient(135deg,#fff0f3,#e91e63);" onclick="setTheme(this,'theme-valentine')"></div>
-      <div class="theme-swatch" data-theme="theme-halloween"  title="ฮาโลวีน"   style="background:linear-gradient(135deg,#2d1200,#ff6b00);" onclick="setTheme(this,'theme-halloween')"></div>
-      <div class="theme-swatch" data-theme="theme-christmas"  title="คริสต์มาส"  style="background:linear-gradient(135deg,#f0fff4,#1b4332);" onclick="setTheme(this,'theme-christmas')"></div>
-      <div class="theme-swatch" data-theme="theme-newyear"    title="ปีใหม่"     style="background:linear-gradient(135deg,#0d0d1a,#ffd700);" onclick="setTheme(this,'theme-newyear')"></div>
-    </div>
-    <div id="customColorPanel" style="display:none;background:#f9f9f9;border-radius:12px;padding:14px;border:1.5px solid #e0e0e0;">
+        <div id="customColorPanel" style="display:none;background:#f9f9f9;border-radius:12px;padding:14px;border:1.5px solid #e0e0e0;">
       <div style="font-family:'Kanit',sans-serif;font-size:11px;font-weight:700;color:#888;margin-bottom:10px;">🖌️ กำหนดสีเอง</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
         <div><div style="font-size:11px;color:#aaa;margin-bottom:4px;font-family:'Kanit',sans-serif;">พื้นหลัง</div><div style="display:flex;align-items:center;gap:6px;"><input type="color" id="c-bg" value="#f0ece6" onchange="applyCustomTheme()" style="width:36px;height:36px;border:none;border-radius:8px;cursor:pointer;padding:2px;"><span id="c-bg-hex" style="font-size:11px;color:#aaa;">#f0ece6</span></div></div>
@@ -307,7 +296,7 @@ body.theme-gold { --ov-bg:#fdf8ee; --ov-accent:#b8860b; --ov-code:#8b1a1a; --ov-
       <button onclick="resetCustomTheme()" style="margin-top:10px;width:100%;padding:8px;background:#f0ece6;border:none;border-radius:8px;font-family:'Kanit',sans-serif;font-size:12px;font-weight:700;color:#888;cursor:pointer;">↺ รีเซ็ตเป็นค่าเริ่มต้น</button>
     </div>
     <div style="margin-top:12px;border-top:1px solid #f0f0f0;padding-top:12px;">
-      <div class="sec-lbl" style="margin-bottom:8px;">📐 รูปแบบ Overlay</div>
+      <div class="sec-lbl" style="margin-bottom:4px;">📐 รูปแบบ Overlay</div>
       <div style="display:flex;gap:8px;">
         <button id="btnLayoutV" onclick="setLayout('vertical')" style="flex:1;padding:10px;background:#5c7a6b;color:white;border:none;border-radius:10px;font-family:'Kanit',sans-serif;font-size:12px;font-weight:700;cursor:pointer;">📱 แนวตั้ง</button>
         <button id="btnLayoutH" onclick="setLayout('horizontal')" style="flex:1;padding:10px;background:#f0ece6;color:#5c7a6b;border:2px solid #5c7a6b;border-radius:10px;font-family:'Kanit',sans-serif;font-size:12px;font-weight:700;cursor:pointer;">🖥️ แนวนอน</button>
@@ -809,6 +798,12 @@ function setLayout(layout){
   showToast(layout==='vertical'?'📱 แนวตั้งแล้วค่ะ':'🖥️ แนวนอนแล้วค่ะ');
 }
 
+function openThemeModal(){
+  document.getElementById('themeModal').classList.add('open');
+}
+function closeThemeModal(){
+  document.getElementById('themeModal').classList.remove('open');
+}
 function toggleCustomPanel(el){
   const panel=document.getElementById('customColorPanel');
   const isOpen=panel.style.display!=='none';
@@ -1473,5 +1468,41 @@ document.addEventListener('DOMContentLoaded',()=>{
   document.getElementById('manualModal').addEventListener('click',function(e){ if(e.target===this) closeManualModal(); });
 });
 </script>
+<!-- Theme Picker Modal -->
+<div class="theme-modal-overlay" id="themeModal" onclick="if(event.target===this)closeThemeModal()">
+  <div class="theme-modal-box">
+    <div class="theme-modal-title">
+      <span>🎨 เลือกธีม Overlay</span>
+      <button class="theme-modal-close" onclick="closeThemeModal()">✕</button>
+    </div>
+    <div class="theme-modal-group">ธีมพื้นฐาน</div>
+    <div class="theme-swatches-grid">
+      <div class="theme-swatch active" data-theme="" title="ธรรมชาติ" style="background:linear-gradient(135deg,#f0ece6,#5c7a6b);" onclick="setTheme(this,'');closeThemeModal()"></div>
+      <div class="theme-swatch" data-theme="theme-pink" title="Pink" style="background:linear-gradient(135deg,#fdf0f5,#c0607a);" onclick="setTheme(this,'theme-pink');closeThemeModal()"></div>
+      <div class="theme-swatch" data-theme="theme-dark" title="Dark" style="background:linear-gradient(135deg,#1e1e2e,#a78bfa);" onclick="setTheme(this,'theme-dark');closeThemeModal()"></div>
+      <div class="theme-swatch" data-theme="theme-minimal" title="Minimal" style="background:linear-gradient(135deg,#ffffff,#333333);" onclick="setTheme(this,'theme-minimal');closeThemeModal()"></div>
+      <div class="theme-swatch" data-theme="theme-gold" title="Gold" style="background:linear-gradient(135deg,#fdf8ee,#b8860b);" onclick="setTheme(this,'theme-gold');closeThemeModal()"></div>
+    </div>
+    <div class="theme-modal-group">เทศกาลไทย</div>
+    <div class="theme-swatches-grid">
+      <div class="theme-swatch" data-theme="theme-songkran"    title="สงกรานต์"   style="background:linear-gradient(135deg,#e0f4ff,#0077b6);" onclick="setTheme(this,'theme-songkran');closeThemeModal()"></div>
+      <div class="theme-swatch" data-theme="theme-loykratong"  title="ลอยกระทง"  style="background:linear-gradient(135deg,#2d1b5e,#f7b731);" onclick="setTheme(this,'theme-loykratong');closeThemeModal()"></div>
+      <div class="theme-swatch" data-theme="theme-newyearthai" title="ปีใหม่ไทย" style="background:linear-gradient(135deg,#fff8f0,#e63946);" onclick="setTheme(this,'theme-newyearthai');closeThemeModal()"></div>
+      <div class="theme-swatch" data-theme="theme-mothersday"  title="วันแม่"     style="background:linear-gradient(135deg,#fff0f6,#e91e8c);" onclick="setTheme(this,'theme-mothersday');closeThemeModal()"></div>
+    </div>
+    <div class="theme-modal-group">เทศกาลสากล</div>
+    <div class="theme-swatches-grid">
+      <div class="theme-swatch" data-theme="theme-cny"        title="ตรุษจีน"    style="background:linear-gradient(135deg,#fff3e0,#d32f2f);" onclick="setTheme(this,'theme-cny');closeThemeModal()"></div>
+      <div class="theme-swatch" data-theme="theme-valentine"  title="วาเลนไทน์"  style="background:linear-gradient(135deg,#fff0f3,#e91e63);" onclick="setTheme(this,'theme-valentine');closeThemeModal()"></div>
+      <div class="theme-swatch" data-theme="theme-halloween"  title="ฮาโลวีน"   style="background:linear-gradient(135deg,#2d1200,#ff6b00);" onclick="setTheme(this,'theme-halloween');closeThemeModal()"></div>
+      <div class="theme-swatch" data-theme="theme-christmas"  title="คริสต์มาส"  style="background:linear-gradient(135deg,#f0fff4,#1b4332);" onclick="setTheme(this,'theme-christmas');closeThemeModal()"></div>
+      <div class="theme-swatch" data-theme="theme-newyear"    title="ปีใหม่"     style="background:linear-gradient(135deg,#0d0d1a,#ffd700);" onclick="setTheme(this,'theme-newyear');closeThemeModal()"></div>
+    </div>
+    <div class="theme-modal-group">กำหนดเอง</div>
+    <div class="theme-swatches-grid">
+      <div class="theme-swatch" data-theme="theme-custom" title="กำหนดสีเอง" style="background:conic-gradient(red,yellow,green,blue,red);border:2px dashed #aaa;" onclick="toggleCustomPanel(this);closeThemeModal()"></div>
+    </div>
+  </div>
+</div>
 </body>
 </html>
