@@ -500,7 +500,7 @@ function renderGroupColors(){
   list.innerHTML=group.map(item=>{
     const checked=hiddenCodes[item.code]?'checked':'';
     const isActive=item.code===currentCode?'border:2px solid #5c7a6b;background:#f0f8f4;':'border:1px solid #ddd;background:white;';
-    return `<label style="display:flex;align-items:center;gap:6px;padding:8px 12px;border-radius:10px;cursor:pointer;${isActive}font-size:13px;font-family:'Kanit',sans-serif;">
+    return `<label style="display:flex;align-items:center;gap:6px;padding:8px 12px;border-radius:10px;cursor:pointer;${isActive}font-size:13px;font-family:Kanit,sans-serif;">
       <input type="checkbox" ${checked} onchange="toggleHideColor('${item.code}',this.checked)"
         style="width:16px;height:16px;cursor:pointer;">
       <span style="font-weight:700;color:#8b1a1a;">${item.code}</span>
@@ -741,7 +741,61 @@ function applySecondCode(){
   setSecondCode(val);
 }
 
+function buildProductCardHTML(code, p, imgUrl, W){
+  const sold=soldSizes||[], co=p.activeCols||[];
+  const av=(p.sizes||[]).filter(s=>sold.indexOf(s.size)===-1);
+  const lb=av.map(s=>s.size).filter(Boolean);
+  const price=salePrice?Number(salePrice).toLocaleString():Number(p.price||0).toLocaleString();
+  const origPrice=salePrice?Number(p.price||0).toLocaleString():null;
+
+  const imgHtml=imgUrl
+    ?'<img src="'+imgUrl+'" crossorigin="anonymous" style="width:100%;height:480px;object-fit:cover;display:block;border-radius:20px;margin-bottom:20px;">'
+    :'<div style="width:100%;height:280px;background:#f5f5f5;border-radius:20px;margin-bottom:20px;display:flex;align-items:center;justify-content:center;"><span style="font-size:80px;">&#128247;</span></div>';
+
+  const tableRows=av.map(function(s,i){
+    const cells=co.map(function(col){ return '<td style="padding:10px 6px;text-align:center;font-size:28px;color:#333;">'+(s[col]||'—')+'</td>'; }).join('');
+    return '<tr style="background:'+(i%2===0?'#fff':'#f5f5f5')+';"><td style="padding:10px 6px;text-align:center;font-size:28px;font-weight:800;color:#8b1a1a;font-family:Kanit,sans-serif;">'+s.size+'</td>'+cells+'</tr>';
+  }).join('');
+
+  const tableHtml=tableRows&&co.length
+    ?'<table style="width:100%;border-collapse:collapse;border-radius:16px;overflow:hidden;margin-top:16px;"><thead><tr style="background:#3d4f47;"><th style="padding:12px 6px;color:white;font-size:26px;text-align:center;font-family:Sarabun,sans-serif;">ไซส์</th>'+co.map(function(c){ return '<th style="padding:12px 6px;color:white;font-size:26px;text-align:center;font-family:Sarabun,sans-serif;">'+c+'</th>'; }).join('')+'</tr></thead><tbody>'+tableRows+'</tbody></table>'
+    :'';
+
+  const infoItems=[];
+  if(p.color) infoItems.push('<div style="flex:1;text-align:center;padding:14px 8px;"><div style="font-size:20px;color:#999;margin-bottom:4px;">สี</div><div style="font-size:34px;font-weight:700;color:#222;font-family:Sarabun,sans-serif;">'+p.color+'</div></div>');
+  if(p.material) infoItems.push('<div style="flex:1;text-align:center;padding:14px 8px;border-left:1px solid #eee;"><div style="font-size:20px;color:#999;margin-bottom:4px;">วัสดุ</div><div style="font-size:26px;font-weight:600;color:#222;font-family:Sarabun,sans-serif;">'+p.material+'</div></div>');
+  const infoHtml=infoItems.length?'<div style="display:flex;background:#f9f9f9;border-radius:14px;overflow:hidden;margin-top:14px;">'+infoItems.join('')+'</div>':'';
+
+  return '<!DOCTYPE html><html><head><meta charset="UTF-8">'
+    +'<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&family=Kanit:wght@700;800&display=swap" rel="stylesheet">'
+    +'<style>*{box-sizing:border-box;margin:0;padding:0;} body{width:'+W+'px;min-height:'+W+'px;background:#fff;padding:36px;font-family:Sarabun,sans-serif;}</style>'
+    +'</head><body>'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">'
+    +'<span style="font-family:Kanit,sans-serif;font-size:34px;font-weight:800;letter-spacing:5px;color:#5c7a6b;">CHICCOCO</span>'
+    +'<span style="font-family:Kanit,sans-serif;font-size:58px;font-weight:800;color:#8b1a1a;">'+code+'</span>'
+    +'</div>'
+    +imgHtml
+    +'<div style="display:flex;gap:14px;margin-bottom:14px;">'
+    +'<div style="flex:1;background:#fff;border:1px solid #eee;border-radius:16px;padding:16px;text-align:center;box-shadow:0 2px 6px rgba(0,0,0,0.06);">'
+    +'<div style="font-size:20px;color:#aaa;margin-bottom:4px;">รหัส</div>'
+    +'<div style="font-family:Kanit,sans-serif;font-size:58px;font-weight:800;color:#8b1a1a;line-height:1;">'+code+'</div>'
+    +'</div>'
+    +'<div style="flex:1;background:#fff;border:1px solid #eee;border-radius:16px;padding:16px;text-align:center;box-shadow:0 2px 6px rgba(0,0,0,0.06);">'
+    +'<div style="font-size:20px;color:#aaa;margin-bottom:4px;">ไซส์</div>'
+    +'<div style="font-family:Kanit,sans-serif;font-size:42px;font-weight:800;color:#8b1a1a;line-height:1.2;">'+(lb.join(', ')||'—')+'</div>'
+    +'</div>'
+    +'</div>'
+    +'<div style="background:#f0ece6;border-radius:16px;padding:18px;text-align:center;margin-bottom:14px;">'
+    +(origPrice?'<div style="font-size:28px;color:#aaa;text-decoration:line-through;font-family:Kanit,sans-serif;">'+origPrice+'</div>':'')
+    +'<div style="font-family:Kanit,sans-serif;font-size:68px;font-weight:800;color:#2c2c2c;line-height:1;">'+price+'</div>'
+    +'</div>'
+    +'<div style="font-size:36px;font-weight:700;color:#222;text-align:center;margin-bottom:4px;line-height:1.4;">'+(p.name||'')+'</div>'
+    +infoHtml
+    +tableHtml
+    +'<div style="text-align:center;margin-top:24px;font-size:20px;color:#bbb;letter-spacing:3px;font-family:Kanit,sans-serif;">Chiccoco Live @ 2025</div>'
+    +'</body></html>';
 }
+
 async function downloadProductCard(){
   if(!currentCode||!products[currentCode]){ showToast('❌ กรุณาเลือกสินค้าก่อนค่ะ'); return; }
   showToast('⏳ กำลังสร้างภาพ กรุณารอสักครู่ค่ะ...');
@@ -790,152 +844,7 @@ async function downloadProductCard(){
   a.download='chiccoco-'+currentCode+'.jpg';
   a.click();
   showToast('✅ ดาวน์โหลดภาพ '+currentCode+' สำเร็จค่ะ');
-}
-
-function buildProductCardHTML(code, p, imgUrl, W){
-  const sold=soldSizes||[], co=p.activeCols||[];
-  const av=(p.sizes||[]).filter(s=>sold.indexOf(s.size)===-1);
-  const lb=av.map(s=>s.size).filter(Boolean);
-  const price=salePrice?Number(salePrice).toLocaleString():Number(p.price||0).toLocaleString();
-  const origPrice=salePrice?Number(p.price||0).toLocaleString():null;
-
-  // รูปสินค้า — ใหญ่เต็มความกว้าง
-  const imgHtml=imgUrl
-    ?`<img src="${imgUrl}" crossorigin="anonymous"
-        style="width:100%;height:520px;object-fit:cover;display:block;border-radius:20px;margin-bottom:20px;">`
-    :`<div style="width:100%;height:520px;background:#f0f0f0;border-radius:20px;margin-bottom:20px;
-        display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;">
-        <span style="font-size:100px;">👗</span>
-        <span style="font-size:26px;color:#aaa;font-family:Sarabun,sans-serif;">ไม่มีรูปสินค้า</span>
-      </div>`;
-
-  // ตาราง
-  const tableRows=av.map((s,i)=>{
-    const cells=co.map(col=>`<td style="padding:10px 6px;text-align:center;font-size:28px;color:#333;">${s[col]||'—'}</td>`).join('');
-    return `<tr style="background:${i%2===0?'#fff':'#f5f5f5'};">
-      <td style="padding:10px 6px;text-align:center;font-size:28px;font-weight:800;color:#8b1a1a;font-family:Kanit,sans-serif;">${s.size}</td>
-      ${cells}
-    </tr>`;
-  }).join('');
-
-  const tableHtml=tableRows&&co.length?`
-    <table style="width:100%;border-collapse:collapse;border-radius:16px;overflow:hidden;margin-top:16px;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
-      <thead>
-        <tr style="background:#3d4f47;">
-          <th style="padding:12px 6px;color:white;font-size:26px;text-align:center;font-family:Sarabun,sans-serif;">ไซส์</th>
-          ${co.map(c=>`<th style="padding:12px 6px;color:white;font-size:26px;text-align:center;font-family:Sarabun,sans-serif;">${c}</th>`).join('')}
-        </tr>
-      </thead>
-      <tbody>${tableRows}</tbody>
-    </table>`:'';
-
-  // สี + วัสดุ
-  const infoItems=[
-    p.color?`<div style="flex:1;text-align:center;padding:14px 8px;">
-      <div style="font-size:20px;color:#999;margin-bottom:4px;font-family:Sarabun,sans-serif;">สี</div>
-      <div style="font-size:34px;font-weight:700;color:#222;font-family:Sarabun,sans-serif;">${p.color}</div>
-    </div>`:'',
-    p.material?`<div style="flex:1;text-align:center;padding:14px 8px;border-left:1px solid #eee;">
-      <div style="font-size:20px;color:#999;margin-bottom:4px;font-family:Sarabun,sans-serif;">วัสดุ</div>
-      <div style="font-size:26px;font-weight:600;color:#222;font-family:Sarabun,sans-serif;">${p.material}</div>
-    </div>`:''
-  ].filter(Boolean);
-  const infoHtml=infoItems.length?`
-    <div style="display:flex;background:#f9f9f9;border-radius:14px;overflow:hidden;margin-top:14px;">
-      ${infoItems.join('')}
-    </div>`:'';
-
-  return `<!DOCTYPE html><html><head><meta charset="UTF-8">
-<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&family=Kanit:wght@700;800&display=swap" rel="stylesheet">
-<style>
-*{box-sizing:border-box;margin:0;padding:0;}
-body{width:${W}px;min-height:${W}px;background:#ffffff;padding:36px;font-family:Sarabun,sans-serif;}
-</style></head><body>
-<!-- Header -->
-<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
-  <span style="font-family:Kanit,sans-serif;font-size:34px;font-weight:800;letter-spacing:5px;color:#5c7a6b;">CHICCOCO</span>
-  <span style="font-family:Kanit,sans-serif;font-size:58px;font-weight:800;color:#8b1a1a;">${code}</span>
-</div>
-<!-- รูปสินค้า -->
-${imgHtml}
-<!-- รหัส + ไซส์ -->
-<div style="display:flex;gap:14px;margin-bottom:14px;">
-  <div style="flex:1;background:#fff;border:1px solid #eee;border-radius:16px;padding:16px;text-align:center;box-shadow:0 2px 6px rgba(0,0,0,0.06);">
-    <div style="font-size:20px;color:#aaa;margin-bottom:4px;">รหัส</div>
-    <div style="font-family:Kanit,sans-serif;font-size:58px;font-weight:800;color:#8b1a1a;line-height:1;">${code}</div>
-  </div>
-  <div style="flex:1;background:#fff;border:1px solid #eee;border-radius:16px;padding:16px;text-align:center;box-shadow:0 2px 6px rgba(0,0,0,0.06);">
-    <div style="font-size:20px;color:#aaa;margin-bottom:4px;">ไซส์</div>
-    <div style="font-family:Kanit,sans-serif;font-size:42px;font-weight:800;color:#8b1a1a;line-height:1.2;">${lb.join(', ')||'—'}</div>
-  </div>
-</div>
-<!-- ราคา -->
-<div style="background:#f0ece6;border-radius:16px;padding:18px;text-align:center;margin-bottom:14px;box-shadow:0 2px 6px rgba(0,0,0,0.06);">
-  <div style="font-size:20px;color:#aaa8a0;margin-bottom:4px;">ราคา</div>
-  ${origPrice?`<div style="font-size:28px;color:#aaa;text-decoration:line-through;font-family:Kanit,sans-serif;">${origPrice}</div>`:''}
-  <div style="font-family:Kanit,sans-serif;font-size:68px;font-weight:800;color:#2c2c2c;line-height:1;">${price}</div>
-</div>
-<!-- ชื่อสินค้า -->
-<div style="font-size:36px;font-weight:700;color:#222;text-align:center;margin-bottom:4px;line-height:1.4;">${p.name||''}</div>
-<!-- สี + วัสดุ -->
-${infoHtml}
-<!-- ตารางไซส์ -->
-${tableHtml}
-<!-- footer -->
-<div style="text-align:center;margin-top:24px;font-size:20px;color:#bbb;letter-spacing:3px;font-family:Kanit,sans-serif;">Chiccoco Live @ 2025</div>
-</body></html>`;
-}).join('');
-
-  const tableHtml=tableRows&&co.length?`
-    <table style="width:100%;border-collapse:collapse;border-radius:16px;overflow:hidden;margin-top:20px;">
-      <thead>
-        <tr style="background:#3d4f47;">
-          <th style="padding:14px 8px;color:white;font-size:28px;text-align:center;">ไซส์</th>
-          ${co.map(c=>`<th style="padding:14px 8px;color:white;font-size:28px;text-align:center;">${c}</th>`).join('')}
-        </tr>
-      </thead>
-      <tbody>${tableRows}</tbody>
-    </table>`:'';
-
-  const infoHtml=[
-    p.color?`<div style="flex:1;text-align:center;padding:16px;"><div style="font-size:22px;color:#999;margin-bottom:6px;">สี</div><div style="font-size:38px;font-weight:700;color:#222;">${p.color}</div></div>`:'',
-    p.material?`<div style="flex:1;text-align:center;padding:16px;border-left:1px solid #eee;"><div style="font-size:22px;color:#999;margin-bottom:6px;">วัสดุ</div><div style="font-size:30px;font-weight:600;color:#222;">${p.material}</div></div>`:''
-  ].filter(Boolean).join('');
-
-  return `<!DOCTYPE html><html><head><meta charset="UTF-8">
-<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&family=Kanit:wght@700;800&display=swap" rel="stylesheet">
-<style>
-*{box-sizing:border-box;margin:0;padding:0;}
-body{width:${W}px;height:${W}px;background:#ffffff;font-family:'Sarabun',sans-serif;overflow:hidden;padding:40px;}
-</style></head><body>
-<div style="display:flex;flex-direction:column;height:100%;gap:0;">
-  <!-- header -->
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
-    <span style="font-family:'Kanit',sans-serif;font-size:32px;font-weight:800;letter-spacing:4px;color:#5c7a6b;">CHICCOCO</span>
-    <span style="font-family:'Kanit',sans-serif;font-size:52px;font-weight:800;color:#8b1a1a;">${code}</span>
-  </div>
-  <!-- รูปสินค้า -->
-  ${imgHtml}
-  <!-- ชื่อสินค้า -->
-  <div style="font-size:38px;font-weight:700;color:#222;text-align:center;margin-bottom:16px;line-height:1.4;">${p.name||''}</div>
-  <!-- ราคา -->
-  <div style="text-align:center;margin-bottom:16px;">
-    ${origPrice?`<div style="font-size:32px;color:#aaa;text-decoration:line-through;font-family:'Kanit',sans-serif;">${origPrice}</div>`:''}
-    <div style="font-size:64px;font-weight:800;color:#8b1a1a;font-family:'Kanit',sans-serif;line-height:1;">${price} ฿</div>
-  </div>
-  <!-- ไซส์ -->
-  ${lb.length?`<div style="text-align:center;margin-bottom:12px;font-size:30px;color:#555;">ไซส์: <strong style="color:#2d5f47;">${lb.join(' / ')}</strong></div>`:''}
-  <!-- สี + วัสดุ -->
-  ${infoHtml?`<div style="display:flex;background:#f9f9f9;border-radius:16px;overflow:hidden;margin-bottom:8px;">${infoHtml}</div>`:''}
-  <!-- ตาราง -->
-  ${tableHtml}
-  <!-- footer -->
-  <div style="text-align:center;margin-top:auto;padding-top:16px;font-size:22px;color:#ccc;letter-spacing:3px;font-family:'Kanit',sans-serif;">Chiccoco Live @ 2025</div>
-</div>
-</body></html>`;
-}
-
-function focusScan(){ document.getElementById('scanInput').focus(); }
+}function focusScan(){ document.getElementById('scanInput').focus(); }
 
 function switchPage(page){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
