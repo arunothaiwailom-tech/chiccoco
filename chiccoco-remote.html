@@ -824,7 +824,8 @@ function buildProductCardHTML(code, p, imgUrl, W){
 
 async function downloadProductCard(){
   if(!currentCode||!products[currentCode]){ showToast('❌ กรุณาเลือกสินค้าก่อนค่ะ'); return; }
-  showToast('⏳ กำลังสร้างภาพ กรุณารอสักครู่ค่ะ...');
+
+  // โหลด html2canvas
   if(!window.html2canvas){
     await new Promise((res,rej)=>{
       const s=document.createElement('script');
@@ -833,31 +834,36 @@ async function downloadProductCard(){
       document.head.appendChild(s);
     });
   }
-  const shopId=sessionStorage.getItem('shopId')||'default';
-  const overlayUrl=window.location.href.replace('chiccoco-remote.html','chiccoco-overlay-display.html')+'?shop='+shopId;
-  const blob=await new Promise(resolve=>{
-    const W=800;
-    const iframe=document.createElement('iframe');
-    iframe.style.cssText='position:fixed;left:-9999px;top:0;width:'+W+'px;height:1500px;border:none;visibility:hidden;';
-    document.body.appendChild(iframe);
-    iframe.onload=async()=>{
-      await new Promise(r=>setTimeout(r,2500));
-      try{
-        const canvas=await html2canvas(iframe.contentDocument.body,{
-          width:W,scale:1.35,useCORS:true,allowTaint:false,
-          backgroundColor:'#f0ece6',logging:false,windowWidth:W,windowHeight:1500
-        });
-        canvas.toBlob(b=>{ document.body.removeChild(iframe); resolve(b); },'image/jpeg',0.95);
-      }catch(e){ document.body.removeChild(iframe); resolve(null); console.error(e); }
-    };
-    iframe.src=overlayUrl;
-  });
-  if(!blob){ showToast('❌ สร้างภาพไม่สำเร็จค่ะ'); return; }
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(blob);
-  a.download='chiccoco-'+currentCode+'.jpg';
-  a.click();
-  showToast('✅ ดาวน์โหลดภาพ '+currentCode+' สำเร็จค่ะ');
+
+  showToast('⏳ กำลังสร้างภาพค่ะ...');
+
+  // render จาก previewWrap โดยตรง — ได้ธีมและรูปตามที่เห็นจริง
+  const el = document.getElementById('previewWrap');
+  if(!el){ showToast('❌ ไม่พบ preview กรุณาเลือกสินค้าก่อนค่ะ'); return; }
+
+  try{
+    const canvas = await html2canvas(el, {
+      scale: 3,
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: null,
+      logging: false,
+      removeContainer: true
+    });
+
+    canvas.toBlob(function(blob){
+      if(!blob){ showToast('❌ สร้างภาพไม่สำเร็จค่ะ'); return; }
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'chiccoco-' + currentCode + '.png';
+      a.click();
+      showToast('✅ ดาวน์โหลดภาพ ' + currentCode + ' สำเร็จค่ะ');
+    }, 'image/png');
+
+  }catch(e){
+    console.error(e);
+    showToast('❌ สร้างภาพไม่สำเร็จค่ะ: ' + e.message);
+  }
 }function focusScan(){ document.getElementById('scanInput').focus(); }
 
 function switchPage(page){
