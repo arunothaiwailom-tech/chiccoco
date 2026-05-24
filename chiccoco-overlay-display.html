@@ -232,17 +232,13 @@ function startDB(){
     }catch(e){_shopName='CHICCOCO';draw();}
 
     // โหลดรูปสินค้าจาก Storage
-    try{
-      var _st=firebase.storage();
-      _st.ref('products/'+_shopId).listAll().then(function(res){
-        return Promise.all(res.items.map(function(item){
-          return item.getDownloadURL().then(function(url){
-            var code=item.name.replace(/\.[^.]+$/,'').toUpperCase();
-            _productImages[code]=url;
-          });
-        }));
-      }).then(function(){ _imagesLoaded=true; draw(); }).catch(function(e){ _imagesLoaded=true; console.warn('loadImgs:',e); });
-    }catch(e){ _imagesLoaded=true; console.warn('storage not ready:',e); }
+    // โหลด URL รูปสินค้าจาก Realtime DB (ไม่มี CORS issue)
+    _db.ref(_shopPath+'/productImages').on('value',function(snap){
+      var d=snap.val();
+      if(d){ Object.assign(_productImages,d); }
+      _imagesLoaded=true;
+      draw();
+    });
 
     _db.ref(_shopPath+'/products').on('value',function(s){var d=s.val();if(d){_prod=d;try{draw();}catch(e){console.error('draw/products err:',e);}}});
     _db.ref(_shopPath+'/state').on('value',function(s){
