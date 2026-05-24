@@ -558,6 +558,10 @@ async function uploadProductImages(files){
       failed++;
     }
   }
+  // บันทึก URLs ลง Realtime DB เพื่อให้ overlay โหลดได้โดยไม่มี CORS
+  if(db&&fbConnected&&Object.keys(productImages).length){
+    db.ref(shopPath+'/productImages').set(productImages);
+  }
   showToast('✅ อัปโหลดสำเร็จ '+done+' รูป'+(failed?' (ล้มเหลว '+failed+')':'')+'ค่ะ');
   document.getElementById('imgInfo').textContent=Object.keys(productImages).length+' รูป ✅';
   updatePreview();
