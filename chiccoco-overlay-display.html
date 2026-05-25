@@ -277,7 +277,39 @@ function makeSecondOV(){
   if(!_secondCode||!_prod[_secondCode]) return '';
   var p=getP(_secondCode);
   if(!p) return '';
-  var sold=[], co=p.activeCols||[];
+
+  var divider='<div class="OV-second-divider"><div class="OV-second-divider-line"></div><div class="OV-second-divider-text">แมตช์กับ</div><div class="OV-second-divider-line"></div></div>';
+
+  // ── สินค้าเบ็ดเตล็ด (misc) ──
+  if(p.type==='misc'){
+    var ms=p.size||(p.sizes&&p.sizes.length?p.sizes.map(function(s){return s.size;}).filter(Boolean).join(', '):'');
+    var infoHtml2='';
+    if(p.color||p.material){
+      infoHtml2='<div class="OV-inforow">';
+      if(p.color)    infoHtml2+='<div class="OV-info"><div class="OV-info-lbl">สี</div><div class="OV-info-val" style="font-size:50px;">'+p.color+'</div></div>';
+      if(p.material) infoHtml2+='<div class="OV-info"><div class="OV-info-lbl">วัสดุ</div><div class="OV-info-val" style="font-size:40px;">'+p.material+'</div></div>';
+      infoHtml2+='</div>';
+    }
+    var tableHtml2='';
+    if(ms){
+      tableHtml2='<table class="OV-table"><thead><tr><th>ไซส์</th></tr></thead>'
+        +'<tbody><tr><td style="font-size:36px;font-weight:600;color:#2c2c2c;padding:10px;">'+ms+'</td></tr></tbody></table>';
+    }
+    return '<div class="OV-second">'
+      +divider
+      +'<div class="OV-toprow">'
+        +'<div class="OV-box"><div class="OV-box-lbl">รหัสสินค้า</div><div class="OV-box-code">'+p.code+'</div></div>'
+        +(ms?'<div class="OV-box"><div class="OV-box-lbl">ขนาด</div><div class="OV-box-sizes" style="font-size:26px;line-height:1.4;">'+ms+'</div></div>':'')
+      +'</div>'
+      +'<div class="OV-price"><div class="OV-price-lbl">ราคา</div><div class="OV-price-num">'+fmt(p.price)+'</div></div>'
+      +'<div class="OV-name">'+p.name+'</div>'
+      +infoHtml2
+      +'</div>';
+  }
+
+  // ── สินค้าเสื้อผ้า (clothing) ──
+  var sold=_state&&_state.secondSoldSizes?_state.secondSoldSizes:[];
+  var co=p.activeCols||[];
   var av=(p.sizes||[]).filter(function(s){ return sold.indexOf(s.size)===-1; });
   var lb=av.map(function(s){ return s.size; }).filter(Boolean);
   var totalCols=co.length+1;
@@ -290,7 +322,7 @@ function makeSecondOV(){
   // table
   var rows=av.map(function(s){
     var sFs=autoFs(s.size,cellW,40,16);
-    var cells='<td style="font-size:'+sFs+'px;font-weight:800;color:var(--ov-code);font-family:\'Kanit\',sans-serif;">'+s.size+'</td>';
+    var cells='<td style="font-size:'+sFs+'px;font-weight:800;color:var(--ov-code);font-family:'Kanit',sans-serif;">'+s.size+'</td>';
     co.forEach(function(col){
       var val=s[col]||'—';
       var vFs=autoFs(val,cellW,44,16);
@@ -310,9 +342,8 @@ function makeSecondOV(){
     infoHtml+='</div>';
   }
 
-  // divider + content
   return '<div class="OV-second">'
-    +'<div class="OV-second-divider"><div class="OV-second-divider-line"></div><div class="OV-second-divider-text">แมตช์กับ</div><div class="OV-second-divider-line"></div></div>'
+    +divider
     +'<div class="OV-toprow">'
       +'<div class="OV-box"><div class="OV-box-lbl">รหัสสินค้า</div><div class="OV-box-code">'+p.code+'</div></div>'
       +'<div class="OV-box"><div class="OV-box-lbl">ไซส์</div><div class="OV-box-sizes">'+(lb.join(', ')||'—')+'</div></div>'
@@ -323,6 +354,7 @@ function makeSecondOV(){
     +tableHtml
     +'</div>';
 }
+
 
 function makeColorGroup(currentCode){
   // หาสินค้าที่มี groupId เดียวกัน
