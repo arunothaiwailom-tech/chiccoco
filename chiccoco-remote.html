@@ -265,6 +265,10 @@ body.theme-gold { --ov-bg:#fdf8ee; --ov-accent:#b8860b; --ov-code:#8b1a1a; --ov-
         style="background:#3d4f47;color:white;border-color:#3d4f47;">
         📥 Download ZIP
       </button>
+      <button class="btn-manual-open" onclick="openDeleteImgModal()"
+        style="background:#5c1a1a;color:white;border-color:#5c1a1a;">
+        🗑️ ลบรูป
+      </button>
       <span id="imgInfo" style="font-size:12px;color:#666;align-self:center;">ยังไม่มีรูป</span>
     </div>
     <div style="font-size:11px;color:#888;margin-top:4px;">ตั้งชื่อไฟล์ตามรหัส เช่น B290.jpg · Download ZIP = ภาพ overlay ทุกรหัส</div>
@@ -567,6 +571,74 @@ async function uploadProductImages(files){
   updatePreview();
 }
 
+// ── ลบรูปสินค้า ──
+function openDeleteImgModal(){
+  const list = document.getElementById('deleteImgList');
+  list.innerHTML = '';
+  const codes = Object.keys(productImages);
+  if(!codes.length){
+    list.innerHTML = '<div style="color:#888;font-size:13px;text-align:center;padding:20px;">ยังไม่มีรูปสินค้าในระบบค่ะ</div>';
+    document.getElementById('deleteImgModal').style.display='flex';
+    return;
+  }
+  codes.sort().forEach(code => {
+    const url = productImages[code];
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;gap:10px;background:#2a2a3e;border-radius:12px;padding:10px 12px;';
+    row.innerHTML = `
+      <img src="${url}" style="width:52px;height:52px;object-fit:cover;border-radius:8px;flex-shrink:0;background:#333;">
+      <div style="flex:1;min-width:0;">
+        <div style="font-family:'Kanit',sans-serif;font-size:15px;font-weight:700;color:#ff6b9d;">${code}</div>
+        <div style="font-size:11px;color:#888;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${url.split('?')[0].split('/').pop()}</div>
+      </div>
+      <button onclick="deleteProductImage('${code}')" id="del-btn-${code}"
+        style="padding:7px 12px;background:#8b1a1a;color:white;border:none;border-radius:8px;font-family:'Kanit',sans-serif;font-size:12px;font-weight:700;cursor:pointer;flex-shrink:0;">
+        ลบ
+      </button>`;
+    list.appendChild(row);
+  });
+  document.getElementById('deleteImgModal').style.display='flex';
+}
+
+function closeDeleteImgModal(){
+  document.getElementById('deleteImgModal').style.display='none';
+}
+
+async function deleteProductImage(code){
+  const btn = document.getElementById('del-btn-'+code);
+  if(btn){ btn.disabled=true; btn.textContent='⏳'; }
+  const shopId = sessionStorage.getItem('shopId')||'default';
+  // หาชื่อไฟล์จาก URL (รองรับ .jpg .png .webp ฯลฯ)
+  const url = productImages[code]||'';
+  const ext = url.match(/products%2F[^%]+%2F([^?]+)/)?.[1]?.split('.').pop() || 'jpg';
+  const fileName = code.toLowerCase()+'.'+ext;
+  try{
+    if(storage){
+      const ref = storage.ref('products/'+shopId+'/'+fileName);
+      await ref.delete().catch(async ()=>{
+        // ลอง uppercase ถ้า lowercase ไม่เจอ
+        await storage.ref('products/'+shopId+'/'+code+'.'+ext).delete();
+      });
+    }
+    // ลบออกจาก memory + Realtime DB
+    delete productImages[code];
+    if(db && fbConnected){
+      db.ref(shopPath+'/productImages/'+code).remove();
+    }
+    showToast('✅ ลบรูป '+code+' สำเร็จค่ะ');
+    // อัปเดต imgInfo
+    const cnt = Object.keys(productImages).length;
+    document.getElementById('imgInfo').textContent = cnt ? cnt+' รูป ✅' : 'ยังไม่มีรูป';
+    // refresh modal
+    openDeleteImgModal();
+    updatePreview();
+  }catch(e){
+    console.error('deleteProductImage:', e);
+    showToast('❌ ลบไม่สำเร็จ: '+e.message);
+    if(btn){ btn.disabled=false; btn.textContent='ลบ'; }
+  }
+}
+
 // ── Download ZIP ภาพ Overlay ทุกรหัส ──
 async function downloadOverlayZip(){
   if(!Object.keys(products).length){ showToast('❌ กรุณาโหลดสต๊อกก่อนค่ะ'); return; }
@@ -685,6 +757,21 @@ ${priceHtml}
 ${p.color||p.material?`<div class="info-row">${p.color?'<div class="info-cell"><div class="lbl">สี</div><div class="val">'+p.color+'</div></div>':''}${p.material?'<div class="info-cell"><div class="lbl">วัสดุ</div><div class="val" style="font-size:36px;">'+p.material+'</div></div>':''}</div>`:''}
 ${tableHtml}
 <div class="footer">Chiccoco Live @ 2025</div>
+
+<!-- ── Modal ลบรูปสินค้า ── -->
+<div id="deleteImgModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:#1e1e2e;border:1px solid #333;border-radius:20px;padding:24px 20px;width:90%;max-width:400px;max-height:80vh;display:flex;flex-direction:column;gap:12px;">
+    <div style="font-family:'Kanit',sans-serif;font-size:16px;font-weight:700;color:white;">🗑️ ลบรูปสินค้า</div>
+    <div style="font-size:12px;color:#888;">เลือกรูปที่ต้องการลบออกจากระบบค่ะ</div>
+    <div id="deleteImgList" style="overflow-y:auto;max-height:340px;display:flex;flex-direction:column;gap:8px;"></div>
+    <div style="display:flex;gap:8px;margin-top:4px;">
+      <button onclick="closeDeleteImgModal()"
+        style="flex:1;padding:10px;background:#333;color:#ccc;border:none;border-radius:10px;font-family:'Kanit',sans-serif;font-size:13px;cursor:pointer;">
+        ปิด
+      </button>
+    </div>
+  </div>
+</div>
 </body></html>`;
 }
 
