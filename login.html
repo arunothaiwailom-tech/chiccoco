@@ -28,7 +28,6 @@ body {
   letter-spacing:4px;
 }
 .logo p { color:#888; font-size:13px; margin-top:4px; }
-
 .field { margin-bottom:20px; }
 .field label { display:block; font-size:13px; color:#ccc; margin-bottom:8px; font-family:'Kanit',sans-serif; }
 .field input {
@@ -45,7 +44,6 @@ body {
   position:absolute; right:14px; top:50%; transform:translateY(-50%);
   background:none; border:none; color:#888; cursor:pointer; font-size:18px;
 }
-
 .btn-login {
   width:100%; padding:15px;
   background:linear-gradient(135deg, #ff6b9d, #c44f82);
@@ -55,7 +53,6 @@ body {
   display:flex; align-items:center; justify-content:center; gap:8px;
 }
 .btn-login:disabled { opacity:0.6; cursor:not-allowed; }
-
 .error-box {
   margin-top:12px; padding:12px 16px;
   background:rgba(220,50,50,0.15); border:1px solid rgba(220,50,50,0.3);
@@ -63,13 +60,11 @@ body {
   display:none;
 }
 .error-box.show { display:block; }
-
 .forgot-link {
   display:block; text-align:center; margin-top:16px;
   color:#c44f82; font-size:13px; cursor:pointer; text-decoration:underline;
   background:none; border:none; width:100%; font-family:'Sarabun',sans-serif;
 }
-
 .forgot-panel {
   display:none; margin-top:16px; padding:16px;
   background:rgba(255,255,255,0.05); border:1px solid rgba(255,100,150,0.2);
@@ -97,9 +92,7 @@ body {
   color:#666; font-size:12px; cursor:pointer; background:none; border:none;
   width:100%; font-family:'Sarabun',sans-serif;
 }
-
 .footer { text-align:center; margin-top:24px; color:#444; font-size:11px; }
-
 @keyframes spin { to { transform:rotate(360deg); } }
 .spinner {
   width:16px; height:16px; border:2px solid rgba(255,255,255,0.3);
@@ -114,12 +107,10 @@ body {
     <h1>CHICCOCO</h1>
     <p>ระบบจัดการ Live Display</p>
   </div>
-
   <div class="field">
     <label>อีเมล</label>
     <input type="email" id="emailInput" placeholder="example@email.com" autocomplete="email">
   </div>
-
   <div class="field">
     <label>รหัสผ่าน</label>
     <div class="pass-wrap">
@@ -127,13 +118,9 @@ body {
       <button class="toggle-pass" type="button" id="togglePass" onclick="togglePassword()">👁</button>
     </div>
   </div>
-
   <button class="btn-login" id="loginBtn" onclick="doLogin()">เข้าสู่ระบบ</button>
-
   <div class="error-box" id="errorBox"></div>
-
   <button class="forgot-link" onclick="toggleForgot()">ลืมรหัสผ่าน?</button>
-
   <div class="forgot-panel" id="forgotPanel">
     <div class="title">🔑 รีเซ็ตรหัสผ่าน</div>
     <div class="hint">ระบบจะส่งลิงก์เปลี่ยนรหัสผ่านไปที่อีเมลของคุณค่ะ</div>
@@ -142,16 +129,15 @@ body {
     <div class="reset-msg" id="resetMsg"></div>
     <button class="btn-cancel-forgot" onclick="toggleForgot()">ยกเลิก</button>
   </div>
-
   <div class="footer">Chiccoco Live © 2025</div>
 </div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-const app = initializeApp({
+<!-- ✅ ใช้ Firebase v9 compat แทน v10 modular — แก้ปัญหา WebChannel บน GitHub Pages -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+<script>
+firebase.initializeApp({
   apiKey: "AIzaSyBwIlvqugbNYNbFd44DtgKSZWsQrXNnSuI",
   authDomain: "chiccoco-live.firebaseapp.com",
   projectId: "chiccoco-live",
@@ -159,13 +145,12 @@ const app = initializeApp({
   messagingSenderId: "556795503566",
   appId: "1:556795503566:web:3aeab9daa3ae0352ad819f"
 });
-const auth = getAuth(app);
-const db = getFirestore(app);
+const auth = firebase.auth();
+const db = firebase.firestore();
 
 function showError(msg) {
   const el = document.getElementById('errorBox');
-  el.textContent = msg;
-  el.classList.add('show');
+  el.textContent = msg; el.classList.add('show');
 }
 function hideError() {
   document.getElementById('errorBox').classList.remove('show');
@@ -194,18 +179,17 @@ window.doLogin = async function() {
   const email = document.getElementById('emailInput').value.trim();
   const password = document.getElementById('passwordInput').value;
   const btn = document.getElementById('loginBtn');
-
   if (!email || !password) { showError('กรุณากรอกอีเมลและรหัสผ่านค่ะ'); return; }
 
   btn.disabled = true;
   btn.innerHTML = '<div class="spinner"></div>กำลังเข้าสู่ระบบ...';
 
   try {
-    const cred = await signInWithEmailAndPassword(auth, email, password);
+    const cred = await auth.signInWithEmailAndPassword(email, password);
     const uid = cred.user.uid;
 
-    const snap = await getDoc(doc(db, 'users', uid));
-    if (!snap.exists()) {
+    const snap = await db.collection('users').doc(uid).get();
+    if (!snap.exists) {
       showError('ไม่พบข้อมูลผู้ใช้ กรุณาติดต่อ @395vujby ค่ะ');
       btn.disabled = false; btn.textContent = 'เข้าสู่ระบบ'; return;
     }
@@ -215,7 +199,6 @@ window.doLogin = async function() {
     const expireDate = data.expireDate || '2099-12-31';
     const isAdmin = data.role === 'admin';
 
-    // บันทึก session
     sessionStorage.setItem('uid', uid);
     sessionStorage.setItem('role', data.role || '');
     sessionStorage.setItem('shopId', data.shopId || '');
@@ -227,15 +210,11 @@ window.doLogin = async function() {
         showError('บัญชีถูกระงับ กรุณาติดต่อ @395vujby ค่ะ');
         btn.disabled = false; btn.textContent = 'เข้าสู่ระบบ'; return;
       }
-      // ใช้ local date เพื่อป้องกัน timezone offset (UTC vs UTC+7)
       const now = new Date();
-      const today = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
-      if (expireDate < today) {
-        window.location.href = 'renew.html'; return;
-      }
+      const today = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
+      if (expireDate < today) { window.location.href = 'renew.html'; return; }
     }
 
-    // redirect
     window.location.href = isAdmin ? 'admin.html' : 'chiccoco-remote.html';
 
   } catch(e) {
@@ -257,12 +236,10 @@ window.doReset = async function() {
   const email = document.getElementById('resetEmail').value.trim();
   const msgEl = document.getElementById('resetMsg');
   const btn = document.getElementById('resetBtn');
-
   if (!email) { msgEl.style.color='#ff8080'; msgEl.textContent='กรุณากรอกอีเมลค่ะ'; return; }
-
   btn.disabled = true; btn.textContent = '⏳ กำลังส่ง...';
   try {
-    await sendPasswordResetEmail(auth, email);
+    await auth.sendPasswordResetEmail(email);
     msgEl.style.color = '#5c7a6b';
     msgEl.textContent = '✅ ส่งลิงก์ไปที่ ' + email + ' แล้วค่ะ (เช็ค Spam ด้วยนะคะ)';
     btn.textContent = '✅ ส่งแล้ว';
@@ -273,7 +250,6 @@ window.doReset = async function() {
   }
 };
 
-// Enter key
 document.addEventListener('keydown', e => {
   if (e.key === 'Enter') window.doLogin();
 });
