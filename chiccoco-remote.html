@@ -1147,9 +1147,8 @@ function doInit(apiKey,projectId,dbUrl){
       });
       try{ storage=firebase.storage(); loadProductImages(); }catch(e){ console.warn('Storage not ready:', e); }
     }
-    firebase.auth().onAuthStateChanged(user=>{
-      if(user){ startListeners(); } else { startListeners(); }
-    });
+    // ✅ เรียก startListeners ทันที — Remote ใช้ sessionStorage แทน auth state
+    startListeners();
   }catch(e){ console.error('doInit error',e); setStatus('error','❌ เชื่อมต่อไม่สำเร็จ: '+e.message); document.getElementById('configSection').style.display='block'; }
 }
 
