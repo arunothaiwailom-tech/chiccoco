@@ -265,10 +265,6 @@ body.theme-gold { --ov-bg:#fdf8ee; --ov-accent:#b8860b; --ov-code:#8b1a1a; --ov-
         style="background:#3d4f47;color:white;border-color:#3d4f47;">
         📥 Download ZIP
       </button>
-      <button class="btn-manual-open" onclick="openDeleteImgModal()"
-        style="background:#5c1a1a;color:white;border-color:#5c1a1a;">
-        🗑️ ลบรูป
-      </button>
       <span id="imgInfo" style="font-size:12px;color:#666;align-self:center;">ยังไม่มีรูป</span>
     </div>
     <div style="font-size:11px;color:#888;margin-top:4px;">ตั้งชื่อไฟล์ตามรหัส เช่น B290.jpg · Download ZIP = ภาพ overlay ทุกรหัส</div>
@@ -571,74 +567,6 @@ async function uploadProductImages(files){
   updatePreview();
 }
 
-// ── ลบรูปสินค้า ──
-function openDeleteImgModal(){
-  const list = document.getElementById('deleteImgList');
-  list.innerHTML = '';
-  const codes = Object.keys(productImages);
-  if(!codes.length){
-    list.innerHTML = '<div style="color:#888;font-size:13px;text-align:center;padding:20px;">ยังไม่มีรูปสินค้าในระบบค่ะ</div>';
-    document.getElementById('deleteImgModal').style.display='flex';
-    return;
-  }
-  codes.sort().forEach(code => {
-    const url = productImages[code];
-    const row = document.createElement('div');
-    row.style.cssText = 'display:flex;align-items:center;gap:10px;background:#2a2a3e;border-radius:12px;padding:10px 12px;';
-    row.innerHTML = `
-      <img src="${url}" style="width:52px;height:52px;object-fit:cover;border-radius:8px;flex-shrink:0;background:#333;">
-      <div style="flex:1;min-width:0;">
-        <div style="font-family:'Kanit',sans-serif;font-size:15px;font-weight:700;color:#ff6b9d;">${code}</div>
-        <div style="font-size:11px;color:#888;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${url.split('?')[0].split('/').pop()}</div>
-      </div>
-      <button onclick="deleteProductImage('${code}')" id="del-btn-${code}"
-        style="padding:7px 12px;background:#8b1a1a;color:white;border:none;border-radius:8px;font-family:'Kanit',sans-serif;font-size:12px;font-weight:700;cursor:pointer;flex-shrink:0;">
-        ลบ
-      </button>`;
-    list.appendChild(row);
-  });
-  document.getElementById('deleteImgModal').style.display='flex';
-}
-
-function closeDeleteImgModal(){
-  document.getElementById('deleteImgModal').style.display='none';
-}
-
-async function deleteProductImage(code){
-  const btn = document.getElementById('del-btn-'+code);
-  if(btn){ btn.disabled=true; btn.textContent='⏳'; }
-  const shopId = sessionStorage.getItem('shopId')||'default';
-  // หาชื่อไฟล์จาก URL (รองรับ .jpg .png .webp ฯลฯ)
-  const url = productImages[code]||'';
-  const ext = url.match(/products%2F[^%]+%2F([^?]+)/)?.[1]?.split('.').pop() || 'jpg';
-  const fileName = code.toLowerCase()+'.'+ext;
-  try{
-    if(storage){
-      const ref = storage.ref('products/'+shopId+'/'+fileName);
-      await ref.delete().catch(async ()=>{
-        // ลอง uppercase ถ้า lowercase ไม่เจอ
-        await storage.ref('products/'+shopId+'/'+code+'.'+ext).delete();
-      });
-    }
-    // ลบออกจาก memory + Realtime DB
-    delete productImages[code];
-    if(db && fbConnected){
-      db.ref(shopPath+'/productImages/'+code).remove();
-    }
-    showToast('✅ ลบรูป '+code+' สำเร็จค่ะ');
-    // อัปเดต imgInfo
-    const cnt = Object.keys(productImages).length;
-    document.getElementById('imgInfo').textContent = cnt ? cnt+' รูป ✅' : 'ยังไม่มีรูป';
-    // refresh modal
-    openDeleteImgModal();
-    updatePreview();
-  }catch(e){
-    console.error('deleteProductImage:', e);
-    showToast('❌ ลบไม่สำเร็จ: '+e.message);
-    if(btn){ btn.disabled=false; btn.textContent='ลบ'; }
-  }
-}
-
 // ── Download ZIP ภาพ Overlay ทุกรหัส ──
 async function downloadOverlayZip(){
   if(!Object.keys(products).length){ showToast('❌ กรุณาโหลดสต๊อกก่อนค่ะ'); return; }
@@ -664,18 +592,60 @@ async function downloadOverlayZip(){
   let done=0;
   for(const code of codes){
     try{
-      const savedCode=currentCode;
       selectProduct(code);
-      await new Promise(r=>setTimeout(r,300));
+      await new Promise(r=>setTimeout(r,200));
       const W=720;
-      const el=document.getElementById('previewInner');
-      const canvas=await html2canvas(el,{
-        width:W,scale:1.5,useCORS:true,allowTaint:false,
-        backgroundColor:'#f0ece6',logging:false
+      const p2=products[code]; if(!p2) continue;
+      const imgUrl2=productImages[code]||null;
+      // ✅ fetch รูปเป็น base64 ก่อน เพื่อแก้ cross-origin
+      let imgB64_2='';
+      if(imgUrl2){
+        try{
+          const r2=await fetch(imgUrl2);
+          const ib=await r2.blob();
+          imgB64_2=await new Promise(rr=>{const fr=new FileReader();fr.onload=()=>rr(fr.result);fr.readAsDataURL(ib);});
+        }catch(e2){ console.warn('img fetch:',e2); }
+      }
+      const sold2=soldSizesMap[code]||[], co2=p2.activeCols||[];
+      const av2=(p2.sizes||[]).filter(s=>!sold2.includes(s.size));
+      const lb2=av2.map(s=>s.size).filter(Boolean);
+      const sale2=salePriceMap[code]||null;
+      const price2=sale2?Number(sale2).toLocaleString():Number(p2.price||0).toLocaleString();
+      const origPrice2=sale2?Number(p2.price||0).toLocaleString():null;
+      const imgTag2=imgB64_2?'<img src="'+imgB64_2+'" style="width:100px;height:100px;border-radius:12px;object-fit:cover;flex-shrink:0;">':'';
+      const rows2=av2.map((s,i)=>{
+        const cells=co2.map(c=>'<td style="padding:10px 6px;text-align:center;font-size:40px;color:#333;">'+(s[c]||'—')+'</td>').join('');
+        return '<tr style="background:'+(i%2===0?'#fff':'#f5f1eb')+';"><td style="padding:10px;text-align:center;font-size:38px;font-weight:800;color:#8b1a1a;font-family:Kanit,sans-serif;">'+s.size+'</td>'+cells+'</tr>';
+      }).join('');
+      const tbl2=rows2&&co2.length?'<table style="width:100%;border-collapse:separate;border-radius:16px;overflow:hidden;margin-bottom:14px;"><thead><tr style="background:#3d4f47;"><th style="padding:12px;color:white;font-size:30px;">ไซส์</th>'+co2.map(c=>'<th style="padding:12px;color:white;font-size:30px;">'+c+'</th>').join('')+'</tr></thead><tbody>'+rows2+'</tbody></table>':'';
+      const info2=[];
+      if(p2.color) info2.push('<div style="flex:1;text-align:center;padding:12px;"><div style="font-size:22px;color:#999;margin-bottom:4px;">สี</div><div style="font-size:40px;font-weight:700;color:#222;">'+p2.color+'</div></div>');
+      if(p2.material) info2.push('<div style="flex:1;text-align:center;padding:12px;border-left:1px solid #eee;"><div style="font-size:22px;color:#999;margin-bottom:4px;">วัสดุ</div><div style="font-size:32px;font-weight:600;color:#222;">'+p2.material+'</div></div>');
+      const infoHtml2=info2.length?'<div style="display:flex;background:#f9f9f9;border-radius:14px;overflow:hidden;margin-bottom:14px;">'+info2.join('')+'</div>':'';
+      const html2='<!DOCTYPE html><html><head><meta charset="UTF-8"><link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700;800&family=Kanit:wght@700;800&display=swap" rel="stylesheet"><style>*{box-sizing:border-box;margin:0;padding:0;}body{width:'+W+'px;background:#f0ece6;font-family:Sarabun,sans-serif;padding:32px;}</style></head><body>'
+        +'<div style="text-align:center;font-family:Kanit,sans-serif;font-size:44px;font-weight:800;letter-spacing:6px;color:#5c7a6b;margin-bottom:20px;">'+shopDisplayName+'</div>'
+        +'<div style="display:flex;gap:14px;margin-bottom:14px;"><div style="background:white;border-radius:16px;padding:16px;flex:1;box-shadow:0 2px 8px rgba(0,0,0,.07);display:flex;align-items:center;gap:12px;">'+imgTag2+'<div><div style="font-size:22px;color:#aaa;margin-bottom:4px;">รหัสสินค้า</div><div style="font-family:Kanit,sans-serif;font-size:72px;font-weight:800;color:#8b1a1a;line-height:1;">'+code+'</div></div></div>'
+        +'<div style="background:white;border-radius:16px;padding:16px;flex:1;box-shadow:0 2px 8px rgba(0,0,0,.07);text-align:center;"><div style="font-size:22px;color:#aaa;margin-bottom:4px;">ไซส์</div><div style="font-family:Kanit,sans-serif;font-size:52px;font-weight:800;color:#8b1a1a;line-height:1.2;">'+(lb2.join(', ')||'—')+'</div></div></div>'
+        +'<div style="background:#d9cfc4;border-radius:16px;padding:16px;text-align:center;margin-bottom:14px;">'+(origPrice2?'<div style="font-size:28px;color:#aaa;text-decoration:line-through;font-family:Kanit,sans-serif;">'+origPrice2+'</div>':'')+'<div style="font-family:Kanit,sans-serif;font-size:72px;font-weight:800;color:#2c2c2c;line-height:1;">'+price2+'</div></div>'
+        +'<div style="font-size:38px;font-weight:700;color:#2c2c2c;text-align:center;margin-bottom:14px;line-height:1.4;">'+(p2.name||'')+'</div>'
+        +infoHtml2+tbl2
+        +'<div style="text-align:center;font-family:Kanit,sans-serif;font-size:22px;color:#a09488;letter-spacing:4px;">'+shopDisplayName+' Live @ 2025</div>'
+        +'</body></html>';
+      const cvs2=await new Promise(rv=>{
+        const ifr=document.createElement('iframe');
+        ifr.style.cssText='position:fixed;left:-9999px;top:0;width:'+W+'px;height:2000px;border:none;';
+        document.body.appendChild(ifr);
+        ifr.onload=async()=>{
+          try{
+            const d2=ifr.contentDocument; d2.open(); d2.write(html2); d2.close();
+            await new Promise(r=>setTimeout(r,800));
+            const c2=await html2canvas(d2.body,{width:W,scale:1.5,useCORS:true,allowTaint:false,backgroundColor:'#f0ece6',logging:false});
+            c2.toBlob(b=>{ document.body.removeChild(ifr); rv(b); },'image/png');
+          }catch(e){ document.body.removeChild(ifr); rv(null); }
+        };
+        ifr.src='about:blank';
       });
-      await new Promise(resolve=>{
-        canvas.toBlob(b=>{ if(b) zip.file(code+'.png',b); resolve(); },'image/png');
-      });
+      if(cvs2) zip.file(code+'.png', cvs2);
       done++;
       if(done%5===0) showToast('⏳ สร้างภาพ '+done+'/'+codes.length+'...');
     }catch(e){ console.error('render error',code,e); }
@@ -757,21 +727,6 @@ ${priceHtml}
 ${p.color||p.material?`<div class="info-row">${p.color?'<div class="info-cell"><div class="lbl">สี</div><div class="val">'+p.color+'</div></div>':''}${p.material?'<div class="info-cell"><div class="lbl">วัสดุ</div><div class="val" style="font-size:36px;">'+p.material+'</div></div>':''}</div>`:''}
 ${tableHtml}
 <div class="footer">Chiccoco Live @ 2025</div>
-
-<!-- ── Modal ลบรูปสินค้า ── -->
-<div id="deleteImgModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;align-items:center;justify-content:center;">
-  <div style="background:#1e1e2e;border:1px solid #333;border-radius:20px;padding:24px 20px;width:90%;max-width:400px;max-height:80vh;display:flex;flex-direction:column;gap:12px;">
-    <div style="font-family:'Kanit',sans-serif;font-size:16px;font-weight:700;color:white;">🗑️ ลบรูปสินค้า</div>
-    <div style="font-size:12px;color:#888;">เลือกรูปที่ต้องการลบออกจากระบบค่ะ</div>
-    <div id="deleteImgList" style="overflow-y:auto;max-height:340px;display:flex;flex-direction:column;gap:8px;"></div>
-    <div style="display:flex;gap:8px;margin-top:4px;">
-      <button onclick="closeDeleteImgModal()"
-        style="flex:1;padding:10px;background:#333;color:#ccc;border:none;border-radius:10px;font-family:'Kanit',sans-serif;font-size:13px;cursor:pointer;">
-        ปิด
-      </button>
-    </div>
-  </div>
-</div>
 </body></html>`;
 }
 
@@ -912,7 +867,6 @@ function buildProductCardHTML(code, p, imgUrl, W){
 async function downloadProductCard(){
   if(!currentCode||!products[currentCode]){ showToast('❌ กรุณาเลือกสินค้าก่อนค่ะ'); return; }
 
-  // โหลด html2canvas
   if(!window.html2canvas){
     await new Promise((res,rej)=>{
       const s=document.createElement('script');
@@ -922,46 +876,96 @@ async function downloadProductCard(){
     });
   }
 
-  showToast('⏳ กำลังสร้างภาพค่ะ กรุณารอ 3-5 วิค่ะ...');
+  showToast('⏳ กำลังสร้างภาพค่ะ กรุณารอสักครู่...');
 
-  const shopId=sessionStorage.getItem('shopId')||'default';
-  const overlayUrl=window.location.href.replace('chiccoco-remote.html','chiccoco-overlay-display.html')+'?shop='+shopId;
+  const p=products[currentCode];
+  const imgUrl=productImages[currentCode]||null;
 
-  const blob = await new Promise(resolve=>{
+  // ✅ ดึงรูปเป็น base64 ก่อน เพื่อแก้ปัญหา cross-origin
+  let imgB64='';
+  if(imgUrl){
+    try{
+      const res=await fetch(imgUrl);
+      const imgBlob=await res.blob();
+      imgB64=await new Promise(r=>{
+        const fr=new FileReader();
+        fr.onload=()=>r(fr.result);
+        fr.readAsDataURL(imgBlob);
+      });
+    }catch(e){ console.warn('fetch img failed:', e); }
+  }
+
+  // ✅ สร้าง HTML โดยใช้ base64 แทน URL
+  const W=720;
+  const imgTag=imgB64
+    ?'<img src="'+imgB64+'" class="prod-img" style="width:100px;height:100px;border-radius:12px;object-fit:cover;flex-shrink:0;">'
+    :'';
+
+  const sold=soldSizes||[], co=p.activeCols||[];
+  const av=(p.sizes||[]).filter(s=>!sold.includes(s.size));
+  const lb=av.map(s=>s.size).filter(Boolean);
+  const price=salePrice?Number(salePrice).toLocaleString():Number(p.price||0).toLocaleString();
+  const origPrice=salePrice?Number(p.price||0).toLocaleString():null;
+  const tableRows=av.map((s,i)=>{
+    const cells=co.map(col=>'<td style="padding:10px 6px;text-align:center;font-size:40px;color:#333;">'+(s[col]||'—')+'</td>').join('');
+    return '<tr style="background:'+(i%2===0?'#fff':'#f5f1eb')+';"><td style="padding:10px 6px;text-align:center;font-size:38px;font-weight:800;color:#8b1a1a;font-family:Kanit,sans-serif;">'+s.size+'</td>'+cells+'</tr>';
+  }).join('');
+  const tableHtml=tableRows&&co.length
+    ?'<table style="width:100%;border-collapse:separate;border-radius:16px;overflow:hidden;margin-bottom:14px;"><thead><tr style="background:#3d4f47;"><th style="padding:12px 6px;color:white;font-size:30px;text-align:center;">ไซส์</th>'+co.map(c=>'<th style="padding:12px 6px;color:white;font-size:30px;text-align:center;">'+c+'</th>').join('')+'</tr></thead><tbody>'+tableRows+'</tbody></table>'
+    :'';
+  const infoItems=[];
+  if(p.color) infoItems.push('<div style="flex:1;text-align:center;padding:12px;"><div style="font-size:22px;color:#999;margin-bottom:4px;">สี</div><div style="font-size:40px;font-weight:700;color:#222;">'+p.color+'</div></div>');
+  if(p.material) infoItems.push('<div style="flex:1;text-align:center;padding:12px;border-left:1px solid #eee;"><div style="font-size:22px;color:#999;margin-bottom:4px;">วัสดุ</div><div style="font-size:32px;font-weight:600;color:#222;">'+p.material+'</div></div>');
+  const infoHtml=infoItems.length?'<div style="display:flex;background:#f9f9f9;border-radius:14px;overflow:hidden;margin-bottom:14px;">'+infoItems.join('')+'</div>':'';
+
+  const html='<!DOCTYPE html><html><head><meta charset="UTF-8">'
+    +'<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700;800&family=Kanit:wght@700;800&display=swap" rel="stylesheet">'
+    +'<style>*{box-sizing:border-box;margin:0;padding:0;}body{width:'+W+'px;background:#f0ece6;font-family:Sarabun,sans-serif;padding:32px;}</style>'
+    +'</head><body>'
+    +'<div style="text-align:center;font-family:Kanit,sans-serif;font-size:44px;font-weight:800;letter-spacing:6px;color:#5c7a6b;margin-bottom:20px;">'+shopDisplayName+'</div>'
+    +'<div style="display:flex;gap:14px;margin-bottom:14px;">'
+      +'<div style="background:white;border-radius:16px;padding:16px;flex:1;box-shadow:0 2px 8px rgba(0,0,0,.07);display:flex;align-items:center;gap:12px;">'
+        +imgTag
+        +'<div><div style="font-size:22px;color:#aaa;margin-bottom:4px;">รหัสสินค้า</div>'
+        +'<div style="font-family:Kanit,sans-serif;font-size:72px;font-weight:800;color:#8b1a1a;line-height:1;">'+currentCode+'</div></div>'
+      +'</div>'
+      +'<div style="background:white;border-radius:16px;padding:16px;flex:1;box-shadow:0 2px 8px rgba(0,0,0,.07);text-align:center;">'
+        +'<div style="font-size:22px;color:#aaa;margin-bottom:4px;">ไซส์</div>'
+        +'<div style="font-family:Kanit,sans-serif;font-size:52px;font-weight:800;color:#8b1a1a;line-height:1.2;">'+(lb.join(', ')||'—')+'</div>'
+      +'</div>'
+    +'</div>'
+    +'<div style="background:#d9cfc4;border-radius:16px;padding:16px;text-align:center;margin-bottom:14px;">'
+      +(origPrice?'<div style="font-size:28px;color:#aaa;text-decoration:line-through;font-family:Kanit,sans-serif;">'+origPrice+'</div>':'')
+      +'<div style="font-family:Kanit,sans-serif;font-size:72px;font-weight:800;color:#2c2c2c;line-height:1;">'+price+'</div>'
+    +'</div>'
+    +'<div style="font-size:38px;font-weight:700;color:#2c2c2c;text-align:center;margin-bottom:14px;line-height:1.4;">'+(p.name||'')+'</div>'
+    +infoHtml
+    +tableHtml
+    +'<div style="text-align:center;font-family:Kanit,sans-serif;font-size:22px;color:#a09488;letter-spacing:4px;">'+shopDisplayName+' Live @ 2025</div>'
+    +'</body></html>';
+
+  const renderBlob=await new Promise(resolve=>{
     const iframe=document.createElement('iframe');
-    iframe.style.cssText='position:fixed;left:-9999px;top:0;width:720px;height:1400px;border:none;visibility:hidden;';
+    iframe.style.cssText='position:fixed;left:-9999px;top:0;width:'+W+'px;height:2000px;border:none;';
     document.body.appendChild(iframe);
-
     iframe.onload=async()=>{
-      // รอให้ overlay render ครบ (fonts + รูป + Firebase data)
-      await new Promise(r=>setTimeout(r,3500));
       try{
         const doc=iframe.contentDocument;
-        // หา OV element ใน overlay
-        const ovEl=doc.getElementById('OV');
-        if(!ovEl){ document.body.removeChild(iframe); resolve(null); return; }
-
-        const canvas=await html2canvas(ovEl,{
-          scale:2,
-          useCORS:true,
-          allowTaint:true,
-          backgroundColor:null,
-          logging:false,
-          windowWidth:720
+        doc.open(); doc.write(html); doc.close();
+        await new Promise(r=>setTimeout(r,1200));
+        const canvas=await html2canvas(doc.body,{
+          width:W, scale:2, useCORS:true, allowTaint:false,
+          backgroundColor:'#f0ece6', logging:false
         });
         canvas.toBlob(b=>{ document.body.removeChild(iframe); resolve(b); },'image/png');
-      }catch(e){
-        console.error(e);
-        document.body.removeChild(iframe);
-        resolve(null);
-      }
+      }catch(e){ document.body.removeChild(iframe); resolve(null); }
     };
-    iframe.src=overlayUrl;
+    iframe.src='about:blank';
   });
 
-  if(!blob){ showToast('❌ สร้างภาพไม่สำเร็จค่ะ'); return; }
+  if(!renderBlob){ showToast('❌ สร้างภาพไม่สำเร็จค่ะ'); return; }
   const a=document.createElement('a');
-  a.href=URL.createObjectURL(blob);
+  a.href=URL.createObjectURL(renderBlob);
   a.download='chiccoco-'+currentCode+'.png';
   a.click();
   showToast('✅ ดาวน์โหลดภาพ '+currentCode+' สำเร็จค่ะ');
@@ -1217,21 +1221,48 @@ function doInit(apiKey,projectId,dbUrl){
     shopPath='chiccoco/shops/'+shopId;
     if(!firebase.apps.length) firebase.initializeApp({apiKey,projectId,databaseURL:dbUrl,storageBucket:projectId+'.firebasestorage.app'});
     db=firebase.database();
-    db.ref('.info/connected').on('value',snap=>{
-      fbConnected=snap.val()===true;
-      if(fbConnected){ setStatus('connected','✅ เชื่อมต่อแล้ว'); db.ref(shopPath+'/devices/'+DEVICE_ID).set({ts:Date.now(),alive:true}); }
-      else setStatus('error','⚠️ หลุดการเชื่อมต่อ...');
+
+    // ✅ รอ Firebase Auth พร้อมก่อนค่อย startListeners
+    // เมื่อ rules เป็น write: auth!=null — ต้องมี user ก่อนถึงจะ write ได้
+    function startListeners(){
+      db.ref('.info/connected').on('value',snap=>{
+        fbConnected=snap.val()===true;
+        if(fbConnected){
+          setStatus('connected','✅ เชื่อมต่อแล้ว');
+          // เขียน device เฉพาะเมื่อ login แล้วเท่านั้น
+          const u=firebase.auth().currentUser;
+          if(u) db.ref(shopPath+'/devices/'+DEVICE_ID).set({ts:Date.now(),alive:true}).catch(()=>{});
+        } else setStatus('error','⚠️ หลุดการเชื่อมต่อ...');
+      });
+      document.getElementById('configSection').style.display='none';
+      db.ref(shopPath+'/state').on('value',snap=>{ const d=snap.val(); if(d) syncFromRemote(d); });
+      db.ref(shopPath+'/edits').on('value',snap=>{ edits=snap.val()||{}; updatePreview(); });
+      loadMemory();
+      db.ref(shopPath+'/products').once('value',snap=>{
+        const d=snap.val();
+        if(d&&Object.keys(d).length>0){ products=d; document.getElementById('stockInfo').textContent=Object.keys(products).length+' รายการ ✅'; showToast('📦 โหลดสต๊อก '+Object.keys(products).length+' รายการแล้วค่ะ ✅'); }
+      });
+      try{ storage=firebase.storage(); loadProductImages(); }catch(e){ console.warn('Storage not ready:', e); }
+    }
+
+    // ตรวจ auth state — ถ้ามี session อยู่แล้วใช้ได้เลย ถ้าไม่มีค่อย sign in
+    firebase.auth().onAuthStateChanged(user=>{
+      if(user){
+        startListeners();
+      } else {
+        // ไม่มี session — ลอง sign in ด้วยข้อมูลที่เก็บไว้
+        const em=localStorage.getItem('chiccoco_email');
+        const pw=localStorage.getItem('chiccoco_pw');
+        if(em&&pw){
+          firebase.auth().signInWithEmailAndPassword(em,pw)
+            .then(()=>startListeners())
+            .catch(()=>startListeners()); // fallback: เชื่อมต่อถึงแม้ auth ไม่สำเร็จ
+        } else {
+          startListeners(); // fallback สำหรับ rules write:true
+        }
+      }
     });
-    document.getElementById('configSection').style.display='none';
-    db.ref(shopPath+'/state').on('value',snap=>{ const d=snap.val(); if(d) syncFromRemote(d); });
-    db.ref(shopPath+'/edits').on('value',snap=>{ edits=snap.val()||{}; updatePreview(); });
-    loadMemory(); // โหลด soldSizesMap + salePriceMap จาก Firebase
-    db.ref(shopPath+'/products').once('value',snap=>{
-      const d=snap.val();
-      if(d&&Object.keys(d).length>0){ products=d; document.getElementById('stockInfo').textContent=Object.keys(products).length+' รายการ ✅'; showToast('📦 โหลดสต๊อก '+Object.keys(products).length+' รายการแล้วค่ะ ✅'); }
-    });
-    // init Storage
-    try{ storage=firebase.storage(); loadProductImages(); }catch(e){ console.warn('Storage not ready:', e); }
+
   }catch(e){ console.error('doInit error',e); setStatus('error','❌ เชื่อมต่อไม่สำเร็จ: '+e.message); document.getElementById('configSection').style.display='block'; }
 }
 
@@ -1532,25 +1563,11 @@ function parseCustom(rows){
   }
   return order.map(c=>{
     const p=map[c]; const nl=p.name.toLowerCase();
-    const isPants  = /กางเกง|กระโปรง|วอร์ม|เล็กกิ้ง|legging|ยีนส์|jeans|ขาสั้น|ขายาว|ขาบาน|ขากว้าง|ขาตรง/.test(nl);
-    const isDress  = /เดรส|dress/.test(nl);
-    // ชุดเซ็ท ครอบคลุม: ชุดเซ็ท, ชุดชั้นใน, ชั้นใน, เสื้อใน+กางเกงใน, lingerie, underwear, bra set
-    const isSet    = /ชุดเซ็ท|ชุดชั้นใน|ชั้นใน|lingerie|underwear|bra set|สายเดี่ยวและกกน|สายไขว้และกกน|สายไขว้หลังและกกน/.test(nl);
-    const hasW  = p.sizes.some(s=>s['เอว']);
-    const hasA  = p.sizes.some(s=>s['อก']);
-    const hasH  = p.sizes.some(s=>s['สะโพก']);
-    const hasC  = p.sizes.some(s=>s['เป้า']);
+    const isPants=/กางเกง|กระโปรง|วอร์ม|เล็กกิ้ง|legging|ยีนส์|jeans/.test(nl);
+    const hasW=p.sizes.some(s=>s['เอว']),hasA=p.sizes.some(s=>s['อก']);
     let co;
-    // เดรส / ชุดเซ็ท / ชุดชั้นใน → อก เอว สะโพก ยาว (ก่อน isPants)
-    if (isDress || isSet || (hasA && hasW && hasH)) {
-      co = ['อก','เอว','สะโพก','ยาว'];
-    } else if (isPants || (hasW && hasC)) {
-      co = ['เอว','สะโพก','เป้า','ยาว'];
-    } else if (hasW && !hasA) {
-      co = ['เอว','สะโพก','เป้า','ยาว'];
-    } else {
-      co = ['คัฟอก','อก','ยาว','วงแขน','บ่า','เอว','สะโพก','เป้า'];
-    }
+    if(isPants||hasW) co=['เอว','สะโพก','เป้า','ยาว'];
+    else co=['คัฟอก','อก','ยาว','วงแขน','บ่า','เอว','สะโพก','เป้า'];
     p.activeCols=co.filter(f=>p.sizes.some(s=>s[f]));
     if(!p.activeCols.length) p.type='misc';
     return p;
@@ -1581,14 +1598,8 @@ function parseVRich(rows){
     if(p.type==='clothing'){
       p.sizes=[...p.sizes].sort((a,b)=>sR(a.size)-sR(b.size));
       const nl=p.name.toLowerCase();
-      const isPants = /กางเกง|กระโปรง|วอร์ม|เล็กกิ้ง|legging|ยีนส์|jeans|ขาสั้น|ขายาว/.test(nl);
-      const isDress = /เดรส|dress/.test(nl);
-      const isSet   = /ชุดเซ็ท|ชุดชั้นใน|ชั้นใน|lingerie|underwear|bra set|สายเดี่ยวและกกน|สายไขว้/.test(nl);
-      const _hasA2=p.sizes.some(s=>s['อก']),_hasW2=p.sizes.some(s=>s['เอว']),_hasH2=p.sizes.some(s=>s['สะโพก']);
-      let co;
-      if (isDress || isSet || (_hasA2 && _hasW2 && _hasH2)) co=['อก','เอว','สะโพก','ยาว'];
-      else if (isPants) co=['เอว','สะโพก','เป้า','ยาว'];
-      else co=['คัฟอก','อก','ยาว','วงแขน','บ่า'];
+      const isPants=/กางเกง|กระโปรง|วอร์ม|เล็กกิ้ง|legging|ยีนส์|jeans/.test(nl);
+      let co; if(isPants) co=['เอว','สะโพก','เป้า','ยาว']; else co=['คัฟอก','อก','ยาว','วงแขน','บ่า'];
       p.activeCols=co.filter(f=>p.sizes.some(s=>s[f]));
     }
     return p;
@@ -1680,6 +1691,8 @@ document.addEventListener('DOMContentLoaded',()=>{
   const FB_PROJECT_ID='chiccoco-live';
   const FB_DB_URL='https://chiccoco-live-default-rtdb.asia-southeast1.firebasedatabase.app';
   initFirebase(FB_API_KEY,FB_PROJECT_ID,FB_DB_URL);
+  // ✅ โหลด Firebase Auth SDK เพื่อรองรับ onAuthStateChanged
+  // (โหลดพร้อมกับ initFirebase อยู่แล้ว)
 
   focusScan();
   updateTimerDisplay();
@@ -1707,6 +1720,21 @@ document.addEventListener('DOMContentLoaded',()=>{
 
   document.getElementById('editModal').addEventListener('click',function(e){ if(e.target===this) closeEditModal(); });
   document.getElementById('manualModal').addEventListener('click',function(e){ if(e.target===this) closeManualModal(); });
+
+  // ✅ Auto-focus scan input เมื่อคลิกที่อื่น (เฉพาะหน้าไลฟ์)
+  document.addEventListener('click', function(e){
+    // ข้ามถ้าคลิกใน modal, input, select, button, textarea
+    const tag = e.target.tagName.toLowerCase();
+    if(['input','select','textarea','button','label','a'].includes(tag)) return;
+    // ข้ามถ้าอยู่ใน modal
+    if(e.target.closest('.modal-overlay,.camera-modal,.theme-modal-overlay,#imgManagerModal')) return;
+    // ข้ามถ้าไม่ได้อยู่หน้าไลฟ์
+    const livePage = document.getElementById('page-live');
+    if(!livePage || !livePage.classList.contains('active')) return;
+    // focus scan input
+    const scan = document.getElementById('scanInput');
+    if(scan && document.activeElement !== scan) scan.focus();
+  });
 });
 </script>
 <!-- Theme Picker Modal -->
