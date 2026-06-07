@@ -11,8 +11,7 @@ body { background:transparent !important; overflow:hidden; font-family:'Sarabun'
 
 /* ── CSS VARIABLES & THEMES ── */
 :root {
-  --ov-bg:#f0ece6;
-  --ov-accent:#5c7a6b; --ov-accent:#5c7a6b; --ov-code:#8b1a1a;
+  --ov-bg:#f0ece6; --ov-accent:#5c7a6b; --ov-code:#8b1a1a;
   --ov-price-bg:#d9cfc4; --ov-header:#3d4f47; --ov-text:#2c2c2c;
   --ov-white:#ffffff; --ov-muted:#aaa8a0; --ov-border:#ede9e4;
   --ov-row-odd:#ffffff; --ov-row-even:#f5f1eb;
@@ -59,10 +58,7 @@ body.theme-gold    { --ov-bg:#fdf8ee; --ov-accent:#b8860b; --ov-code:#8b1a1a; --
 .OV-color-pills { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; }
 .OV-color-pill { padding:10px 22px; border-radius:30px; font-size:38px; font-weight:700; font-family:'Kanit',sans-serif; background:var(--ov-bg); color:var(--ov-text); border:2px solid var(--ov-border); white-space:nowrap; }
 .OV-color-pill.active { background:var(--ov-price-bg); color:var(--ov-code); border:3px solid var(--ov-code); font-size:42px; }
-.OV-second { margin-top:32px; background:var(--ov-bg); border-radius:22px; padding:18px 16px; border:2.5px solid var(--ov-border); display:flex; flex-direction:column; gap:12px; }
-.OV-second-header { display:flex; align-items:center; gap:10px; margin-bottom:4px; }
-.OV-second-header-line { flex:1; height:1.5px; background:var(--ov-accent,#5c7a6b); opacity:.35; }
-.OV-second-header-badge { font-family:'Kanit',sans-serif; font-size:20px; font-weight:700; color:var(--ov-accent,#5c7a6b); letter-spacing:3px; white-space:nowrap; }
+.OV-second { margin-top:16px; }
 .OV-second-divider { display:flex; align-items:center; gap:10px; margin-bottom:14px; }
 .OV-second-divider-line { flex:1; height:1px; background:var(--ov-border); }
 .OV-second-divider-text { font-family:'Kanit',sans-serif; font-size:18px; color:var(--ov-muted); letter-spacing:2px; }
@@ -235,14 +231,40 @@ function startDB(){
       }).catch(function(){_shopName='CHICCOCO';draw();});
     }catch(e){_shopName='CHICCOCO';draw();}
 
-    // โหลดรูปสินค้าจาก Storage
-    // โหลด URL รูปสินค้าจาก Realtime DB (ไม่มี CORS issue)
-    _db.ref(_shopPath+'/productImages').on('value',function(snap){
-      var d=snap.val();
-      if(d){ Object.assign(_productImages,d); }
-      _imagesLoaded=true;
-      draw();
-    });
+    // ✅ โหลดรูปสินค้าจาก Storage โดยตรง เพื่อให้ URL ไม่หมดอายุ
+    function refreshProductImages(){
+      try{
+        var storage=firebase.storage();
+        var shopId=_shopId;
+        storage.ref('products/'+shopId).listAll().then(function(res){
+          return Promise.all(res.items.map(function(item){
+            return item.getDownloadURL().then(function(url){
+              var code=item.name.replace(/\.[^.]+$/,'').toUpperCase();
+              _productImages[code]=url;
+            });
+          }));
+        }).then(function(){
+          _imagesLoaded=true;
+          draw();
+        }).catch(function(e){
+          console.warn('refreshProductImages:', e);
+          // fallback: ลองใช้ URL จาก DB แทน
+          _db.ref(_shopPath+'/productImages').once('value',function(snap){
+            var d=snap.val();
+            if(d){ Object.assign(_productImages,d); }
+            _imagesLoaded=true;
+            draw();
+          });
+        });
+      }catch(e){
+        console.warn('Storage not available:', e);
+        _imagesLoaded=true;
+        draw();
+      }
+    }
+    refreshProductImages();
+    // refresh URL ใหม่ทุก 6 ชั่วโมง ป้องกัน URL หมดอายุระหว่างไลฟ์
+    setInterval(refreshProductImages, 6*60*60*1000);
 
     _db.ref(_shopPath+'/products').on('value',function(s){var d=s.val();if(d){_prod=d;try{draw();}catch(e){console.error('draw/products err:',e);}}});
     _db.ref(_shopPath+'/state').on('value',function(s){
@@ -281,82 +303,82 @@ function makeSecondOV(){
   if(!_secondCode||!_prod[_secondCode]) return '';
   var p=getP(_secondCode);
   if(!p) return '';
-  var sold=_state&&_state.secondSoldSizes?_state.secondSoldSizes:[];
-  var header='<div class="OV-second-header"><div class="OV-second-header-line"></div><div class="OV-second-header-badge">สินค้าเสริม</div><div class="OV-second-header-line"></div></div>';
-  var body=buildVerticalHTML(p, sold);
-  return '<div class="OV-second">'+header+body+'</div>';
-}
 
-// สร้าง HTML แนวตั้งจาก product object p และ soldSizes array
-// ใช้ร่วมกันระหว่าง draw() vertical และ makeSecondOV()
-function buildVerticalHTML(p, soldArr){
-  var sold=soldArr||[];
-  var salePrice=_state&&_state.salePrices&&_state.salePrices[p.code]?_state.salePrices[p.code]:null;
-  var displayPrice=salePrice||p.price;
+  var divider='<div class="OV-second-divider"><div class="OV-second-divider-line"></div><div class="OV-second-divider-text">แมตช์กับ</div><div class="OV-second-divider-line"></div></div>';
+
+  // ── สินค้าเบ็ดเตล็ด (misc) ──
+  if(p.type==='misc'){
+    var ms=p.size||(p.sizes&&p.sizes.length?p.sizes.map(function(s){return s.size;}).filter(Boolean).join(', '):'');
+    var infoHtml2='';
+    if(p.color||p.material){
+      infoHtml2='<div class="OV-inforow">';
+      if(p.color)    infoHtml2+='<div class="OV-info"><div class="OV-info-lbl">สี</div><div class="OV-info-val" style="font-size:50px;">'+p.color+'</div></div>';
+      if(p.material) infoHtml2+='<div class="OV-info"><div class="OV-info-lbl">วัสดุ</div><div class="OV-info-val" style="font-size:40px;">'+p.material+'</div></div>';
+      infoHtml2+='</div>';
+    }
+    var tableHtml2='';
+    if(ms){
+      tableHtml2='<table class="OV-table"><thead><tr><th>ไซส์</th></tr></thead>'
+        +'<tbody><tr><td style="font-size:36px;font-weight:600;color:#2c2c2c;padding:10px;">'+ms+'</td></tr></tbody></table>';
+    }
+    return '<div class="OV-second">'
+      +divider
+      +'<div class="OV-toprow">'
+        +'<div class="OV-box"><div class="OV-box-lbl">รหัสสินค้า</div><div class="OV-box-code">'+p.code+'</div></div>'
+        +(ms?'<div class="OV-box"><div class="OV-box-lbl">ขนาด</div><div class="OV-box-sizes" style="font-size:26px;line-height:1.4;">'+ms+'</div></div>':'')
+      +'</div>'
+      +'<div class="OV-price"><div class="OV-price-lbl">ราคา</div><div class="OV-price-num">'+fmt(p.price)+'</div></div>'
+      +'<div class="OV-name">'+p.name+'</div>'
+      +infoHtml2
+      +'</div>';
+  }
+
+  // ── สินค้าเสื้อผ้า (clothing) ──
+  var sold=_state&&_state.secondSoldSizes?_state.secondSoldSizes:[];
   var co=p.activeCols||[];
   var av=(p.sizes||[]).filter(function(s){ return sold.indexOf(s.size)===-1; });
   var lb=av.map(function(s){ return s.size; }).filter(Boolean);
   var totalCols=co.length+1;
-  var hdrFs=totalCols<=3?28:totalCols<=5?24:20;
+  var cellW=Math.floor(660/totalCols);
+  var hdrFs=totalCols<=3?26:totalCols<=5?22:18;
 
   // price block
-  var ph;
-  if(salePrice){
-    ph='<div class="OV-price"><div class="OV-price-lbl">ราคา</div>'
-      +'<div class="OV-price-sale"><div class="OV-price-original">'+fmt(p.price)+'</div>'
-      +'<div class="OV-price-new">'+fmt(salePrice)+'</div></div></div>';
-  } else {
-    ph='<div class="OV-price"><div class="OV-price-lbl">ราคา</div><div class="OV-price-num">'+fmt(displayPrice)+'</div></div>';
-  }
-
-  // info row
-  function mkInfoRow(){
-    if(!p.color&&!p.material) return '';
-    var colorFs=(p.color||'').length<=4?50:(p.color||'').length<=8?44:36;
-    var matLen=(p.material||'').length;
-    var matFs=matLen<=6?50:matLen<=12?44:matLen<=18?38:matLen<=26?32:26;
-    var inner='';
-    if(p.color)    inner+='<div class="OV-info"><div class="OV-info-lbl">สี</div><div class="OV-info-val" style="font-size:'+colorFs+'px;white-space:normal;overflow-wrap:break-word;word-break:break-word;">'+p.color+'</div></div>';
-    if(p.material) inner+='<div class="OV-info"><div class="OV-info-lbl">วัสดุ</div><div class="OV-info-val" style="font-size:'+matFs+'px;white-space:normal;overflow-wrap:break-word;word-break:break-word;">'+p.material+'</div></div>';
-    return '<div class="OV-inforow">'+inner+'</div>';
-  }
+  var ph='<div class="OV-price"><div class="OV-price-lbl">ราคา</div><div class="OV-price-num">'+fmt(p.price)+'</div></div>';
 
   // table
-  function mkTable(){
-    if(p.type==='misc'||!av.length) return '';
-    var rows=av.map(function(s){
-      var cells='<td style="font-size:40px;font-weight:800;color:var(--ov-code);font-family:\'Kanit\',sans-serif;padding:10px 4px;">'+s.size+'</td>';
-      co.forEach(function(col){
-        var val=s[col]||'—';
-        cells+='<td style="font-size:44px;padding:10px 4px;white-space:normal;overflow-wrap:break-word;word-break:break-word;">'+val+'</td>';
-      });
-      return '<tr>'+cells+'</tr>';
-    }).join('');
-    var thead='<tr><th style="font-size:'+hdrFs+'px;padding:12px 4px;">ไซส์</th>'+co.map(function(col){return '<th style="font-size:'+hdrFs+'px;padding:12px 4px;">'+col+'</th>';}).join('')+'</tr>';
-    return '<table class="OV-table"><thead>'+thead+'</thead><tbody>'+rows+'</tbody></table>';
+  var rows=av.map(function(s){
+    var sFs=autoFs(s.size,cellW,40,16);
+    var cells='<td style="font-size:'+sFs+'px;font-weight:800;color:var(--ov-code);font-family:Kanit,sans-serif;">'+s.size+'</td>';
+    co.forEach(function(col){
+      var val=s[col]||'—';
+      var vFs=autoFs(val,cellW,44,16);
+      cells+='<td style="font-size:'+vFs+'px;">'+val+'</td>';
+    });
+    return '<tr>'+cells+'</tr>';
+  }).join('');
+  var tableHtml=rows?'<table class="OV-table"><thead><tr><th style="font-size:'+hdrFs+'px;">ไซส์</th>'+co.map(function(col){ return '<th style="font-size:'+hdrFs+'px;">'+col+'</th>'; }).join('')+'</tr></thead><tbody>'+rows+'</tbody></table>':'';
+
+  // info row
+  var infoHtml='';
+  if(p.color||p.material){
+    var ivFs=infoValFs(p.color,p.material,44);
+    infoHtml='<div class="OV-inforow">';
+    if(p.color)    infoHtml+='<div class="OV-info"><div class="OV-info-lbl">สี</div><div class="OV-info-val" style="font-size:50px;">'+p.color+'</div></div>';
+    if(p.material) infoHtml+='<div class="OV-info"><div class="OV-info-lbl">วัสดุ</div><div class="OV-info-val" style="font-size:'+ivFs+'px;">'+p.material+'</div></div>';
+    infoHtml+='</div>';
   }
 
-  // image
-  var imgUrl=_productImages[p.code]||null;
-  var codeBox=imgUrl
-    ?'<div class="OV-box"><div class="OV-box-with-img"><img class="OV-prod-img" src="'+imgUrl+'"><div><div class="OV-box-lbl">รหัสสินค้า</div><div class="OV-box-code">'+p.code+'</div></div></div></div>'
-    :'<div class="OV-box"><div class="OV-box-lbl">รหัสสินค้า</div><div class="OV-box-code">'+p.code+'</div></div>';
-
-  // misc
-  if(p.type==='misc'){
-    var ms=p.size||(p.sizes&&p.sizes.length?p.sizes.map(function(s){return s.size;}).filter(Boolean).join(', '):'');
-    return '<div class="OV-toprow">'+codeBox+ph.replace('class="OV-price"','class="OV-price" style="flex:1"')+'</div>'
-      +'<div class="OV-name">'+p.name+'</div>'
-      +mkInfoRow()
-      +(ms?'<div class="OV-inforow"><div class="OV-info"><div class="OV-info-lbl">ขนาด</div><div class="OV-info-val" style="font-size:38px;white-space:normal;overflow-wrap:break-word;word-break:break-word;">'+ms+'</div></div></div>':'');
-  }
-
-  // clothing
-  return '<div class="OV-toprow">'+codeBox+'<div class="OV-box"><div class="OV-box-lbl">ไซส์</div><div class="OV-box-sizes">'+(lb.join(', ')||'—')+'</div></div></div>'
+  return '<div class="OV-second">'
+    +divider
+    +'<div class="OV-toprow">'
+      +'<div class="OV-box"><div class="OV-box-lbl">รหัสสินค้า</div><div class="OV-box-code">'+p.code+'</div></div>'
+      +'<div class="OV-box"><div class="OV-box-lbl">ไซส์</div><div class="OV-box-sizes">'+(lb.join(', ')||'—')+'</div></div>'
+    +'</div>'
     +ph
     +'<div class="OV-name">'+p.name+'</div>'
-    +mkInfoRow()
-    +mkTable();
+    +infoHtml
+    +tableHtml
+    +'</div>';
 }
 
 
