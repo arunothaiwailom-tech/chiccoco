@@ -1450,10 +1450,17 @@ function parseCustom(rows){
   return order.map(c=>{
     const p=map[c]; const nl=p.name.toLowerCase();
     const isPants=/กางเกง|กระโปรง|วอร์ม|เล็กกิ้ง|legging|ยีนส์|jeans/.test(nl);
-    const hasW=p.sizes.some(s=>s['เอว']),hasA=p.sizes.some(s=>s['อก']);
+    const isDressOrSet=/เดรส|dress|ชุดเซ็ท|ชุดเซต|ชุดชั้นใน|ชั้นใน|lingerie|underwear|bra set|สายเดี่ยว|สายไขว้/.test(nl);
+    const hasW=p.sizes.some(s=>s['เอว']);
+    const hasA=p.sizes.some(s=>s['อก']);
+    const hasH=p.sizes.some(s=>s['สะโพก']);
     let co;
-    if(isPants||hasW) co=['เอว','สะโพก','เป้า','ยาว'];
-    else co=['คัฟอก','อก','ยาว','วงแขน','บ่า','เอว','สะโพก','เป้า'];
+    // ✅ เดรส/ชุดเซ็ท: มีทั้ง อก + เอว → แสดงครบ
+    if(isDressOrSet||(hasA&&hasW))       co=['อก','เอว','สะโพก','ยาว'];
+    // กางเกง: มีชื่อเป็นกางเกง หรือมีเอวแต่ไม่มีอก
+    else if(isPants||(hasW&&!hasA))      co=['เอว','สะโพก','เป้า','ยาว'];
+    // เสื้อ/ทั่วไป
+    else                                  co=['คัฟอก','อก','ยาว','วงแขน','บ่า','เอว','สะโพก','เป้า'];
     p.activeCols=co.filter(f=>p.sizes.some(s=>s[f]));
     if(!p.activeCols.length) p.type='misc';
     return p;
