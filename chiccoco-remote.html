@@ -884,7 +884,7 @@ function switchPage(page){
   document.getElementById('page-'+page).classList.add('active');
   document.getElementById('nav-'+page).classList.add('active');
   if(page==='history') renderHistory();
-  if(page==='live') setTimeout(focusScan,100);
+  if(page==='live') setTimeout(focusScan,300);
 }
 
 function logOut(){
@@ -1614,6 +1614,24 @@ document.addEventListener('DOMContentLoaded',()=>{
     const sc=document.getElementById('scanInput');
     if(sc&&document.activeElement!==sc) sc.focus();
   });
+
+  // ✅ interval คอย focus กลับมาที่ scanInput ทุก 2 วิ
+  // เฉพาะตอนอยู่หน้าไลฟ์ และไม่มี modal เปิดอยู่ และ active element ไม่ใช่ input อื่น
+  setInterval(function(){
+    const lp = document.getElementById('page-live');
+    if(!lp||!lp.classList.contains('active')) return;
+    const scan = document.getElementById('scanInput');
+    if(!scan) return;
+    const active = document.activeElement;
+    // ถ้า focus อยู่ที่ input อื่น (price, search, manual) ไม่แย่ง
+    if(active && active !== scan && active.tagName.toLowerCase()==='input') return;
+    // ถ้า modal เปิดอยู่ไม่แย่ง
+    const modalOpen = document.querySelector('.modal-overlay.open,.camera-modal.open,.theme-modal-overlay.open');
+    const imgModal = document.getElementById('imgManagerModal');
+    if(modalOpen || (imgModal && imgModal.style.display==='flex')) return;
+    // focus กลับมา
+    if(active !== scan) scan.focus();
+  }, 2000);
 });
 
 // ── Image Manager ──
