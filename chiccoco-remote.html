@@ -265,10 +265,6 @@ body.theme-gold { --ov-bg:#fdf8ee; --ov-accent:#b8860b; --ov-code:#8b1a1a; --ov-
         style="background:#3d4f47;color:white;border-color:#3d4f47;">
         📥 Download ZIP
       </button>
-      <button class="btn-manual-open" onclick="openImgManagerModal()"
-        style="background:#3d4f47;color:white;border-color:#3d4f47;">
-        🖼️ ดูรูปที่อัปโหลด
-      </button>
       <span id="imgInfo" style="font-size:12px;color:#666;align-self:center;">ยังไม่มีรูป</span>
     </div>
     <div style="font-size:11px;color:#888;margin-top:4px;">ตั้งชื่อไฟล์ตามรหัส เช่น B290.jpg · Download ZIP = ภาพ overlay ทุกรหัส</div>
@@ -536,6 +532,12 @@ async function loadProductImages(){
     }));
     urls.forEach(({code,url})=>{ productImages[code]=url; });
     console.log('รูปสินค้า:', Object.keys(productImages).length, 'รูป');
+    // ✅ บันทึก URL กลับเข้า DB เพื่อให้ Overlay โหลดได้ และแสดงใน modal ครบ
+    if(db&&fbConnected&&Object.keys(productImages).length){
+      db.ref(shopPath+'/productImages').update(productImages).catch(()=>{});
+    }
+    const cnt=Object.keys(productImages).length;
+    if(cnt) document.getElementById('imgInfo').textContent=cnt+' รูป ✅';
     updatePreview();
   }catch(e){ console.warn('loadProductImages:', e); }
 }
@@ -828,53 +830,59 @@ function buildProductCardHTML(code, p, imgUrl, W){
 
 async function downloadProductCard(){
   if(!currentCode||!products[currentCode]){ showToast('❌ กรุณาเลือกสินค้าก่อนค่ะ'); return; }
+
+  // โหลด html2canvas
   if(!window.html2canvas){
-    await new Promise((res,rej)=>{ const s=document.createElement('script'); s.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js'; s.onload=res; s.onerror=rej; document.head.appendChild(s); });
+    await new Promise((res,rej)=>{
+      const s=document.createElement('script');
+      s.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+      s.onload=res; s.onerror=rej;
+      document.head.appendChild(s);
+    });
   }
-  showToast('⏳ กำลังสร้างภาพค่ะ กรุณารอสักครู่...');
-  const p=products[currentCode], imgUrl=productImages[currentCode]||null;
-  let imgB64='';
-  if(imgUrl){
-    try{
-      const res=await fetch(imgUrl,{mode:'cors',credentials:'omit'});
-      if(res.ok){ const ib=await res.blob(); imgB64=await new Promise(rr=>{const fr=new FileReader();fr.onload=()=>rr(fr.result);fr.readAsDataURL(ib);}); }
-    }catch(e){ console.warn('fetch img:', e); }
-  }
-  const W=720, imgTag=imgB64?'<img src="'+imgB64+'" style="width:100px;height:100px;border-radius:12px;object-fit:cover;flex-shrink:0;">':'';
-  const sold=soldSizes||[], co=p.activeCols||[];
-  const av=(p.sizes||[]).filter(s=>!sold.includes(s.size));
-  const lb=av.map(s=>s.size).filter(Boolean);
-  const price=salePrice?Number(salePrice).toLocaleString():Number(p.price||0).toLocaleString();
-  const origPrice=salePrice?Number(p.price||0).toLocaleString():null;
-  const tRows=av.map((s,i)=>{ const cells=co.map(col=>'<td style="padding:10px 6px;text-align:center;font-size:40px;color:#333;">'+(s[col]||'—')+'</td>').join(''); return '<tr style="background:'+(i%2===0?'#fff':'#f5f1eb')+';"><td style="padding:10px 6px;text-align:center;font-size:38px;font-weight:800;color:#8b1a1a;font-family:Kanit,sans-serif;">'+s.size+'</td>'+cells+'</tr>'; }).join('');
-  const tHtml=tRows&&co.length?'<table style="width:100%;border-collapse:separate;border-radius:16px;overflow:hidden;margin-bottom:14px;"><thead><tr style="background:#3d4f47;"><th style="padding:12px 6px;color:white;font-size:30px;text-align:center;">ไซส์</th>'+co.map(c=>'<th style="padding:12px 6px;color:white;font-size:30px;text-align:center;">'+c+'</th>').join('')+'</tr></thead><tbody>'+tRows+'</tbody></table>':'';
-  const iItems=[]; if(p.color)iItems.push('<div style="flex:1;text-align:center;padding:12px;"><div style="font-size:22px;color:#999;margin-bottom:4px;">สี</div><div style="font-size:40px;font-weight:700;color:#222;">'+p.color+'</div></div>'); if(p.material)iItems.push('<div style="flex:1;text-align:center;padding:12px;border-left:1px solid #eee;"><div style="font-size:22px;color:#999;margin-bottom:4px;">วัสดุ</div><div style="font-size:32px;font-weight:600;color:#222;">'+p.material+'</div></div>');
-  const iHtml=iItems.length?'<div style="display:flex;background:#f9f9f9;border-radius:14px;overflow:hidden;margin-bottom:14px;">'+iItems.join('')+'</div>':'';
-  const html='<!DOCTYPE html><html><head><meta charset="UTF-8"><link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700;800&family=Kanit:wght@700;800&display=swap" rel="stylesheet"><style>*{box-sizing:border-box;margin:0;padding:0;}body{width:'+W+'px;background:#f0ece6;font-family:Sarabun,sans-serif;padding:32px;}</style></head><body>'
-    +'<div style="text-align:center;font-family:Kanit,sans-serif;font-size:44px;font-weight:800;letter-spacing:6px;color:#5c7a6b;margin-bottom:20px;">'+shopDisplayName+'</div>'
-    +'<div style="display:flex;gap:14px;margin-bottom:14px;"><div style="background:white;border-radius:16px;padding:16px;flex:1;box-shadow:0 2px 8px rgba(0,0,0,.07);display:flex;align-items:center;gap:12px;">'+imgTag+'<div><div style="font-size:22px;color:#aaa;margin-bottom:4px;">รหัสสินค้า</div><div style="font-family:Kanit,sans-serif;font-size:72px;font-weight:800;color:#8b1a1a;line-height:1;">'+currentCode+'</div></div></div>'
-    +'<div style="background:white;border-radius:16px;padding:16px;flex:1;box-shadow:0 2px 8px rgba(0,0,0,.07);text-align:center;"><div style="font-size:22px;color:#aaa;margin-bottom:4px;">ไซส์</div><div style="font-family:Kanit,sans-serif;font-size:52px;font-weight:800;color:#8b1a1a;line-height:1.2;">'+(lb.join(', ')||'—')+'</div></div></div>'
-    +'<div style="background:#d9cfc4;border-radius:16px;padding:16px;text-align:center;margin-bottom:14px;">'+(origPrice?'<div style="font-size:28px;color:#aaa;text-decoration:line-through;font-family:Kanit,sans-serif;">'+origPrice+'</div>':'')+'<div style="font-family:Kanit,sans-serif;font-size:72px;font-weight:800;color:#2c2c2c;line-height:1;">'+price+'</div></div>'
-    +'<div style="font-size:38px;font-weight:700;color:#2c2c2c;text-align:center;margin-bottom:14px;line-height:1.4;">'+(p.name||'')+'</div>'
-    +iHtml+tHtml+'<div style="text-align:center;font-family:Kanit,sans-serif;font-size:22px;color:#a09488;letter-spacing:4px;">'+shopDisplayName+' Live @ 2025</div></body></html>';
-  const blob=await new Promise(resolve=>{
+
+  showToast('⏳ กำลังสร้างภาพค่ะ กรุณารอ 3-5 วิค่ะ...');
+
+  const shopId=sessionStorage.getItem('shopId')||'default';
+  const overlayUrl=window.location.href.replace('chiccoco-remote.html','chiccoco-overlay-display.html')+'?shop='+shopId;
+
+  const blob = await new Promise(resolve=>{
     const iframe=document.createElement('iframe');
-    iframe.style.cssText='position:fixed;left:-9999px;top:0;width:'+W+'px;height:2000px;border:none;visibility:hidden;';
+    iframe.style.cssText='position:fixed;left:-9999px;top:0;width:720px;height:1400px;border:none;visibility:hidden;';
     document.body.appendChild(iframe);
+
     iframe.onload=async()=>{
+      // รอให้ overlay render ครบ (fonts + รูป + Firebase data)
+      await new Promise(r=>setTimeout(r,3500));
       try{
-        const doc=iframe.contentDocument; doc.open(); doc.write(html); doc.close();
-        await new Promise(rr=>setTimeout(rr,1500));
-        const realH=doc.body.scrollHeight||800; iframe.style.height=realH+'px';
-        await new Promise(rr=>setTimeout(rr,100));
-        const canvas=await html2canvas(doc.body,{width:W,height:realH,scale:2,useCORS:true,allowTaint:false,backgroundColor:'#f0ece6',logging:false,windowWidth:W,windowHeight:realH});
+        const doc=iframe.contentDocument;
+        // หา OV element ใน overlay
+        const ovEl=doc.getElementById('OV');
+        if(!ovEl){ document.body.removeChild(iframe); resolve(null); return; }
+
+        const canvas=await html2canvas(ovEl,{
+          scale:2,
+          useCORS:true,
+          allowTaint:true,
+          backgroundColor:null,
+          logging:false,
+          windowWidth:720
+        });
         canvas.toBlob(b=>{ document.body.removeChild(iframe); resolve(b); },'image/png');
-      }catch(e){ document.body.removeChild(iframe); resolve(null); }
+      }catch(e){
+        console.error(e);
+        document.body.removeChild(iframe);
+        resolve(null);
+      }
     };
-    iframe.src='about:blank';
+    iframe.src=overlayUrl;
   });
+
   if(!blob){ showToast('❌ สร้างภาพไม่สำเร็จค่ะ'); return; }
-  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='chiccoco-'+currentCode+'.png'; a.click();
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='chiccoco-'+currentCode+'.png';
+  a.click();
   showToast('✅ ดาวน์โหลดภาพ '+currentCode+' สำเร็จค่ะ');
 }function focusScan(){ document.getElementById('scanInput').focus(); }
 
@@ -884,7 +892,7 @@ function switchPage(page){
   document.getElementById('page-'+page).classList.add('active');
   document.getElementById('nav-'+page).classList.add('active');
   if(page==='history') renderHistory();
-  if(page==='live') setTimeout(focusScan,300);
+  if(page==='live') setTimeout(focusScan,100);
 }
 
 function logOut(){
@@ -1128,27 +1136,21 @@ function doInit(apiKey,projectId,dbUrl){
     shopPath='chiccoco/shops/'+shopId;
     if(!firebase.apps.length) firebase.initializeApp({apiKey,projectId,databaseURL:dbUrl,storageBucket:projectId+'.firebasestorage.app'});
     db=firebase.database();
-    function startListeners(){
-      db.ref('.info/connected').on('value',snap=>{
-        fbConnected=snap.val()===true;
-        if(fbConnected){
-          setStatus('connected','✅ เชื่อมต่อแล้ว');
-          const u=firebase.auth().currentUser;
-          if(u) db.ref(shopPath+'/devices/'+DEVICE_ID).set({ts:Date.now(),alive:true}).catch(()=>{});
-        } else setStatus('error','⚠️ หลุดการเชื่อมต่อ...');
-      });
-      document.getElementById('configSection').style.display='none';
-      db.ref(shopPath+'/state').on('value',snap=>{ const d=snap.val(); if(d) syncFromRemote(d); });
-      db.ref(shopPath+'/edits').on('value',snap=>{ edits=snap.val()||{}; updatePreview(); });
-      loadMemory();
-      db.ref(shopPath+'/products').once('value',snap=>{
-        const d=snap.val();
-        if(d&&Object.keys(d).length>0){ products=d; document.getElementById('stockInfo').textContent=Object.keys(products).length+' รายการ ✅'; showToast('📦 โหลดสต๊อก '+Object.keys(products).length+' รายการแล้วค่ะ ✅'); }
-      });
-      try{ storage=firebase.storage(); loadProductImages(); }catch(e){ console.warn('Storage not ready:', e); }
-    }
-    // ✅ เรียก startListeners ทันที — Remote ใช้ sessionStorage แทน auth state
-    startListeners();
+    db.ref('.info/connected').on('value',snap=>{
+      fbConnected=snap.val()===true;
+      if(fbConnected){ setStatus('connected','✅ เชื่อมต่อแล้ว'); db.ref(shopPath+'/devices/'+DEVICE_ID).set({ts:Date.now(),alive:true}); }
+      else setStatus('error','⚠️ หลุดการเชื่อมต่อ...');
+    });
+    document.getElementById('configSection').style.display='none';
+    db.ref(shopPath+'/state').on('value',snap=>{ const d=snap.val(); if(d) syncFromRemote(d); });
+    db.ref(shopPath+'/edits').on('value',snap=>{ edits=snap.val()||{}; updatePreview(); });
+    loadMemory(); // โหลด soldSizesMap + salePriceMap จาก Firebase
+    db.ref(shopPath+'/products').once('value',snap=>{
+      const d=snap.val();
+      if(d&&Object.keys(d).length>0){ products=d; document.getElementById('stockInfo').textContent=Object.keys(products).length+' รายการ ✅'; showToast('📦 โหลดสต๊อก '+Object.keys(products).length+' รายการแล้วค่ะ ✅'); }
+    });
+    // init Storage
+    try{ storage=firebase.storage(); loadProductImages(); }catch(e){ console.warn('Storage not ready:', e); }
   }catch(e){ console.error('doInit error',e); setStatus('error','❌ เชื่อมต่อไม่สำเร็จ: '+e.message); document.getElementById('configSection').style.display='block'; }
 }
 
@@ -1450,17 +1452,10 @@ function parseCustom(rows){
   return order.map(c=>{
     const p=map[c]; const nl=p.name.toLowerCase();
     const isPants=/กางเกง|กระโปรง|วอร์ม|เล็กกิ้ง|legging|ยีนส์|jeans/.test(nl);
-    const isDressOrSet=/เดรส|dress|ชุดเซ็ท|ชุดเซต|ชุดชั้นใน|ชั้นใน|lingerie|underwear|bra set|สายเดี่ยว|สายไขว้/.test(nl);
-    const hasW=p.sizes.some(s=>s['เอว']);
-    const hasA=p.sizes.some(s=>s['อก']);
-    const hasH=p.sizes.some(s=>s['สะโพก']);
+    const hasW=p.sizes.some(s=>s['เอว']),hasA=p.sizes.some(s=>s['อก']);
     let co;
-    // ✅ เดรส/ชุดเซ็ท: มีทั้ง อก + เอว → แสดงครบ
-    if(isDressOrSet||(hasA&&hasW))       co=['อก','เอว','สะโพก','ยาว'];
-    // กางเกง: มีชื่อเป็นกางเกง หรือมีเอวแต่ไม่มีอก
-    else if(isPants||(hasW&&!hasA))      co=['เอว','สะโพก','เป้า','ยาว'];
-    // เสื้อ/ทั่วไป
-    else                                  co=['คัฟอก','อก','ยาว','วงแขน','บ่า','เอว','สะโพก','เป้า'];
+    if(isPants||hasW) co=['เอว','สะโพก','เป้า','ยาว'];
+    else co=['คัฟอก','อก','ยาว','วงแขน','บ่า','เอว','สะโพก','เป้า'];
     p.activeCols=co.filter(f=>p.sizes.some(s=>s[f]));
     if(!p.activeCols.length) p.type='misc';
     return p;
@@ -1611,83 +1606,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 
   document.getElementById('editModal').addEventListener('click',function(e){ if(e.target===this) closeEditModal(); });
   document.getElementById('manualModal').addEventListener('click',function(e){ if(e.target===this) closeManualModal(); });
-  // ✅ Auto-focus scan input เมื่อคลิกที่อื่น
-  document.addEventListener('click', function(e){
-    const tag=e.target.tagName.toLowerCase();
-    if(['input','select','textarea','button','label','a'].includes(tag)) return;
-    if(e.target.closest('.modal-overlay,.camera-modal,.theme-modal-overlay,#imgManagerModal')) return;
-    const lp=document.getElementById('page-live');
-    if(!lp||!lp.classList.contains('active')) return;
-    const sc=document.getElementById('scanInput');
-    if(sc&&document.activeElement!==sc) sc.focus();
-  });
-
-  // ✅ interval คอย focus กลับมาที่ scanInput ทุก 2 วิ
-  // เฉพาะตอนอยู่หน้าไลฟ์ และไม่มี modal เปิดอยู่ และ active element ไม่ใช่ input อื่น
-  setInterval(function(){
-    const lp = document.getElementById('page-live');
-    if(!lp||!lp.classList.contains('active')) return;
-    const scan = document.getElementById('scanInput');
-    if(!scan) return;
-    const active = document.activeElement;
-    // ถ้า focus อยู่ที่ input อื่น (price, search, manual) ไม่แย่ง
-    if(active && active !== scan && active.tagName.toLowerCase()==='input') return;
-    // ถ้า modal เปิดอยู่ไม่แย่ง
-    const modalOpen = document.querySelector('.modal-overlay.open,.camera-modal.open,.theme-modal-overlay.open');
-    const imgModal = document.getElementById('imgManagerModal');
-    if(modalOpen || (imgModal && imgModal.style.display==='flex')) return;
-    // focus กลับมา
-    if(active !== scan) scan.focus();
-  }, 2000);
 });
-
-// ── Image Manager ──
-let imgManagerSelection={};
-function openImgManagerModal(){imgManagerSelection={};renderImgManagerList();document.getElementById('imgManagerModal').style.display='flex';}
-function closeImgManagerModal(){document.getElementById('imgManagerModal').style.display='none';imgManagerSelection={};}
-function renderImgManagerList(){
-  const list=document.getElementById('imgManagerList');list.innerHTML='';
-  const codes=Object.keys(productImages).sort();
-  if(!codes.length){list.innerHTML='<div style="color:#888;font-size:13px;text-align:center;padding:24px;">ยังไม่มีรูปสินค้าค่ะ</div>';updateImgManagerActions();return;}
-  codes.forEach(code=>{
-    const url=productImages[code],sel=!!imgManagerSelection[code];
-    const row=document.createElement('div');row.id='imgrow-'+code;
-    row.style.cssText='display:flex;align-items:center;gap:10px;background:'+(sel?'#2a3d35':'#2a2a3e')+';border-radius:12px;padding:10px 12px;border:2px solid '+(sel?'#5c7a6b':'transparent')+';cursor:pointer;';
-    row.onclick=()=>toggleImgSelect(code);
-    row.innerHTML='<input type="checkbox" id="chk-'+code+'" '+(sel?'checked':'')+' onclick="event.stopPropagation();toggleImgSelect(\'' + code + '\')" style="width:18px;height:18px;accent-color:#5c7a6b;flex-shrink:0;"><img src="'+url+'" style="width:54px;height:54px;object-fit:cover;border-radius:8px;flex-shrink:0;"><div style="flex:1;"><div style="font-family:Kanit,sans-serif;font-size:16px;font-weight:800;color:#ff6b9d;">'+code+'</div></div>';
-    list.appendChild(row);
-  });updateImgManagerActions();
-}
-function toggleImgSelect(code){
-  if(imgManagerSelection[code])delete imgManagerSelection[code];else imgManagerSelection[code]=true;
-  const row=document.getElementById('imgrow-'+code),chk=document.getElementById('chk-'+code),sel=!!imgManagerSelection[code];
-  if(row){row.style.background=sel?'#2a3d35':'#2a2a3e';row.style.border='2px solid '+(sel?'#5c7a6b':'transparent');}
-  if(chk)chk.checked=sel;updateImgManagerActions();
-}
-function updateImgManagerActions(){
-  const n=Object.keys(imgManagerSelection).length;
-  const bR=document.getElementById('btnImgReplace'),bD=document.getElementById('btnImgDelete'),lb=document.getElementById('imgSelLabel');
-  if(lb)lb.textContent=n?'เลือก '+n+' รายการ':'';
-  if(bR){bR.disabled=n!==1;bR.style.opacity=n===1?'1':'0.4';}
-  if(bD){bD.disabled=n===0;bD.style.opacity=n>0?'1':'0.4';}
-}
-function triggerReplaceImg(){const c=Object.keys(imgManagerSelection);if(c.length!==1)return;document.getElementById('replaceImgInput').dataset.targetCode=c[0];document.getElementById('replaceImgInput').click();}
-async function onReplaceImgSelected(input){
-  const file=input.files[0];if(!file)return;const code=input.dataset.targetCode;if(!code||!storage)return;
-  const shopId=sessionStorage.getItem('shopId')||'default';const ext=file.name.split('.').pop().toLowerCase()||'jpg';
-  showToast('⏳ กำลังอัปโหลดทับ '+code+'...');
-  try{const ref=storage.ref('products/'+shopId+'/'+code+'.'+ext);await ref.put(file);const url=await ref.getDownloadURL();productImages[code]=url;if(db&&fbConnected)db.ref(shopPath+'/productImages/'+code).set(url);document.getElementById('imgInfo').textContent=Object.keys(productImages).length+' รูป ✅';showToast('✅ อัปโหลดทับ '+code+' สำเร็จค่ะ');imgManagerSelection={};renderImgManagerList();updatePreview();}catch(e){showToast('❌ '+e.message);}
-  input.value='';
-}
-async function deleteSelectedImages(){
-  const codes=Object.keys(imgManagerSelection);if(!codes.length)return;
-  if(!confirm('ลบรูป '+codes.length+' รายการ? ('+codes.join(', ')+')'))return;
-  const shopId=sessionStorage.getItem('shopId')||'default';let done=0;
-  for(const code of codes){const url=productImages[code]||'';const extM=url.match(/products%2F[^%]+%2F[^.?]+\.([^?&]+)/);const ext=extM?extM[1]:'jpg';try{if(storage)await storage.ref('products/'+shopId+'/'+code+'.'+ext).delete().catch(()=>storage.ref('products/'+shopId+'/'+code.toLowerCase()+'.'+ext).delete().catch(()=>{}));delete productImages[code];if(db&&fbConnected)db.ref(shopPath+'/productImages/'+code).remove();done++;}catch(e){console.error(e);}}
-  document.getElementById('imgInfo').textContent=Object.keys(productImages).length?Object.keys(productImages).length+' รูป ✅':'ยังไม่มีรูป';
-  showToast('✅ ลบสำเร็จ '+done+' รูปค่ะ');imgManagerSelection={};renderImgManagerList();updatePreview();
-}
-
 </script>
 <!-- Theme Picker Modal -->
 <div class="theme-modal-overlay" id="themeModal" onclick="if(event.target===this)closeThemeModal()">
@@ -1722,22 +1641,6 @@ async function deleteSelectedImages(){
     <div class="theme-modal-group">กำหนดเอง</div>
     <div class="theme-swatches-grid">
       <div class="theme-swatch" data-theme="theme-custom" title="กำหนดสีเอง" style="background:conic-gradient(red,yellow,green,blue,red);border:2px dashed #aaa;" onclick="toggleCustomPanel(this);closeThemeModal()"></div>
-    </div>
-  </div>
-</div>
-
-<input type="file" id="replaceImgInput" accept="image/*" style="display:none" onchange="onReplaceImgSelected(this)">
-<div id="imgManagerModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:9999;align-items:flex-end;justify-content:center;">
-  <div style="background:#1a1a2a;border-radius:24px 24px 0 0;padding:20px 16px 32px;width:100%;max-width:480px;max-height:88vh;display:flex;flex-direction:column;gap:12px;">
-    <div style="display:flex;align-items:center;justify-content:space-between;"><div style="font-family:'Kanit',sans-serif;font-size:17px;font-weight:800;color:white;">🖼️ รูปสินค้าที่อัปโหลด</div><button onclick="closeImgManagerModal()" style="background:#333;border:none;color:#ccc;border-radius:50%;width:32px;height:32px;font-size:16px;cursor:pointer;">✕</button></div>
-    <div style="font-size:12px;color:#888;">ติ๊กเลือก → อัปโหลดทับ (1 รายการ) หรือ ลบ (หลายรายการ)</div>
-    <div id="imgManagerList" style="overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:8px;min-height:60px;"></div>
-    <div style="display:flex;flex-direction:column;gap:8px;padding-top:4px;border-top:1px solid #333;">
-      <div id="imgSelLabel" style="font-size:12px;color:#5c7a6b;font-family:'Kanit',sans-serif;font-weight:700;min-height:16px;"></div>
-      <div style="display:flex;gap:8px;">
-        <button id="btnImgReplace" onclick="triggerReplaceImg()" disabled style="flex:1;padding:11px 8px;background:#3d4f47;color:white;border:none;border-radius:12px;font-family:'Kanit',sans-serif;font-size:13px;font-weight:700;cursor:pointer;opacity:.4;">📤 อัปโหลดทับ</button>
-        <button id="btnImgDelete" onclick="deleteSelectedImages()" disabled style="flex:1;padding:11px 8px;background:#6b1a1a;color:white;border:none;border-radius:12px;font-family:'Kanit',sans-serif;font-size:13px;font-weight:700;cursor:pointer;opacity:.4;">🗑️ ลบที่เลือก</button>
-      </div>
     </div>
   </div>
 </div>
