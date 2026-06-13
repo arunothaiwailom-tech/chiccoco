@@ -58,7 +58,17 @@ body.theme-gold    { --ov-bg:#fdf8ee; --ov-accent:#b8860b; --ov-code:#8b1a1a; --
 .OV-color-pills { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; }
 .OV-color-pill { padding:10px 22px; border-radius:30px; font-size:38px; font-weight:700; font-family:'Kanit',sans-serif; background:var(--ov-bg); color:var(--ov-text); border:2px solid var(--ov-border); white-space:nowrap; }
 .OV-color-pill.active { background:var(--ov-price-bg); color:var(--ov-code); border:3px solid var(--ov-code); font-size:42px; }
-.OV-second { margin-top:16px; }
+.OV-second {
+  margin-top:24px;
+  background:var(--ov-bg);
+  border-radius:28px;
+  padding:28px 24px;
+  gap:14px;
+  display:flex;
+  flex-direction:column;
+  border:3px solid var(--ov-border);
+  box-shadow:0 4px 20px rgba(0,0,0,.10);
+}
 .OV-second-divider { display:flex; align-items:center; gap:10px; margin-bottom:14px; }
 .OV-second-divider-line { flex:1; height:1px; background:var(--ov-border); }
 .OV-second-divider-text { font-family:'Kanit',sans-serif; font-size:18px; color:var(--ov-muted); letter-spacing:2px; }
@@ -324,7 +334,7 @@ function makeSecondOV(){
   var p=getP(_secondCode);
   if(!p) return '';
 
-  var divider='<div class="OV-second-divider"><div class="OV-second-divider-line"></div><div class="OV-second-divider-text">แมตช์กับ</div><div class="OV-second-divider-line"></div></div>';
+  var divider='<div class="OV-second-header"><div class="OV-second-header-line"></div><div class="OV-second-header-badge">✨ สินค้าคู่</div><div class="OV-second-header-line"></div></div>';
 
   // ── สินค้าเบ็ดเตล็ด (misc) ──
   if(p.type==='misc'){
@@ -341,10 +351,14 @@ function makeSecondOV(){
       tableHtml2='<table class="OV-table"><thead><tr><th>ไซส์</th></tr></thead>'
         +'<tbody><tr><td style="font-size:36px;font-weight:600;color:#2c2c2c;padding:10px;">'+ms+'</td></tr></tbody></table>';
     }
+  var imgUrlM=_productImages[p.code]||_productImages[(p.code||'').toUpperCase()]||_productImages[(p.code||'').toLowerCase()]||null;
+    var codeBoxM=imgUrlM
+      ?'<div class="OV-box"><div class="OV-box-with-img"><img class="OV-prod-img" src="'+imgUrlM+'"><div><div class="OV-box-lbl">รหัสสินค้า</div><div class="OV-box-code">'+p.code+'</div></div></div></div>'
+      :'<div class="OV-box"><div class="OV-box-lbl">รหัสสินค้า</div><div class="OV-box-code">'+p.code+'</div></div>';
     return '<div class="OV-second">'
       +divider
       +'<div class="OV-toprow">'
-        +'<div class="OV-box"><div class="OV-box-lbl">รหัสสินค้า</div><div class="OV-box-code">'+p.code+'</div></div>'
+        +codeBoxM
         +(ms?'<div class="OV-box"><div class="OV-box-lbl">ขนาด</div><div class="OV-box-sizes" style="font-size:26px;line-height:1.4;">'+ms+'</div></div>':'')
       +'</div>'
       +'<div class="OV-price"><div class="OV-price-lbl">ราคา</div><div class="OV-price-num">'+fmt(p.price)+'</div></div>'
@@ -388,10 +402,14 @@ function makeSecondOV(){
     infoHtml+='</div>';
   }
 
+  var imgUrl2=_productImages[p.code]||_productImages[(p.code||'').toUpperCase()]||_productImages[(p.code||'').toLowerCase()]||null;
+  var codeBox2=imgUrl2
+    ?'<div class="OV-box"><div class="OV-box-with-img"><img class="OV-prod-img" src="'+imgUrl2+'"><div><div class="OV-box-lbl">รหัสสินค้า</div><div class="OV-box-code">'+p.code+'</div></div></div></div>'
+    :'<div class="OV-box"><div class="OV-box-lbl">รหัสสินค้า</div><div class="OV-box-code">'+p.code+'</div></div>';
   return '<div class="OV-second">'
     +divider
     +'<div class="OV-toprow">'
-      +'<div class="OV-box"><div class="OV-box-lbl">รหัสสินค้า</div><div class="OV-box-code">'+p.code+'</div></div>'
+      +codeBox2
       +'<div class="OV-box"><div class="OV-box-lbl">ไซส์</div><div class="OV-box-sizes">'+(lb.join(', ')||'—')+'</div></div>'
     +'</div>'
     +ph
