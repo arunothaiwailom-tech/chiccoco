@@ -536,9 +536,14 @@ async function loadProductImages(){
     }));
     urls.forEach(({code,url})=>{ productImages[code]=url; });
     console.log('รูปสินค้า:', Object.keys(productImages).length, 'รูป');
-    // ✅ บันทึก URL กลับ DB เพื่อให้ Overlay โหลดได้
+    // ✅ บันทึก URL กลับ DB ทั้ง original และ lowercase เพื่อ match code ที่อาจพิมพ์เล็ก
     if(db&&fbConnected&&Object.keys(productImages).length){
-      db.ref(shopPath+'/productImages').update(productImages).catch(()=>{});
+      const imgToSave={};
+      Object.keys(productImages).forEach(k=>{
+        imgToSave[k]=productImages[k];
+        imgToSave[k.toLowerCase()]=productImages[k]; // lowercase key ด้วย
+      });
+      db.ref(shopPath+'/productImages').update(imgToSave).catch(()=>{});
     }
     const cnt=Object.keys(productImages).length;
     if(cnt) document.getElementById('imgInfo').textContent=cnt+' รูป ✅';
@@ -560,6 +565,13 @@ async function uploadProductImages(files){
       await ref.put(file);
       const url=await ref.getDownloadURL();
       productImages[code]=url;
+      // ✅ บันทึก DB ทั้ง original และ lowercase
+      if(db&&fbConnected){
+        const updates={};
+        updates[code]=url;
+        updates[code.toLowerCase()]=url;
+        db.ref(shopPath+'/productImages').update(updates).catch(()=>{});
+      }
       done++;
       showToast('⏳ อัปโหลดแล้ว '+done+'/'+total+' รูปค่ะ...');
     }catch(e){
