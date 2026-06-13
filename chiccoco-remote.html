@@ -534,7 +534,11 @@ async function loadProductImages(){
       const url=await item.getDownloadURL();
       return {code, url};
     }));
-    urls.forEach(({code,url})=>{ productImages[code]=url; });
+    urls.forEach(({code,url})=>{
+      // ✅ เก็บทั้ง uppercase และ original เพื่อ match กับ code ใน Excel ที่อาจพิมพ์เล็ก
+      productImages[code]=url;
+      productImages[code.toLowerCase()]=url;
+    });
     console.log('รูปสินค้า:', Object.keys(productImages).length, 'รูป');
     // ✅ บันทึก URL กลับ DB เพื่อให้ Overlay โหลดได้
     if(db&&fbConnected&&Object.keys(productImages).length){
@@ -560,6 +564,7 @@ async function uploadProductImages(files){
       await ref.put(file);
       const url=await ref.getDownloadURL();
       productImages[code]=url;
+      productImages[code.toLowerCase()]=url; // ✅ เก็บ lowercase ด้วย
       done++;
       showToast('⏳ อัปโหลดแล้ว '+done+'/'+total+' รูปค่ะ...');
     }catch(e){
