@@ -113,10 +113,46 @@ body.theme-gold    { --ov-bg:#fdf8ee; --ov-accent:#b8860b; --ov-code:#8b1a1a; --
   hyphens:auto;
   line-height:1.2;
 }
+/* ── SOLD OUT STICKER ── */
+.sold-out-overlay {
+  position:fixed; inset:0; z-index:999;
+  display:flex; align-items:center; justify-content:center;
+  pointer-events:none;
+  opacity:0; transition:opacity .4s;
+}
+.sold-out-overlay.visible { opacity:1; }
+.sold-out-sticker {
+  background:#cc0000;
+  color:white;
+  font-family:'Kanit',sans-serif;
+  font-size:120px;
+  font-weight:800;
+  letter-spacing:8px;
+  padding:32px 64px;
+  border-radius:24px;
+  border:8px solid #fff;
+  box-shadow:0 8px 40px rgba(0,0,0,.5);
+  transform:rotate(-12deg);
+  text-align:center;
+  line-height:1.1;
+  text-shadow:4px 4px 0px rgba(0,0,0,.3);
+}
+.sold-out-sticker .sub {
+  font-size:52px;
+  font-weight:700;
+  letter-spacing:4px;
+  opacity:.9;
+  display:block;
+}
 </style>
 </head>
 <body>
 
+<div class="sold-out-overlay" id="sold-out-overlay">
+  <div class="sold-out-sticker">
+    SOLD OUT<span class="sub">หมดแล้วค่ะ 🎀</span>
+  </div>
+</div>
 <div class="OV-timer" id="OV-timer">
   <div class="OV-timer-label" id="OV-timer-label">Flash Sale!</div>
   <div class="OV-timer-count" id="OV-timer-count">00:00</div>
@@ -133,6 +169,15 @@ var _shopId   = new URLSearchParams(window.location.search).get('shop') || 'defa
 var _shopPath = 'chiccoco/shops/' + _shopId;
 var _db=null, _state=null, _prod={}, _edits={}, _shopName='', _hiddenCodes={}, _bgTransparent=false, _productImages={}, _secondCode=null, _imagesLoaded=false;
 var _timerLocal=0, _timerInterval=null;
+var _soldOutManual=false; // กดปุ่มเองค่ะ
+
+/* ── Sold Out Sticker ── */
+function drawSoldOut(allSold, manualOn){
+  var el=document.getElementById('sold-out-overlay');
+  if(!el) return;
+  if(allSold||manualOn) el.classList.add('visible');
+  else el.classList.remove('visible');
+}
 
 /* ── Timer ── */
 function drawTimer(d){
@@ -247,6 +292,7 @@ function startDB(){
         _hiddenCodes=d.hiddenCodes||{};
         _secondCode=d.secondCode||null;
         _bgTransparent=d.bgTransparent||false;
+        _soldOutManual=d.soldOutSticker||false;
         try{ if(d.theme!==undefined) applyTheme(d.theme,d.customColors); }catch(e){ console.warn('applyTheme err:',e); }
         try{ applyBgOpacity(_bgTransparent); }catch(e){ console.warn('applyBgOpacity err:',e); }
         try{ draw(); }catch(e){ console.error('draw() err:',e); }
@@ -483,6 +529,9 @@ function draw(){
       +'</div>'
       +'<div class="OV-footer">'+brand+' Live @ 2025</div>';
     ov.className='OV horizontal visible';
+    var avH=(p.sizes||[]).filter(function(s){return sold.indexOf(s.size)===-1;});
+    var allSoldH=p.type!=='misc'&&avH.length===0&&(p.sizes||[]).length>0;
+    drawSoldOut(allSoldH, _soldOutManual);
 
   /* ── VERTICAL ── */
   } else {
@@ -528,6 +577,9 @@ function draw(){
     }
     ov.innerHTML=h;
     ov.className='OV visible';
+    // ✅ sticker อัตโนมัติเมื่อไซส์หมดทุกตัว
+    var allSold=p.type!=='misc'&&av.length===0&&(p.sizes||[]).length>0;
+    drawSoldOut(allSold, _soldOutManual);
   }
 }
 </script>
