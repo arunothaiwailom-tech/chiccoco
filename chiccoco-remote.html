@@ -319,6 +319,10 @@ body.theme-gold { --ov-bg:#fdf8ee; --ov-accent:#b8860b; --ov-code:#8b1a1a; --ov-
         style="padding:8px 16px;border-radius:10px;font-family:'Kanit',sans-serif;font-size:13px;font-weight:700;cursor:pointer;border:2px solid #5c7a6b;background:#f0ece6;color:#5c7a6b;">
         พื้นหลังทึบ
       </button>
+      <button id="btnSoldOut" onclick="toggleSoldOut()"
+        style="padding:8px 16px;border-radius:10px;font-family:'Kanit',sans-serif;font-size:13px;font-weight:700;cursor:pointer;border:2px solid #cc0000;background:#f0ece6;color:#cc0000;">
+        🔴 Sold Out
+      </button>
       <button class="btn-reset-all" onclick="resetAll()">🔄 รีเซ็ตทั้งหมด</button>
     </div>
   </div>
@@ -472,6 +476,7 @@ let db=null, products={}, edits={}, currentCode=null;
 let soldSizes=[], salePrice=null, salePriceMap={}, soldSizesMap={};
 let overlayHidden=false, bgTransparent=false, liveHistory=[];
 let secondCode=null; // รหัสสินค้าเสริม
+let soldOutSticker=false; // sticker sold out
 let storage=null, productImages={}; // รูปสินค้า {code: url}
 let timerInterval=null, timerSeconds=0, timerRunning=false;
 let wakeLock=null, fbConnected=false;
@@ -1192,6 +1197,15 @@ function syncFromRemote(d){
     else { btnV.style.background='#5c7a6b'; btnV.style.color='white'; btnV.style.border='none'; btnH.style.background='#f0ece6'; btnH.style.color='#5c7a6b'; btnH.style.border='2px solid #5c7a6b'; }
   }
   // sync bgTransparent button state
+  if(d.soldOutSticker!==undefined){
+    soldOutSticker=d.soldOutSticker;
+    const btn=document.getElementById('btnSoldOut');
+    if(btn){
+      btn.style.background=soldOutSticker?'#cc0000':'#f0ece6';
+      btn.style.color=soldOutSticker?'white':'#cc0000';
+      btn.textContent=soldOutSticker?'🔴 ปิด Sold Out':'🔴 Sold Out';
+    }
+  }
   if(d.bgTransparent!==undefined){
     bgTransparent=d.bgTransparent;
     const btn=document.getElementById('btnBgOpacity');
@@ -1207,7 +1221,7 @@ function syncFromRemote(d){
 function pushState(){
   if(!db||!fbConnected) return;
   if(!currentCode||!products[currentCode]) return;
-  db.ref(shopPath+'/state').update({code:currentCode,soldSizes,salePrice,hidden:overlayHidden,hiddenCodes,bgTransparent,secondCode:secondCode||null,ts:Date.now()});
+  db.ref(shopPath+'/state').update({code:currentCode,soldSizes,salePrice,hidden:overlayHidden,hiddenCodes,bgTransparent,secondCode:secondCode||null,soldOutSticker,ts:Date.now()});
 }
 
 function getProduct(code){
@@ -1238,6 +1252,7 @@ function selectProduct(code){
   document.getElementById('priceInput').value=salePrice||'';
   // ✅ overlayHidden reset เป็น false เมื่อเปลี่ยนสินค้า
   overlayHidden=false;
+  soldOutSticker=false;
   const btn=document.getElementById('btnHide');
   btn.textContent='👁 ซ่อน Overlay'; btn.classList.remove('hidden');
   const prev=document.getElementById('previewSection');
@@ -1292,6 +1307,18 @@ function renderSizePills(){
 }
 
 var hiddenCodes={};
+function toggleSoldOut(){
+  soldOutSticker=!soldOutSticker;
+  const btn=document.getElementById('btnSoldOut');
+  if(btn){
+    btn.style.background=soldOutSticker?'#cc0000':'#f0ece6';
+    btn.style.color=soldOutSticker?'white':'#cc0000';
+    btn.textContent=soldOutSticker?'🔴 ปิด Sold Out':'🔴 Sold Out';
+  }
+  pushState();
+  showToast(soldOutSticker?'🔴 Sold Out แล้วค่ะ':'ปิด Sold Out แล้วค่ะ');
+}
+
 function toggleBgOpacity(){
   bgTransparent=!bgTransparent;
   const btn=document.getElementById('btnBgOpacity');
@@ -1310,11 +1337,13 @@ function toggleOverlay(){
 }
 
 function resetAll(){
-  soldSizes=[]; salePrice=null; overlayHidden=false;
+  soldSizes=[]; salePrice=null; overlayHidden=false; soldOutSticker=false;
   if(currentCode){ delete soldSizesMap[currentCode]; delete salePriceMap[currentCode]; }
   document.getElementById('priceInput').value='';
   document.getElementById('btnHide').textContent='👁 ซ่อน Overlay';
   document.getElementById('btnHide').classList.remove('hidden');
+  const btnSO=document.getElementById('btnSoldOut');
+  if(btnSO){btnSO.style.background='#f0ece6';btnSO.style.color='#cc0000';btnSO.textContent='🔴 Sold Out';}
   updateCurrentUI(); renderSizePills(); updatePreview(); pushState();
   showToast('รีเซ็ตทั้งหมดแล้วค่ะ');
 }
