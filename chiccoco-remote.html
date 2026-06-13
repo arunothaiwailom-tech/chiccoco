@@ -1655,7 +1655,10 @@ function renderImgManagerList(){
     const row=document.createElement('div');row.id='imgrow-'+code;
     row.style.cssText='display:flex;align-items:center;gap:10px;background:'+(sel?'#2a3d35':'#2a2a3e')+';border-radius:12px;padding:10px 12px;border:2px solid '+(sel?'#5c7a6b':'transparent')+';cursor:pointer;margin-bottom:2px;';
     row.onclick=()=>toggleImgSelect(code);
-    row.innerHTML='<input type="checkbox" id="chk-'+code+'" '+(sel?'checked':'')+' onclick="event.stopPropagation();toggleImgSelect(''+code+'')" style="width:18px;height:18px;accent-color:#5c7a6b;flex-shrink:0;"><img src="'+url+'" style="width:54px;height:54px;object-fit:cover;border-radius:8px;flex-shrink:0;"><div style="flex:1;"><div style="font-family:Kanit,sans-serif;font-size:16px;font-weight:800;color:#ff6b9d;">'+code+'</div></div>';
+    var chkHtml='<input type="checkbox" id="chk-'+code+'" '+(sel?'checked':'')+' onclick="event.stopPropagation();toggleImgSelect(\'' + code + '\')" style="width:18px;height:18px;accent-color:#5c7a6b;flex-shrink:0;">';
+    var imgHtml='<img src="'+url+'" style="width:54px;height:54px;object-fit:cover;border-radius:8px;flex-shrink:0;">';
+    var lblHtml='<div style="flex:1;"><div style="font-family:Kanit,sans-serif;font-size:16px;font-weight:800;color:#ff6b9d;">'+code+'</div></div>';
+    row.innerHTML=chkHtml+imgHtml+lblHtml;
     list.appendChild(row);
   });updateImgManagerActions();
 }
