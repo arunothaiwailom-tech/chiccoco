@@ -231,40 +231,14 @@ function startDB(){
       }).catch(function(){_shopName='CHICCOCO';draw();});
     }catch(e){_shopName='CHICCOCO';draw();}
 
-    // ✅ โหลดรูปสินค้าจาก Storage โดยตรง เพื่อให้ URL ไม่หมดอายุ
-    function refreshProductImages(){
-      try{
-        var storage=firebase.storage();
-        var shopId=_shopId;
-        storage.ref('products/'+shopId).listAll().then(function(res){
-          return Promise.all(res.items.map(function(item){
-            return item.getDownloadURL().then(function(url){
-              var code=item.name.replace(/\.[^.]+$/,'').toUpperCase();
-              _productImages[code]=url;
-            });
-          }));
-        }).then(function(){
-          _imagesLoaded=true;
-          draw();
-        }).catch(function(e){
-          console.warn('refreshProductImages:', e);
-          // fallback: ลองใช้ URL จาก DB แทน
-          _db.ref(_shopPath+'/productImages').once('value',function(snap){
-            var d=snap.val();
-            if(d){ Object.assign(_productImages,d); }
-            _imagesLoaded=true;
-            draw();
-          });
-        });
-      }catch(e){
-        console.warn('Storage not available:', e);
-        _imagesLoaded=true;
-        draw();
-      }
-    }
-    refreshProductImages();
-    // refresh URL ใหม่ทุก 6 ชั่วโมง ป้องกัน URL หมดอายุระหว่างไลฟ์
-    setInterval(refreshProductImages, 6*60*60*1000);
+    // โหลดรูปสินค้าจาก Storage
+    // โหลด URL รูปสินค้าจาก Realtime DB (ไม่มี CORS issue)
+    _db.ref(_shopPath+'/productImages').on('value',function(snap){
+      var d=snap.val();
+      if(d){ Object.assign(_productImages,d); }
+      _imagesLoaded=true;
+      draw();
+    });
 
     _db.ref(_shopPath+'/products').on('value',function(s){var d=s.val();if(d){_prod=d;try{draw();}catch(e){console.error('draw/products err:',e);}}});
     _db.ref(_shopPath+'/state').on('value',function(s){
@@ -495,7 +469,7 @@ function draw(){
       +'<div style="display:flex;gap:16px;align-items:stretch;width:100%;">'
         +'<div class="OV-col-L">'
           +(function(){
-        var imgUrl=_productImages[p.code]||null;
+        var imgUrl=_productImages[p.code]||_productImages[(p.code||'').toUpperCase()]||_productImages[(p.code||'').toLowerCase()]||null;
         if(imgUrl){
           return '<div class="OV-box"><div class="OV-box-with-img"><img class="OV-prod-img" src="'+imgUrl+'"><div><div class="OV-box-lbl">รหัสสินค้า</div><div class="OV-box-code">'+p.code+'</div></div></div></div>';
         }
@@ -522,7 +496,7 @@ function draw(){
       h='<div class="OV-brand">'+brand+'</div>'
         +'<div class="OV-toprow">'
           +(function(){
-        var imgUrl=_productImages[p.code]||null;
+        var imgUrl=_productImages[p.code]||_productImages[(p.code||'').toUpperCase()]||_productImages[(p.code||'').toLowerCase()]||null;
         if(imgUrl){
           return '<div class="OV-box"><div class="OV-box-with-img"><img class="OV-prod-img" src="'+imgUrl+'"><div><div class="OV-box-lbl">รหัสสินค้า</div><div class="OV-box-code">'+p.code+'</div></div></div></div>';
         }
@@ -538,7 +512,7 @@ function draw(){
       h='<div class="OV-brand">'+brand+'</div>'
         +'<div class="OV-toprow">'
           +(function(){
-        var imgUrl=_productImages[p.code]||null;
+        var imgUrl=_productImages[p.code]||_productImages[(p.code||'').toUpperCase()]||_productImages[(p.code||'').toLowerCase()]||null;
         if(imgUrl){
           return '<div class="OV-box"><div class="OV-box-with-img"><img class="OV-prod-img" src="'+imgUrl+'"><div><div class="OV-box-lbl">รหัสสินค้า</div><div class="OV-box-code">'+p.code+'</div></div></div></div>';
         }
