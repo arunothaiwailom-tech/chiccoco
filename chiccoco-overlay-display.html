@@ -372,33 +372,28 @@ function makeSecondOV(){
   var co=p.activeCols||[];
   var av=(p.sizes||[]).filter(function(s){ return sold.indexOf(s.size)===-1; });
   var lb=av.map(function(s){ return s.size; }).filter(Boolean);
-  var totalCols=co.length+1;
-  var cellW=Math.floor(660/totalCols);
-  var hdrFs=totalCols<=3?26:totalCols<=5?22:18;
-
-  // price block
+  // ✅ ใช้ขนาดเดียวกับตารางหลักทุกอย่าง
   var ph='<div class="OV-price"><div class="OV-price-lbl">ราคา</div><div class="OV-price-num">'+fmt(p.price)+'</div></div>';
 
-  // table
+  // table — ขนาดเหมือนตารางหลัก: hdrFs=35, sFs=40, vFs=44
   var rows=av.map(function(s){
-    var sFs=autoFs(s.size,cellW,40,16);
-    var cells='<td style="font-size:'+sFs+'px;font-weight:800;color:var(--ov-code);font-family:Kanit,sans-serif;">'+s.size+'</td>';
+    var cells='<td style="font-size:40px;font-weight:800;color:var(--ov-code);font-family:\'Kanit\',sans-serif;padding:10px 4px;">'+s.size+'</td>';
     co.forEach(function(col){
       var val=s[col]||'—';
-      var vFs=autoFs(val,cellW,44,16);
-      cells+='<td style="font-size:'+vFs+'px;">'+val+'</td>';
+      cells+='<td style="font-size:44px;padding:10px 4px;white-space:normal;overflow-wrap:break-word;word-break:break-word;">'+val+'</td>';
     });
     return '<tr>'+cells+'</tr>';
   }).join('');
-  var tableHtml=rows?'<table class="OV-table"><thead><tr><th style="font-size:'+hdrFs+'px;">ไซส์</th>'+co.map(function(col){ return '<th style="font-size:'+hdrFs+'px;">'+col+'</th>'; }).join('')+'</tr></thead><tbody>'+rows+'</tbody></table>':'';
+  var tableHtml=rows?'<table class="OV-table"><thead><tr><th style="font-size:35px;padding:12px 4px;">ไซส์</th>'+co.map(function(col){ return '<th style="font-size:35px;padding:12px 4px;">'+col+'</th>'; }).join('')+'</tr></thead><tbody>'+rows+'</tbody></table>':'';
 
-  // info row
+  // info row — ขนาดเหมือนตารางหลัก: colorFs=50, matFs dynamic
   var infoHtml='';
   if(p.color||p.material){
-    var ivFs=infoValFs(p.color,p.material,44);
+    var matLen2=(p.material||'').length;
+    var matFs2=matLen2<=6?50:matLen2<=12?44:matLen2<=18?38:matLen2<=26?32:26;
     infoHtml='<div class="OV-inforow">';
-    if(p.color)    infoHtml+='<div class="OV-info"><div class="OV-info-lbl">สี</div><div class="OV-info-val" style="font-size:50px;">'+p.color+'</div></div>';
-    if(p.material) infoHtml+='<div class="OV-info"><div class="OV-info-lbl">วัสดุ</div><div class="OV-info-val" style="font-size:'+ivFs+'px;">'+p.material+'</div></div>';
+    if(p.color)    infoHtml+='<div class="OV-info"><div class="OV-info-lbl">สี</div><div class="OV-info-val" style="font-size:50px;white-space:normal;overflow-wrap:break-word;word-break:break-word;">'+p.color+'</div></div>';
+    if(p.material) infoHtml+='<div class="OV-info"><div class="OV-info-lbl">วัสดุ</div><div class="OV-info-val" style="font-size:'+matFs2+'px;white-space:normal;overflow-wrap:break-word;word-break:break-word;">'+p.material+'</div></div>';
     infoHtml+='</div>';
   }
 
