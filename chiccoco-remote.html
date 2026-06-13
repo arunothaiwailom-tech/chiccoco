@@ -541,7 +541,9 @@ async function loadProductImages(){
       const imgToSave={};
       Object.keys(productImages).forEach(k=>{
         imgToSave[k]=productImages[k];
-        imgToSave[k.toLowerCase()]=productImages[k]; // lowercase key ด้วย
+        imgToSave[k.toLowerCase()]=productImages[k];
+        // เก็บ lowercase ใน productImages ด้วย เพื่อให้ preview ใน remote เจอด้วย
+        productImages[k.toLowerCase()]=productImages[k];
       });
       db.ref(shopPath+'/productImages').update(imgToSave).catch(()=>{});
     }
