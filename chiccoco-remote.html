@@ -1354,14 +1354,17 @@ function applyPrice(){
   salePrice=val; salePriceMap[currentCode]=val;
   updateCurrentUI(); updatePreview(); pushState(); saveMemory();
   showToast('✅ ลดราคา '+currentCode+' → ฿'+Number(val).toLocaleString()+' แล้วค่ะ');
-  focusScan();
+  clearTimeout(window._priceFocusTimer);
+  window._priceFocusTimer=setTimeout(focusScan,5000);
 }
 
 function resetPrice(){
   salePrice=null; delete salePriceMap[currentCode]; saveMemory();
   document.getElementById('priceInput').value='';
   updateCurrentUI(); updatePreview(); pushState();
-  showToast('รีเซ็ตราคาแล้วค่ะ'); focusScan();
+  showToast('รีเซ็ตราคาแล้วค่ะ');
+  clearTimeout(window._priceFocusTimer);
+  window._priceFocusTimer=setTimeout(focusScan,5000);
 }
 
 function updateCurrentUI(){
@@ -1678,6 +1681,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     const scan=document.getElementById('scanInput');
     if(!scan) return;
     const active=document.activeElement;
+    // ไม่แย่ง focus ถ้ากำลังพิมพ์ใน input อื่น (เช่น priceInput)
     if(active&&active!==scan&&active.tagName.toLowerCase()==='input') return;
     const imgModal=document.getElementById('imgManagerModal');
     if(imgModal&&imgModal.style.display==='flex') return;
