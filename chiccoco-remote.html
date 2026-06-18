@@ -1474,6 +1474,60 @@ function resetEdit(){
 }
 
 // ── LUCKY DRAW (สุ่มแจกจากเลขบิล) ──
+// ── LUCKY DRAW SOUNDS ──
+let _audioCtx=null;
+function getAudioCtx(){
+  if(!_audioCtx) _audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+  return _audioCtx;
+}
+
+function playDrumTick(speed){
+  try{
+    const ctx=getAudioCtx();
+    const t=ctx.currentTime;
+    // เสียงกลองสั้น: noise burst + lowpass filter
+    const bufSize=ctx.sampleRate*0.04;
+    const buf=ctx.createBuffer(1,bufSize,ctx.sampleRate);
+    const data=buf.getChannelData(0);
+    for(let i=0;i<bufSize;i++) data[i]=(Math.random()*2-1)*Math.exp(-i/bufSize*8);
+    const src=ctx.createBufferSource();
+    src.buffer=buf;
+    // lowpass = เสียงกลองทอม ไม่ใช่เสียงแหลม
+    const filter=ctx.createBiquadFilter();
+    filter.type='lowpass';
+    filter.frequency.value=speed>200?200:400; // ช้า=ทุ้ม เร็ว=กลาง
+    const gain=ctx.createGain();
+    gain.gain.setValueAtTime(speed>200?0.6:1.0,t); // ช้า=เบา เร็ว=ดัง
+    gain.gain.exponentialRampToValueAtTime(0.01,t+0.08);
+    src.connect(filter);
+    filter.connect(gain);
+    gain.connect(ctx.destination);
+    src.start(t);
+    src.stop(t+0.08);
+  }catch(e){}
+}
+
+function playWinSound(){
+  try{
+    const ctx=getAudioCtx();
+    // เสียงฟานฟาร์ชนะ: โน้ต C-E-G-C อย่างรวดเร็ว
+    const notes=[523,659,784,1047];
+    notes.forEach((freq,i)=>{
+      const t=ctx.currentTime+i*0.12;
+      const osc=ctx.createOscillator();
+      const gain=ctx.createGain();
+      osc.type='sine';
+      osc.frequency.value=freq;
+      gain.gain.setValueAtTime(0.4,t);
+      gain.gain.exponentialRampToValueAtTime(0.01,t+0.3);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(t);
+      osc.stop(t+0.3);
+    });
+  }catch(e){}
+}
+
 function setupLuckyRange(){
   const s=parseInt(document.getElementById('luckyStart').value);
   const e=parseInt(document.getElementById('luckyEnd').value);
@@ -1505,7 +1559,7 @@ function drawLucky(){
 
   // ✅ animation แบบสล็อต 6 วิ — เริ่มเร็ว แล้วค่อยๆ ช้าลงก่อนหยุดที่ผู้โชคดี (เหมือนสล็อตจริง)
   if(luckySlotInterval) clearTimeout(luckySlotInterval);
-  const totalDurationMs=6000; // 6 วินาที
+  const totalDurationMs=10000; // 10 วินาที
   const startTime=Date.now();
 
   function tick(){
@@ -1518,6 +1572,7 @@ function drawLucky(){
       renderLuckyHistory();
       document.getElementById('luckyRangeInfo').textContent='ช่วง '+luckyMin+' - '+luckyMax+' — สุ่มไปแล้ว '+luckyUsed.length+'/'+total+' คนค่ะ';
       if(db&&fbConnected) db.ref(shopPath+'/lucky').update({winner,used:luckyUsed,isSpinning:false,ts:Date.now()});
+      playWinSound(); // ✅ เสียงฟานฟาร์ตอนได้ผู้โชคดี
       showToast('🎉 ผู้โชคดี: เลขบิล '+winner+' ค่ะ!');
       btn.disabled=false; btn.style.opacity='1';
       return;
@@ -1525,9 +1580,17 @@ function drawLucky(){
     const randDisplay=luckyMin+Math.floor(Math.random()*(luckyMax-luckyMin+1));
     display.textContent=randDisplay;
     if(db&&fbConnected) db.ref(shopPath+'/lucky').update({spinning:randDisplay,isSpinning:true,ts:Date.now()});
-    // ✅ ความเร็วช้าลงเรื่อยๆ: เริ่ม 60ms เร็ว → จบที่ 350ms ช้า (ease-out)
+    // ✅ เร็วใน 7 วิแรก แล้วชะลอมากใน 3 วิสุดท้าย (ลุ้นระทึก)
     const progress=elapsed/totalDurationMs; // 0 → 1
-    const delay=60+Math.pow(progress,2)*290; // 60ms → 350ms
+    let delay;
+    if(progress<0.7){
+      delay=50; // เร็วตลอด 7 วิแรก
+    } else {
+      const slowProgress=(progress-0.7)/0.3; // 0 → 1 ใน 3 วิสุดท้าย
+      delay=50+Math.pow(slowProgress,2.5)*550; // 50ms → 600ms แบบ ease-out
+    }
+    // ✅ เสียงกลองรัวตามความเร็ว
+    playDrumTick(delay);
     luckySlotInterval=setTimeout(tick,delay);
   }
   tick();
