@@ -123,6 +123,53 @@ body.theme-gold    { --ov-bg:#fdf8ee; --ov-accent:#b8860b; --ov-code:#8b1a1a; --
   hyphens:auto;
   line-height:1.2;
 }
+/* ── LUCKY DRAW ── */
+.lucky-overlay {
+  position:fixed; inset:0; z-index:998;
+  display:flex; align-items:center; justify-content:center;
+  pointer-events:none;
+  opacity:0; transition:opacity .3s;
+}
+.lucky-overlay.visible { opacity:1; }
+.lucky-box {
+  background:linear-gradient(135deg,#fdf0f5,#ffe3ee);
+  border:6px solid #c44f82;
+  border-radius:32px;
+  padding:40px 64px;
+  text-align:center;
+  box-shadow:0 8px 40px rgba(196,79,130,.4);
+}
+.lucky-label {
+  font-family:'Kanit',sans-serif;
+  font-size:36px;
+  font-weight:700;
+  color:#c44f82;
+  letter-spacing:4px;
+  margin-bottom:12px;
+}
+.lucky-number {
+  font-family:'Kanit',sans-serif;
+  font-size:140px;
+  font-weight:800;
+  color:#8b1a1a;
+  line-height:1;
+  letter-spacing:4px;
+}
+.lucky-number.spinning {
+  animation:luckyShake .1s infinite;
+}
+@keyframes luckyShake {
+  0%,100% { transform:translateY(0); }
+  50% { transform:translateY(-6px); }
+}
+.lucky-sub {
+  font-family:'Sarabun',sans-serif;
+  font-size:32px;
+  font-weight:600;
+  color:#a05070;
+  margin-top:12px;
+}
+
 /* ── SOLD OUT STICKER ── */
 .sold-out-overlay {
   position:fixed; inset:0; z-index:999;
@@ -158,6 +205,13 @@ body.theme-gold    { --ov-bg:#fdf8ee; --ov-accent:#b8860b; --ov-code:#8b1a1a; --
 </head>
 <body>
 
+<div class="lucky-overlay" id="lucky-overlay">
+  <div class="lucky-box">
+    <div class="lucky-label">🎰 เลขบิลผู้โชคดี 🎰</div>
+    <div class="lucky-number" id="lucky-number">—</div>
+    <div class="lucky-sub" id="lucky-sub"></div>
+  </div>
+</div>
 <div class="sold-out-overlay" id="sold-out-overlay">
   <div class="sold-out-sticker">
     SOLD OUT<span class="sub">หมดแล้วค่ะ 🎀</span>
@@ -306,6 +360,26 @@ function startDB(){
         try{ if(d.theme!==undefined) applyTheme(d.theme,d.customColors); }catch(e){ console.warn('applyTheme err:',e); }
         try{ applyBgOpacity(_bgTransparent); }catch(e){ console.warn('applyBgOpacity err:',e); }
         try{ draw(); }catch(e){ console.error('draw() err:',e); }
+      }
+    });
+    _db.ref(_shopPath+'/lucky').on('value',function(s){
+      var d=s.val();
+      var el=document.getElementById('lucky-overlay');
+      var numEl=document.getElementById('lucky-number');
+      var subEl=document.getElementById('lucky-sub');
+      if(!d){ el.classList.remove('visible'); return; }
+      if(d.isSpinning){
+        el.classList.add('visible');
+        numEl.textContent=d.spinning!=null?d.spinning:'—';
+        numEl.classList.add('spinning');
+        subEl.textContent='กำลังสุ่ม...';
+      } else if(d.winner!=null){
+        el.classList.add('visible');
+        numEl.textContent=d.winner;
+        numEl.classList.remove('spinning');
+        subEl.textContent='🎉 ยินดีด้วยค่ะ! 🎉';
+      } else {
+        el.classList.remove('visible');
       }
     });
     _db.ref(_shopPath+'/timer').on('value',function(s){
