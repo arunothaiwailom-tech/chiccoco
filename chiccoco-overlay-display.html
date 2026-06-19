@@ -340,12 +340,44 @@ function startDB(){
       }).catch(function(){_shopName='CHICCOCO';draw();});
     }catch(e){_shopName='CHICCOCO';draw();}
 
-    // โหลดรูปสินค้าจาก Storage
-    // โหลด URL รูปสินค้าจาก Realtime DB (ไม่มี CORS issue)
+    // ✅ โหลดรูปจาก Storage โดยตรง (URL สด ไม่หมดอายุ)
+    // และ fallback อ่านจาก DB ถ้า Storage ไม่ได้
+    function refreshImages(){
+      try{
+        var stor=firebase.storage();
+        stor.ref('products/'+_shopId).listAll().then(function(res){
+          return Promise.all(res.items.map(function(item){
+            return item.getDownloadURL().then(function(url){
+              var code=item.name.replace(/\.[^.]+$/,'').toUpperCase();
+              _productImages[code]=url;
+              _productImages[code.toLowerCase()]=url;
+            });
+          }));
+        }).then(function(){
+          _imagesLoaded=true;
+          draw();
+        }).catch(function(){
+          // fallback: อ่านจาก DB
+          _db.ref(_shopPath+'/productImages').once('value',function(snap){
+            var d=snap.val();
+            if(d){ Object.assign(_productImages,d); }
+            _imagesLoaded=true;
+            draw();
+          });
+        });
+      }catch(e){
+        _imagesLoaded=true; draw();
+      }
+    }
+    refreshImages();
+    // ✅ refresh URL ใหม่ทุก 2 ชั่วโมง ป้องกันรูปหายระหว่างไลฟ์ยาว
+    setInterval(refreshImages, 2*60*60*1000);
+
+    // sync จาก DB เมื่อมีรูปใหม่อัปโหลด
     _db.ref(_shopPath+'/productImages').on('value',function(snap){
       var d=snap.val();
       if(d){ Object.assign(_productImages,d); }
-      _imagesLoaded=true;
+      if(!_imagesLoaded){ _imagesLoaded=true; }
       draw();
     });
 
