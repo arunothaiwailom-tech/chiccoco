@@ -1142,21 +1142,56 @@ function doInit(apiKey,projectId,dbUrl){
     shopPath='chiccoco/shops/'+shopId;
     if(!firebase.apps.length) firebase.initializeApp({apiKey,projectId,databaseURL:dbUrl,storageBucket:projectId+'.firebasestorage.app'});
     db=firebase.database();
-    db.ref('.info/connected').on('value',snap=>{
-      fbConnected=snap.val()===true;
-      if(fbConnected){ setStatus('connected','✅ เชื่อมต่อแล้ว'); db.ref(shopPath+'/devices/'+DEVICE_ID).set({ts:Date.now(),alive:true}); }
-      else setStatus('error','⚠️ หลุดการเชื่อมต่อ...');
+
+    function startListeners(){
+      db.ref('.info/connected').on('value',snap=>{
+        fbConnected=snap.val()===true;
+        if(fbConnected){
+          setStatus('connected','✅ เชื่อมต่อแล้ว');
+          try{ const u=firebase.auth().currentUser; if(u) db.ref(shopPath+'/devices/'+DEVICE_ID).set({ts:Date.now(),alive:true}).catch(()=>{}); }catch(e){}
+        } else setStatus('error','⚠️ หลุดการเชื่อมต่อ...');
+      });
+      document.getElementById('configSection').style.display='none';
+      db.ref(shopPath+'/state').on('value',snap=>{ const d=snap.val(); if(d) syncFromRemote(d); });
+      db.ref(shopPath+'/edits').on('value',snap=>{ edits=snap.val()||{}; updatePreview(); });
+      loadMemory();
+      db.ref(shopPath+'/products').once('value',snap=>{
+        const d=snap.val();
+        if(d&&Object.keys(d).length>0){ products=d; document.getElementById('stockInfo').textContent=Object.keys(products).length+' รายการ ✅'; showToast('📦 โหลดสต๊อก '+Object.keys(products).length+' รายการแล้วค่ะ ✅'); }
+      });
+      try{ storage=firebase.storage(); loadProductImages(); }catch(e){ console.warn('Storage not ready:', e); }
+      db.ref(shopPath+'/lucky').once('value',snap=>{
+        const d=snap.val(); if(!d) return;
+        if(d.min!==undefined&&d.max!==undefined){
+          luckyMin=d.min; luckyMax=d.max; luckyUsed=d.used||[];
+          const elS=document.getElementById('luckyStart'), elE=document.getElementById('luckyEnd');
+          if(elS) elS.value=luckyMin; if(elE) elE.value=luckyMax;
+          const info=document.getElementById('luckyRangeInfo');
+          if(info) info.textContent='ช่วง '+luckyMin+' - '+luckyMax+' — สุ่มไปแล้ว '+luckyUsed.length+'/'+(luckyMax-luckyMin+1)+' คนค่ะ';
+          const btn=document.getElementById('btnLuckyDraw');
+          if(btn){ btn.disabled=false; btn.style.opacity='1'; }
+        }
+      });
+    }
+
+    // ✅ รอ Firebase Auth session (login.html sign in ไว้แล้ว session ยังคงอยู่)
+    firebase.auth().onAuthStateChanged(user=>{
+      if(user){
+        startListeners();
+      } else {
+        // ไม่มี session — ลอง sign in ด้วย credentials ที่เก็บไว้
+        const _em=localStorage.getItem('chiccoco_email');
+        const _pw=localStorage.getItem('chiccoco_pw');
+        if(_em&&_pw){
+          firebase.auth().signInWithEmailAndPassword(_em,_pw)
+            .then(()=>startListeners())
+            .catch(()=>startListeners());
+        } else {
+          startListeners(); // fallback: ทำงานโดยไม่มี auth
+        }
+      }
     });
-    document.getElementById('configSection').style.display='none';
-    db.ref(shopPath+'/state').on('value',snap=>{ const d=snap.val(); if(d) syncFromRemote(d); });
-    db.ref(shopPath+'/edits').on('value',snap=>{ edits=snap.val()||{}; updatePreview(); });
-    loadMemory(); // โหลด soldSizesMap + salePriceMap จาก Firebase
-    db.ref(shopPath+'/products').once('value',snap=>{
-      const d=snap.val();
-      if(d&&Object.keys(d).length>0){ products=d; document.getElementById('stockInfo').textContent=Object.keys(products).length+' รายการ ✅'; showToast('📦 โหลดสต๊อก '+Object.keys(products).length+' รายการแล้วค่ะ ✅'); }
-    });
-    // init Storage
-    try{ storage=firebase.storage(); loadProductImages(); }catch(e){ console.warn('Storage not ready:', e); }
+
   }catch(e){ console.error('doInit error',e); setStatus('error','❌ เชื่อมต่อไม่สำเร็จ: '+e.message); document.getElementById('configSection').style.display='block'; }
 }
 
@@ -1354,27 +1389,54 @@ function buildOV(p,sold,sale){
   const lb=av.map(s=>s.size).filter(Boolean);
   const co=p.activeCols||[];
   const fmt=v=>{ const n=Number(v); return isNaN(n)?v:n.toLocaleString(); };
-  const ph=sale?'<div class="OV-price"><div class="OV-price-lbl">ราคา</div><div class="OV-price-sale"><div class="OV-price-original">'+fmt(p.price)+'</div><div class="OV-price-new">'+fmt(sale)+'</div></div></div>':'<div class="OV-price"><div class="OV-price-lbl">ราคา</div><div class="OV-price-num">'+fmt(p.price)+'</div></div>';
+  const ph=sale
+    ?'<div class="OV-price"><div class="OV-price-lbl">ราคา</div><div class="OV-price-sale"><div class="OV-price-original">'+fmt(p.price)+'</div><div class="OV-price-new">'+fmt(sale)+'</div></div></div>'
+    :'<div class="OV-price"><div class="OV-price-lbl">ราคา</div><div class="OV-price-num">'+fmt(p.price)+'</div></div>';
   const footer='<div class="OV-footer">Chiccoco Live @ 2025</div>';
   const curImgUrl=productImages[p.code]||productImages[(p.code||'').toUpperCase()]||productImages[(p.code||'').toLowerCase()]||null;
   const isLarge=(imgLayout==='large');
 
-  // ── รูปใหญ่ด้านบน ──
-  const largeBanner=curImgUrl&&isLarge
+  // รูปใหญ่ด้านบน
+  const largeBanner=(curImgUrl&&isLarge)
     ?'<div style="width:100%;border-radius:16px;overflow:hidden;margin-bottom:4px;"><img src="'+curImgUrl+'" style="width:100%;height:auto;display:block;object-fit:cover;border-radius:16px;max-height:300px;"></div>'
     :'';
 
-  // ── code box (รูปเล็กข้างรหัส หรือไม่มีรูปถ้า large) ──
-  const codeBox=(!isLarge&&curImgUrl)
+  // code box — รูปเล็กข้างรหัส หรือรหัสอย่างเดียวถ้า large mode
+  const codeBox=(curImgUrl&&!isLarge)
     ?'<div class="OV-box"><div class="OV-box-with-img"><img class="OV-prod-img" src="'+curImgUrl+'"><div><div class="OV-box-lbl">รหัสสินค้า</div><div class="OV-box-code">'+p.code+'</div></div></div></div>'
     :'<div class="OV-box"><div class="OV-box-lbl">รหัสสินค้า</div><div class="OV-box-code">'+p.code+'</div></div>';
 
   if(p.type==='misc'){
     const ms=p.size||(p.sizes&&p.sizes.length?p.sizes.map(s=>s.size).filter(Boolean).join(', '):'');
-    return '<div class="OV">'+largeBanner+'<div class="OV-brand">'+shopDisplayName+'</div><div class="OV-toprow"><div class="OV-box" style="flex:1.1">'+codeBox.replace('<div class="OV-box">','').replace('</div>','')+'</div>'+ph.replace('class="OV-price"','class="OV-price" style="flex:1"')+'</div><div class="OV-name">'+p.name+'</div><div class="OV-inforow">'+(p.color?'<div class="OV-info"><div class="OV-info-lbl">สี</div><div class="OV-info-val">'+p.color+'</div></div>':'')+(ms?'<div class="OV-info"><div class="OV-info-lbl">ขนาด</div><div class="OV-info-val" style="font-size:32px">'+ms+'</div></div>':'')+'</div>'+(p.material?'<div class="OV-inforow"><div class="OV-info"><div class="OV-info-lbl">วัสดุ</div><div class="OV-info-val" style="font-size:28px">'+p.material+'</div></div></div>':'')+footer+'</div>';
+    return '<div class="OV">'+largeBanner
+      +'<div class="OV-brand">'+shopDisplayName+'</div>'
+      +'<div class="OV-toprow">'
+        +codeBox
+        +ph.replace('class="OV-price"','class="OV-price" style="flex:1"')
+      +'</div>'
+      +'<div class="OV-name">'+p.name+'</div>'
+      +'<div class="OV-inforow">'
+        +(p.color?'<div class="OV-info"><div class="OV-info-lbl">สี</div><div class="OV-info-val">'+p.color+'</div></div>':'')
+        +(ms?'<div class="OV-info"><div class="OV-info-lbl">ขนาด</div><div class="OV-info-val" style="font-size:32px">'+ms+'</div></div>':'')
+      +'</div>'
+      +(p.material?'<div class="OV-inforow"><div class="OV-info"><div class="OV-info-lbl">วัสดุ</div><div class="OV-info-val" style="font-size:28px">'+p.material+'</div></div></div>':'')
+      +footer+'</div>';
   }
   const rows=av.map(s=>'<tr><td>'+s.size+'</td>'+co.map(c=>'<td>'+(s[c]||'—')+'</td>').join('')+'</tr>').join('');
-  return '<div class="OV">'+largeBanner+'<div class="OV-brand">'+shopDisplayName+'</div><div class="OV-toprow">'+codeBox+'<div class="OV-box"><div class="OV-box-lbl">ไซส์</div><div class="OV-box-sizes">'+(lb.join(', ')||'—')+'</div></div></div>'+ph+'<div class="OV-name">'+p.name+'</div><div class="OV-inforow">'+(p.color?'<div class="OV-info"><div class="OV-info-lbl">สี</div><div class="OV-info-val">'+p.color+'</div></div>':'')+(p.material?'<div class="OV-info"><div class="OV-info-lbl">วัสดุ</div><div class="OV-info-val" style="font-size:28px">'+p.material+'</div></div>':'')+'</div>'+(rows?'<table class="OV-table"><thead><tr><th>ไซส์</th>'+co.map(c=>'<th>'+c+'</th>').join('')+'</tr></thead><tbody>'+rows+'</tbody></table>':'')+footer+'</div>';
+  return '<div class="OV">'+largeBanner
+    +'<div class="OV-brand">'+shopDisplayName+'</div>'
+    +'<div class="OV-toprow">'
+      +codeBox
+      +'<div class="OV-box"><div class="OV-box-lbl">ไซส์</div><div class="OV-box-sizes">'+(lb.join(', ')||'—')+'</div></div>'
+    +'</div>'
+    +ph
+    +'<div class="OV-name">'+p.name+'</div>'
+    +'<div class="OV-inforow">'
+      +(p.color?'<div class="OV-info"><div class="OV-info-lbl">สี</div><div class="OV-info-val">'+p.color+'</div></div>':'')
+      +(p.material?'<div class="OV-info"><div class="OV-info-lbl">วัสดุ</div><div class="OV-info-val" style="font-size:28px">'+p.material+'</div></div>':'')
+    +'</div>'
+    +(rows?'<table class="OV-table"><thead><tr><th>ไซส์</th>'+co.map(c=>'<th>'+c+'</th>').join('')+'</tr></thead><tbody>'+rows+'</tbody></table>':'')
+    +footer+'</div>';
 }
 function updatePreview(){
   const p=getProduct(currentCode);
@@ -1614,6 +1676,10 @@ document.addEventListener('DOMContentLoaded',()=>{
   const shopName=sessionStorage.getItem('shopName');
   if(shopName){ document.getElementById('appSub').textContent=shopName.toUpperCase(); shopDisplayName=shopName.toUpperCase(); }
 
+  // ✅ บันทึก email ไว้ใน localStorage เพื่อ re-auth
+  const _savedEmail=sessionStorage.getItem('email');
+  if(_savedEmail) localStorage.setItem('chiccoco_email',_savedEmail);
+
   // Auto-connect Firebase
   const FB_API_KEY='AIzaSyBwIlvqugbNYNbFd44DtgKSZWsQrXNnSuI';
   const FB_PROJECT_ID='chiccoco-live';
@@ -1639,6 +1705,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     const banner=document.getElementById('expiryBanner');
     const bannerText=document.getElementById('expiryBannerText');
     const months=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+    const expire=new Date(expireDate);
     const expStr=expire.getDate()+' '+months[expire.getMonth()]+' '+(expire.getFullYear()+543);
     if(daysLeft<=0){ banner.style.display='block'; banner.classList.add('danger'); bannerText.textContent='❌ สมาชิกหมดอายุแล้ว กรุณาต่ออายุเพื่อใช้งานต่อค่ะ'; }
     else if(daysLeft<=3){ banner.style.display='block'; bannerText.textContent='⚠️ สมาชิกหมดอายุใน '+daysLeft+' วัน ('+expStr+') กรุณาต่ออายุค่ะ'; }
