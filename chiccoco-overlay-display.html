@@ -11,79 +11,116 @@ body { background:transparent !important; overflow:hidden; font-family:'Sarabun'
 
 /* ── CSS VARIABLES & THEMES ── */
 :root {
-  --ov-bg:#f0ece6; --ov-accent:#5c7a6b; --ov-code:#8b1a1a;
-  --ov-price-bg:#d9cfc4; --ov-header:#3d4f47; --ov-text:#2c2c2c;
-  --ov-white:#ffffff; --ov-muted:#aaa8a0; --ov-border:#ede9e4;
-  --ov-row-odd:#ffffff; --ov-row-even:#f5f1eb;
-  --ov-footer:#a09488; --ov-brand:#5c7a6b;
+  --ov-bg:rgba(255,255,255,0.45);
+  --ov-accent:#5c7a6b; --ov-code:#8b1a1a;
+  --ov-price-bg:linear-gradient(135deg,rgba(217,207,196,0.85),rgba(200,188,176,0.9));
+  --ov-header:linear-gradient(135deg,#4a6358,#3d4f47);
+  --ov-text:#2c2c2c; --ov-white:rgba(255,255,255,0.6);
+  --ov-muted:#aaa8a0; --ov-border:rgba(255,255,255,0.7);
+  --ov-row-odd:rgba(255,255,255,0.65); --ov-row-even:rgba(245,241,235,0.65);
+  --ov-footer:#ccc; --ov-brand:#5c7a6b;
+  --ov-card-shadow:0 32px 64px rgba(0,0,0,.18),0 8px 20px rgba(0,0,0,.10),inset 0 1px 0 rgba(255,255,255,0.8);
+  --ov-box-shadow:0 4px 16px rgba(0,0,0,.08),inset 0 1px 0 rgba(255,255,255,0.9);
+  --ov-blur:blur(20px);
 }
-body.theme-pink    { --ov-bg:#fdf0f5; --ov-accent:#c0607a; --ov-code:#8b1a3a; --ov-price-bg:#f7d6e0; --ov-header:#8b3a52; --ov-text:#2c2c2c; --ov-muted:#d4a0b0; --ov-border:#f7d6e0; --ov-row-odd:#fff5f8; --ov-row-even:#fce8ef; --ov-footer:#c0607a; --ov-brand:#c0607a; }
-body.theme-dark    { --ov-bg:#1e1e2e; --ov-accent:#a78bfa; --ov-code:#f472b6; --ov-price-bg:#2d2d42; --ov-header:#12121e; --ov-text:#e2e8f0; --ov-white:#2d2d42; --ov-muted:#6b7280; --ov-border:#374151; --ov-row-odd:#252535; --ov-row-even:#1e1e2e; --ov-footer:#a78bfa; --ov-brand:#a78bfa; }
-body.theme-minimal { --ov-bg:#ffffff; --ov-accent:#333333; --ov-code:#111111; --ov-price-bg:#f0f0f0; --ov-header:#222222; --ov-text:#111111; --ov-muted:#999999; --ov-border:#e5e5e5; --ov-row-odd:#ffffff; --ov-row-even:#f9f9f9; --ov-footer:#999999; --ov-brand:#333333; }
-body.theme-gold    { --ov-bg:#fdf8ee; --ov-accent:#b8860b; --ov-code:#8b1a1a; --ov-price-bg:#e8d5a3; --ov-header:#7a5c00; --ov-text:#2c2c2c; --ov-muted:#c8a96e; --ov-border:#e8d5a3; --ov-row-odd:#fffdf5; --ov-row-even:#fdf3d0; --ov-footer:#b8860b; --ov-brand:#b8860b; }
-
-/* ── เทศกาลไทย ── */
-body.theme-songkran  { --ov-bg:#e0f4ff; --ov-accent:#0077b6; --ov-code:#023e8a; --ov-price-bg:#ade8f4; --ov-header:#0077b6; --ov-text:#03045e; --ov-muted:#90e0ef; --ov-border:#caf0f8; --ov-row-odd:#f0faff; --ov-row-even:#e0f4ff; --ov-footer:#0077b6; --ov-brand:#0077b6; }
-body.theme-loykratong{ --ov-bg:#1a0a2e; --ov-accent:#f7b731; --ov-code:#f7b731; --ov-price-bg:#2d1b5e; --ov-header:#3d1f6e; --ov-text:#f8e7ff; --ov-muted:#a78bfa; --ov-border:#3d1f6e; --ov-row-odd:#1f0e38; --ov-row-even:#2d1b5e; --ov-footer:#f7b731; --ov-brand:#f7b731; }
-body.theme-newyearthai{ --ov-bg:#fff8f0; --ov-accent:#e63946; --ov-code:#c1121f; --ov-price-bg:#ffd6d6; --ov-header:#c1121f; --ov-text:#1d1d1d; --ov-muted:#e9c46a; --ov-border:#ffd6d6; --ov-row-odd:#fff8f0; --ov-row-even:#ffe8e8; --ov-footer:#e63946; --ov-brand:#e63946; }
-body.theme-mothersday { --ov-bg:#fff0f6; --ov-accent:#e91e8c; --ov-code:#c2185b; --ov-price-bg:#fce4ec; --ov-header:#880e4f; --ov-text:#1d1d1d; --ov-muted:#f48fb1; --ov-border:#fce4ec; --ov-row-odd:#fff8fb; --ov-row-even:#fff0f6; --ov-footer:#e91e8c; --ov-brand:#e91e8c; }
-
-/* ── เทศกาลสากล ── */
-body.theme-cny        { --ov-bg:#fff3e0; --ov-accent:#d32f2f; --ov-code:#b71c1c; --ov-price-bg:#ffcdd2; --ov-header:#b71c1c; --ov-text:#1d1d1d; --ov-muted:#ef9a9a; --ov-border:#ffcdd2; --ov-row-odd:#fff8f0; --ov-row-even:#fff3e0; --ov-footer:#d32f2f; --ov-brand:#d32f2f; }
-body.theme-valentine  { --ov-bg:#fff0f3; --ov-accent:#e91e63; --ov-code:#c2185b; --ov-price-bg:#fce4ec; --ov-header:#880e4f; --ov-text:#1d1d1d; --ov-muted:#f48fb1; --ov-border:#fce4ec; --ov-row-odd:#fff5f7; --ov-row-even:#fff0f3; --ov-footer:#e91e63; --ov-brand:#e91e63; }
-body.theme-halloween  { --ov-bg:#1a0a00; --ov-accent:#ff6b00; --ov-code:#ff6b00; --ov-price-bg:#2d1200; --ov-header:#3d1f00; --ov-text:#ffd6a5; --ov-muted:#a05000; --ov-border:#3d1f00; --ov-row-odd:#1f0e00; --ov-row-even:#2d1200; --ov-footer:#ff6b00; --ov-brand:#ff6b00; }
-body.theme-christmas  { --ov-bg:#f0fff4; --ov-accent:#2d6a4f; --ov-code:#1b4332; --ov-price-bg:#d8f3dc; --ov-header:#1b4332; --ov-text:#1d1d1d; --ov-muted:#52b788; --ov-border:#d8f3dc; --ov-row-odd:#f0fff4; --ov-row-even:#d8f3dc; --ov-footer:#2d6a4f; --ov-brand:#2d6a4f; }
-body.theme-newyear    { --ov-bg:#0d0d1a; --ov-accent:#ffd700; --ov-code:#ffd700; --ov-price-bg:#1a1a2e; --ov-header:#16213e; --ov-text:#e8e8ff; --ov-muted:#8888aa; --ov-border:#1a1a2e; --ov-row-odd:#111122; --ov-row-even:#1a1a2e; --ov-footer:#ffd700; --ov-brand:#ffd700; }
-body.theme-gold    { --ov-bg:#fdf8ee; --ov-accent:#b8860b; --ov-code:#8b1a1a; --ov-price-bg:#e8d5a3; --ov-header:#7a5c00; --ov-text:#2c2c2c; --ov-muted:#c8a96e; --ov-border:#e8d5a3; --ov-row-odd:#fffdf5; --ov-row-even:#fdf3d0; --ov-footer:#b8860b; --ov-brand:#b8860b; }
+body.theme-pink    { --ov-bg:rgba(253,240,245,0.50); --ov-accent:#c0607a; --ov-code:#8b1a3a; --ov-price-bg:linear-gradient(135deg,rgba(247,214,224,0.85),rgba(240,190,208,0.9)); --ov-header:linear-gradient(135deg,#a04060,#8b3a52); --ov-brand:#c0607a; }
+body.theme-dark    { --ov-bg:rgba(30,30,46,0.75); --ov-accent:#a78bfa; --ov-code:#f472b6; --ov-price-bg:linear-gradient(135deg,rgba(45,45,66,0.9),rgba(35,35,56,0.95)); --ov-header:linear-gradient(135deg,#2a2a42,#1a1a2e); --ov-text:#e2e8f0; --ov-white:rgba(45,45,66,0.7); --ov-muted:#6b7280; --ov-border:rgba(255,255,255,0.12); --ov-row-odd:rgba(37,37,53,0.8); --ov-row-even:rgba(30,30,46,0.8); --ov-footer:#a78bfa; --ov-brand:#a78bfa; }
+body.theme-minimal { --ov-bg:rgba(255,255,255,0.65); --ov-accent:#333; --ov-code:#111; --ov-price-bg:linear-gradient(135deg,rgba(240,240,240,0.9),rgba(230,230,230,0.95)); --ov-header:linear-gradient(135deg,#333,#222); --ov-text:#111; --ov-brand:#333; }
+body.theme-gold    { --ov-bg:rgba(253,248,238,0.50); --ov-accent:#b8860b; --ov-code:#8b1a1a; --ov-price-bg:linear-gradient(135deg,rgba(232,213,163,0.85),rgba(216,197,147,0.9)); --ov-header:linear-gradient(135deg,#9a7a00,#7a5c00); --ov-brand:#b8860b; }
+body.theme-songkran  { --ov-bg:rgba(224,244,255,0.55); --ov-accent:#0077b6; --ov-code:#023e8a; --ov-price-bg:linear-gradient(135deg,rgba(173,232,244,0.85),rgba(144,224,239,0.9)); --ov-header:linear-gradient(135deg,#0096c7,#0077b6); --ov-brand:#0077b6; }
+body.theme-loykratong{ --ov-bg:rgba(26,10,46,0.80); --ov-accent:#f7b731; --ov-code:#f7b731; --ov-price-bg:linear-gradient(135deg,rgba(45,27,94,0.9),rgba(61,31,110,0.95)); --ov-header:linear-gradient(135deg,#4d2080,#3d1f6e); --ov-text:#f8e7ff; --ov-border:rgba(247,183,49,0.3); --ov-brand:#f7b731; }
+body.theme-newyearthai{ --ov-bg:rgba(255,248,240,0.55); --ov-accent:#e63946; --ov-code:#c1121f; --ov-price-bg:linear-gradient(135deg,rgba(255,214,214,0.85),rgba(255,190,190,0.9)); --ov-header:linear-gradient(135deg,#d52020,#c1121f); --ov-brand:#e63946; }
+body.theme-mothersday{ --ov-bg:rgba(255,240,246,0.55); --ov-accent:#e91e8c; --ov-code:#c2185b; --ov-price-bg:linear-gradient(135deg,rgba(252,228,236,0.85),rgba(248,200,218,0.9)); --ov-header:linear-gradient(135deg,#c0206a,#880e4f); --ov-brand:#e91e8c; }
+body.theme-cny       { --ov-bg:rgba(255,243,224,0.55); --ov-accent:#d32f2f; --ov-code:#b71c1c; --ov-price-bg:linear-gradient(135deg,rgba(255,205,210,0.85),rgba(255,180,180,0.9)); --ov-header:linear-gradient(135deg,#e53030,#b71c1c); --ov-brand:#d32f2f; }
+body.theme-valentine { --ov-bg:rgba(255,240,243,0.55); --ov-accent:#e91e63; --ov-code:#c2185b; --ov-price-bg:linear-gradient(135deg,rgba(252,228,236,0.85),rgba(248,200,218,0.9)); --ov-header:linear-gradient(135deg,#c0206a,#880e4f); --ov-brand:#e91e63; }
+body.theme-halloween { --ov-bg:rgba(26,10,0,0.80); --ov-accent:#ff6b00; --ov-code:#ff6b00; --ov-price-bg:linear-gradient(135deg,rgba(45,18,0,0.9),rgba(61,25,0,0.95)); --ov-header:linear-gradient(135deg,#cc5500,#993d00); --ov-text:#ffd6a5; --ov-border:rgba(255,107,0,0.3); --ov-brand:#ff6b00; }
+body.theme-christmas { --ov-bg:rgba(240,255,244,0.55); --ov-accent:#2d6a4f; --ov-code:#1b4332; --ov-price-bg:linear-gradient(135deg,rgba(216,243,220,0.85),rgba(190,232,196,0.9)); --ov-header:linear-gradient(135deg,#2d7a4f,#1b4332); --ov-brand:#2d6a4f; }
+body.theme-newyear   { --ov-bg:rgba(13,13,26,0.80); --ov-accent:#ffd700; --ov-code:#ffd700; --ov-price-bg:linear-gradient(135deg,rgba(26,26,46,0.9),rgba(20,20,36,0.95)); --ov-header:linear-gradient(135deg,#ccaa00,#997f00); --ov-text:#e8e8ff; --ov-border:rgba(255,215,0,0.3); --ov-brand:#ffd700; }
 
 /* ── TIMER ── */
-.OV-timer { background:linear-gradient(135deg,#8b1a1a,#c0392b); border-radius:24px; padding:18px 28px; display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:12px; opacity:0; transition:opacity .4s; box-sizing:border-box; }
+.OV-timer { background:linear-gradient(135deg,#8b1a1a,#c0392b); border-radius:24px; padding:18px 28px; display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:12px; opacity:0; transition:opacity .4s; box-sizing:border-box; box-shadow:0 8px 24px rgba(139,26,26,.4); }
 .OV-timer.visible { opacity:1; }
 .OV-timer-label { font-family:'Kanit',sans-serif; font-size:32px; font-weight:700; color:rgba(255,255,255,.9); flex:1; }
 .OV-timer-count { font-family:'Kanit',sans-serif; font-size:72px; font-weight:800; color:white; line-height:1; }
 .OV-timer-count.warning { color:#ffd700; }
 
-/* ── OV BASE (แนวตั้ง) ── */
-.OV { display:inline-flex; flex-direction:column; background:var(--ov-bg); border-radius:28px; padding:28px 24px; gap:14px; opacity:0; transition:opacity .4s; vertical-align:top; max-width:100%; box-sizing:border-box; }
+/* ── OV BASE — Glassmorphism ── */
+.OV {
+  display:inline-flex; flex-direction:column;
+  background:var(--ov-bg);
+  backdrop-filter:var(--ov-blur);
+  -webkit-backdrop-filter:var(--ov-blur);
+  border:1.5px solid var(--ov-border);
+  border-radius:32px; padding:24px 22px; gap:12px;
+  opacity:0; transition:opacity .4s;
+  vertical-align:top; max-width:100%; box-sizing:border-box;
+  box-shadow:var(--ov-card-shadow);
+}
 .OV.visible { opacity:1; }
 
 /* ── shared components ── */
-.OV-brand   { text-align:center; font-family:'Kanit',sans-serif; font-size:40px; font-weight:700; letter-spacing:4px; color:var(--ov-brand); text-transform:uppercase; }
-.OV-color-group { background:var(--ov-white); border-radius:18px; padding:14px 16px; box-shadow:0 2px 10px rgba(0,0,0,.07); }
+.OV-brand { text-align:center; font-family:'Kanit',sans-serif; font-size:40px; font-weight:700; letter-spacing:4px; color:var(--ov-brand); text-transform:uppercase; }
+.OV-color-group { background:var(--ov-white); backdrop-filter:blur(8px); border:1px solid var(--ov-border); border-radius:18px; padding:14px 16px; box-shadow:var(--ov-box-shadow); }
 .OV-color-group-lbl { font-size:22px; color:var(--ov-muted); text-align:center; margin-bottom:10px; }
 .OV-color-pills { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; }
-.OV-color-pill { padding:10px 22px; border-radius:30px; font-size:38px; font-weight:700; font-family:'Kanit',sans-serif; background:var(--ov-bg); color:var(--ov-text); border:2px solid var(--ov-border); white-space:nowrap; }
-.OV-color-pill.active { background:var(--ov-price-bg); color:var(--ov-code); border:3px solid var(--ov-code); font-size:42px; }
-.OV-color-group-lbl { font-size:22px; color:var(--ov-muted); text-align:center; margin-bottom:10px; }
-.OV-color-pills { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; }
-.OV-color-pill { padding:10px 22px; border-radius:30px; font-size:38px; font-weight:700; font-family:'Kanit',sans-serif; background:var(--ov-bg); color:var(--ov-text); border:2px solid var(--ov-border); white-space:nowrap; }
-.OV-color-pill.active { background:var(--ov-price-bg); color:var(--ov-code); border:3px solid var(--ov-code); font-size:42px; }
-.OV-second { margin-top:16px; }
-.OV-second-divider { display:flex; align-items:center; gap:10px; margin-bottom:14px; }
-.OV-second-divider-line { flex:1; height:1px; background:var(--ov-border); }
-.OV-second-divider-text { font-family:'Kanit',sans-serif; font-size:18px; color:var(--ov-muted); letter-spacing:2px; }
-.OV-footer  { text-align:center; font-family:'Kanit',sans-serif; font-size:18px; color:var(--ov-footer); letter-spacing:4px; }
-.OV-toprow  { display:flex; gap:12px; width:100%; }
-.OV-box     { background:var(--ov-white); border-radius:18px; padding:14px 16px; text-align:center; box-shadow:0 2px 10px rgba(0,0,0,.07); flex:1; }
-.OV-prod-img { width:130px; height:130px; border-radius:16px; object-fit:cover; flex-shrink:0; }
+.OV-color-pill { padding:10px 22px; border-radius:30px; font-size:38px; font-weight:700; font-family:'Kanit',sans-serif; background:var(--ov-bg); backdrop-filter:blur(6px); color:var(--ov-text); border:1.5px solid var(--ov-border); white-space:nowrap; box-shadow:0 2px 8px rgba(0,0,0,.08); }
+.OV-color-pill.active { background:var(--ov-price-bg); color:var(--ov-code); border:2.5px solid var(--ov-code); font-size:42px; }
+.OV-second { margin-top:20px; background:var(--ov-bg); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); border:1.5px solid var(--ov-border); border-radius:24px; padding:18px 16px; display:flex; flex-direction:column; gap:12px; box-shadow:var(--ov-card-shadow); }
+.OV-second-header { display:flex; align-items:center; gap:10px; margin-bottom:4px; }
+.OV-second-header-line { flex:1; height:1.5px; background:var(--ov-accent); opacity:.35; }
+.OV-second-header-badge { font-family:'Kanit',sans-serif; font-size:20px; font-weight:700; color:var(--ov-accent); letter-spacing:3px; white-space:nowrap; }
+.OV-footer { text-align:center; font-family:'Kanit',sans-serif; font-size:18px; color:var(--ov-footer); letter-spacing:4px; }
+.OV-toprow { display:flex; gap:12px; width:100%; }
+
+/* กล่อง glass */
+.OV-box {
+  background:var(--ov-white);
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+  border:1px solid var(--ov-border);
+  border-radius:18px; padding:14px 16px; text-align:center;
+  box-shadow:var(--ov-box-shadow);
+  flex:1;
+}
+.OV-prod-img { width:100px; height:100px; border-radius:14px; object-fit:cover; flex-shrink:0; box-shadow:0 4px 16px rgba(0,0,0,.2); }
 .OV-box-with-img { display:flex; align-items:center; gap:14px; }
 .OV-box-lbl { font-size:34px; font-weight:400; color:var(--ov-muted); margin-bottom:6px; }
 .OV-box-code  { font-size:74px; font-weight:800; color:var(--ov-code); line-height:1; font-family:'Kanit',sans-serif; }
 .OV-box-sizes { font-size:64px; font-weight:800; color:var(--ov-code); line-height:1.1; font-family:'Kanit',sans-serif; white-space:normal; overflow-wrap:break-word; word-break:break-word; }
-.OV-price     { background:var(--ov-price-bg); border-radius:18px; text-align:center; padding:14px 16px; box-shadow:0 2px 10px rgba(0,0,0,.07); }
-.OV-price-lbl      { font-size:34px; font-weight:400; color:var(--ov-muted); margin-bottom:4px; }
-.OV-price-num      { font-size:74px; font-weight:800; color:var(--ov-text); line-height:1; font-family:'Kanit',sans-serif; }
-.OV-price-sale     { display:flex; flex-direction:column; align-items:center; gap:2px; }
+
+/* ราคา glass gradient */
+.OV-price {
+  background:var(--ov-price-bg);
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+  border:1px solid rgba(255,255,255,0.5);
+  border-radius:18px; text-align:center; padding:14px 16px;
+  box-shadow:0 6px 20px rgba(139,90,60,.15), inset 0 1px 0 rgba(255,255,255,.5);
+}
+.OV-price-lbl { font-size:34px; font-weight:400; color:var(--ov-muted); margin-bottom:4px; }
+.OV-price-num { font-size:74px; font-weight:800; color:var(--ov-text); line-height:1; font-family:'Kanit',sans-serif; }
+.OV-price-sale { display:flex; flex-direction:column; align-items:center; gap:2px; }
 .OV-price-original { font-size:36px; font-weight:700; color:var(--ov-muted); text-decoration:line-through; line-height:1; font-family:'Kanit',sans-serif; }
-.OV-price-new      { font-size:74px; font-weight:800; color:var(--ov-code); line-height:1; font-family:'Kanit',sans-serif; }
-.OV-name    { font-size:38px; font-weight:700; color:var(--ov-text); text-align:center; line-height:1.4; font-family:'Sarabun',sans-serif; }
-.OV-inforow { display:flex; background:var(--ov-white); border-radius:18px; overflow:hidden; box-shadow:0 2px 10px rgba(0,0,0,.07); }
-.OV-info    { flex:1; padding:12px 14px; text-align:center; }
-.OV-info+.OV-info { border-left:1.5px solid var(--ov-border); }
+.OV-price-new { font-size:74px; font-weight:800; color:var(--ov-code); line-height:1; font-family:'Kanit',sans-serif; }
+.OV-name { font-size:38px; font-weight:700; color:var(--ov-text); text-align:center; line-height:1.4; font-family:'Sarabun',sans-serif; }
+
+/* inforow glass */
+.OV-inforow {
+  display:flex;
+  background:var(--ov-white);
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+  border:1px solid var(--ov-border);
+  border-radius:18px; overflow:hidden;
+  box-shadow:var(--ov-box-shadow);
+}
+.OV-info { flex:1; padding:12px 14px; text-align:center; }
+.OV-info+.OV-info { border-left:1.5px solid rgba(255,255,255,0.4); }
 .OV-info-lbl { font-size:22px; color:var(--ov-muted); font-weight:400; margin-bottom:6px; }
-.OV-info-val { font-size:44px; font-weight:700; color:var(--ov-text); line-height:1.3; font-family:'Sarabun',sans-serif;
-  white-space:normal; overflow-wrap:break-word; word-break:break-word; }
-.OV-table   { width:100%; border-collapse:separate; border-spacing:0; border-radius:18px; overflow:hidden; box-shadow:0 2px 10px rgba(0,0,0,.07); table-layout:fixed; }
+.OV-info-val { font-size:44px; font-weight:700; color:var(--ov-text); line-height:1.3; font-family:'Sarabun',sans-serif; white-space:normal; overflow-wrap:break-word; word-break:break-word; }
+
+/* table glass */
+.OV-table { width:100%; border-collapse:separate; border-spacing:0; border-radius:18px; overflow:hidden; box-shadow:0 4px 16px rgba(0,0,0,.10); table-layout:fixed; border:1px solid rgba(255,255,255,0.4); }
 .OV-table thead tr { background:var(--ov-header); }
 .OV-table thead th { color:white; padding:12px 6px; font-size:35px; font-weight:700; text-align:center; font-family:'Sarabun',sans-serif; }
 .OV-table tbody tr:nth-child(odd)  { background:var(--ov-row-odd); }
@@ -91,31 +128,18 @@ body.theme-gold    { --ov-bg:#fdf8ee; --ov-accent:#b8860b; --ov-code:#8b1a1a; --
 .OV-table tbody td { padding:10px 4px; text-align:center; font-size:44px; font-weight:600; color:var(--ov-text); white-space:normal; overflow-wrap:break-word; word-break:break-word; }
 .OV-table tbody td:first-child { font-size:40px; font-weight:800; color:var(--ov-code); font-family:'Kanit',sans-serif; white-space:nowrap; }
 
+/* ── IMG LARGE BANNER ── */
+.OV-img-banner { width:100%; border-radius:20px; overflow:hidden; margin-bottom:4px; aspect-ratio:1/1; box-shadow:0 8px 24px rgba(0,0,0,.2), inset 0 0 0 1px rgba(255,255,255,.3); }
+.OV-img-banner img { width:100%; height:100%; display:block; object-fit:cover; border-radius:20px; filter:brightness(1.03) contrast(1.04) saturate(1.08); }
+
 /* ── HORIZONTAL layout ── */
-.OV.horizontal {
-  flex-direction:row;
-  flex-wrap:wrap;          /* brand+footer คร่อมทั้งแถว */
-  align-items:stretch;
-}
-/* brand + footer span เต็มความกว้าง */
-.OV.horizontal .OV-brand  { width:100%; letter-spacing:6px; }
+.OV.horizontal { flex-direction:row; flex-wrap:wrap; align-items:stretch; }
+.OV.horizontal .OV-brand { width:100%; letter-spacing:6px; }
 .OV.horizontal .OV-footer { width:100%; }
-/* col ซ้าย-ขวา */
 .OV-col-L { display:flex; flex-direction:column; gap:12px; flex:0 0 40%; }
 .OV-col-R { display:flex; flex-direction:column; gap:12px; flex:1; }
-/* ข้อความใน horizontal = แนวตั้ง เปลี่ยนแค่บางส่วน */
 .OV.horizontal .OV-name { text-align:center; font-size:32px; }
-/* info-val auto-shrink: ใช้ขนาดเดียวกับแนวตั้ง แต่ถ้าข้อความยาวให้ shrink */
-.OV.horizontal .OV-info-val {
-  font-size:44px;
-  overflow-wrap:break-word;
-  word-break:break-word;
-  hyphens:auto;
-  line-height:1.2;
-}
-/* ── IMG LARGE BANNER ── */
-.OV-img-banner { width:100%; border-radius:16px; overflow:hidden; margin-bottom:4px; aspect-ratio:1/1; }
-.OV-img-banner img { width:100%; height:100%; display:block; object-fit:cover; border-radius:16px; }
+.OV.horizontal .OV-info-val { font-size:44px; overflow-wrap:break-word; word-break:break-word; hyphens:auto; line-height:1.2; }
 
 /* ── SOLD OUT STICKER ── */
 .sold-out-overlay { position:fixed; inset:0; z-index:999; display:flex; align-items:center; justify-content:center; pointer-events:none; opacity:0; transition:opacity .4s; }
@@ -126,7 +150,7 @@ body.theme-gold    { --ov-bg:#fdf8ee; --ov-accent:#b8860b; --ov-code:#8b1a1a; --
 /* ── LUCKY DRAW ── */
 .lucky-overlay { position:fixed; inset:0; z-index:998; display:flex; align-items:center; justify-content:center; pointer-events:none; opacity:0; transition:opacity .3s; }
 .lucky-overlay.visible { opacity:1; }
-.lucky-box { background:linear-gradient(135deg,#fdf0f5,#ffe3ee); border:6px solid #c44f82; border-radius:32px; padding:40px 64px; text-align:center; box-shadow:0 8px 40px rgba(196,79,130,.4); }
+.lucky-box { background:linear-gradient(135deg,rgba(253,240,245,0.9),rgba(255,227,238,0.92)); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:3px solid rgba(196,79,130,0.5); border-radius:32px; padding:40px 64px; text-align:center; box-shadow:0 8px 40px rgba(196,79,130,.3), inset 0 1px 0 rgba(255,255,255,.8); }
 .lucky-label { font-family:'Kanit',sans-serif; font-size:36px; font-weight:700; color:#c44f82; letter-spacing:4px; margin-bottom:12px; }
 .lucky-number { font-family:'Kanit',sans-serif; font-size:140px; font-weight:800; color:#8b1a1a; line-height:1; letter-spacing:4px; }
 .lucky-number.spinning { animation:luckyShake .1s infinite; }
