@@ -265,10 +265,6 @@ body.theme-gold { --ov-bg:#fdf8ee; --ov-accent:#b8860b; --ov-code:#8b1a1a; --ov-
         style="background:#3d4f47;color:white;border-color:#3d4f47;">
         📥 Download ZIP
       </button>
-      <button class="btn-manual-open" onclick="openImgManagerModal()"
-        style="background:#3d4f47;color:white;border-color:#3d4f47;">
-        🖼️ ดูรูปที่อัปโหลด
-      </button>
       <span id="imgInfo" style="font-size:12px;color:#666;align-self:center;">ยังไม่มีรูป</span>
     </div>
     <div style="font-size:11px;color:#888;margin-top:4px;">ตั้งชื่อไฟล์ตามรหัส เช่น B290.jpg · Download ZIP = ภาพ overlay ทุกรหัส</div>
@@ -318,10 +314,6 @@ body.theme-gold { --ov-bg:#fdf8ee; --ov-accent:#b8860b; --ov-code:#8b1a1a; --ov-
       <button id="btnBgOpacity" onclick="toggleBgOpacity()"
         style="padding:8px 16px;border-radius:10px;font-family:'Kanit',sans-serif;font-size:13px;font-weight:700;cursor:pointer;border:2px solid #5c7a6b;background:#f0ece6;color:#5c7a6b;">
         พื้นหลังทึบ
-      </button>
-      <button id="btnSoldOut" onclick="toggleSoldOut()"
-        style="padding:8px 16px;border-radius:10px;font-family:'Kanit',sans-serif;font-size:13px;font-weight:700;cursor:pointer;border:2px solid #cc0000;background:#f0ece6;color:#cc0000;">
-        🔴 Sold Out
       </button>
       <button class="btn-reset-all" onclick="resetAll()">🔄 รีเซ็ตทั้งหมด</button>
     </div>
@@ -410,30 +402,6 @@ body.theme-gold { --ov-bg:#fdf8ee; --ov-accent:#b8860b; --ov-code:#8b1a1a; --ov-
   </div>
 </div>
 
-<div class="page" id="page-lucky">
-  <div class="sec">
-    <div class="sec-lbl">🎰 สุ่มแจกจากเลขบิล</div>
-    <div style="display:flex;gap:8px;margin-bottom:10px;">
-      <input class="edit-input" id="luckyStart" type="number" placeholder="เลขบิลเริ่ม เช่น 30001" style="flex:1;">
-      <input class="edit-input" id="luckyEnd" type="number" placeholder="เลขบิลสุด เช่น 30100" style="flex:1;">
-    </div>
-    <button onclick="setupLuckyRange()" style="width:100%;padding:12px;background:#5c7a6b;color:white;border:none;border-radius:10px;font-family:'Kanit',sans-serif;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:10px;">⚙️ ตั้งช่วงเลขบิล</button>
-    <div id="luckyRangeInfo" style="font-size:12px;color:#888;text-align:center;margin-bottom:14px;">ยังไม่ได้ตั้งช่วงเลขบิลค่ะ</div>
-
-    <div class="timer-display" id="luckyDisplay" style="font-size:64px;">—</div>
-
-    <div style="display:flex;gap:8px;margin-top:10px;">
-      <button id="btnLuckyDraw" onclick="drawLucky()" disabled style="flex:1;padding:14px;background:#c44f82;color:white;border:none;border-radius:12px;font-family:'Kanit',sans-serif;font-size:16px;font-weight:700;cursor:pointer;opacity:.4;">🎰 สุ่มเลย!</button>
-      <button onclick="resetLuckyHistory()" style="padding:14px 16px;background:#f5f5f5;color:#888;border:none;border-radius:12px;font-family:'Kanit',sans-serif;font-size:13px;font-weight:700;cursor:pointer;">↺ รีเซ็ตประวัติ</button>
-    </div>
-
-    <div style="margin-top:14px;">
-      <div class="sec-lbl" style="margin-bottom:6px;">🏆 ผู้โชคดีที่ผ่านมา (<span id="luckyCount">0</span> คน)</div>
-      <div id="luckyHistoryList" style="display:flex;flex-wrap:wrap;gap:6px;max-height:160px;overflow-y:auto;"></div>
-    </div>
-  </div>
-</div>
-
 <div class="page" id="page-history">
   <div class="sec">
     <div class="sec-lbl">🕐 ประวัติสินค้าล่าสุด</div>
@@ -444,7 +412,6 @@ body.theme-gold { --ov-bg:#fdf8ee; --ov-accent:#b8860b; --ov-code:#8b1a1a; --ov-
 <div class="bottom-nav">
   <button class="nav-btn active" id="nav-live" onclick="switchPage('live')"><span class="icon">📡</span>ไลฟ์</button>
   <button class="nav-btn" id="nav-timer" onclick="switchPage('timer')"><span class="icon">⏱</span>Timer</button>
-  <button class="nav-btn" id="nav-lucky" onclick="switchPage('lucky')"><span class="icon">🎰</span>สุ่มแจก</button>
   <button class="nav-btn" id="nav-history" onclick="switchPage('history')"><span class="icon">🕐</span>ประวัติ</button>
 </div>
 
@@ -501,10 +468,8 @@ let db=null, products={}, edits={}, currentCode=null;
 let soldSizes=[], salePrice=null, salePriceMap={}, soldSizesMap={};
 let overlayHidden=false, bgTransparent=false, liveHistory=[];
 let secondCode=null; // รหัสสินค้าเสริม
-let soldOutSticker=false; // sticker sold out
 let storage=null, productImages={}; // รูปสินค้า {code: url}
 let timerInterval=null, timerSeconds=0, timerRunning=false;
-let luckyMin=null, luckyMax=null, luckyUsed=[], luckyHistory=[], luckySlotInterval=null;
 let wakeLock=null, fbConnected=false;
 let shopDisplayName='CHICCOCO';
 let shopPath='chiccoco/shops/default';
@@ -567,19 +532,6 @@ async function loadProductImages(){
     }));
     urls.forEach(({code,url})=>{ productImages[code]=url; });
     console.log('รูปสินค้า:', Object.keys(productImages).length, 'รูป');
-    // ✅ บันทึก URL กลับ DB ทั้ง original และ lowercase เพื่อ match code ที่อาจพิมพ์เล็ก
-    if(db&&fbConnected&&Object.keys(productImages).length){
-      const imgToSave={};
-      Object.keys(productImages).forEach(k=>{
-        imgToSave[k]=productImages[k];
-        imgToSave[k.toLowerCase()]=productImages[k];
-        // เก็บ lowercase ใน productImages ด้วย เพื่อให้ preview ใน remote เจอด้วย
-        productImages[k.toLowerCase()]=productImages[k];
-      });
-      db.ref(shopPath+'/productImages').update(imgToSave).catch(()=>{});
-    }
-    const cnt=Object.keys(productImages).length;
-    if(cnt) document.getElementById('imgInfo').textContent=cnt+' รูป ✅';
     updatePreview();
   }catch(e){ console.warn('loadProductImages:', e); }
 }
@@ -598,13 +550,6 @@ async function uploadProductImages(files){
       await ref.put(file);
       const url=await ref.getDownloadURL();
       productImages[code]=url;
-      // ✅ บันทึก DB ทั้ง original และ lowercase
-      if(db&&fbConnected){
-        const updates={};
-        updates[code]=url;
-        updates[code.toLowerCase()]=url;
-        db.ref(shopPath+'/productImages').update(updates).catch(()=>{});
-      }
       done++;
       showToast('⏳ อัปโหลดแล้ว '+done+'/'+total+' รูปค่ะ...');
     }catch(e){
@@ -941,7 +886,7 @@ function switchPage(page){
   document.getElementById('page-'+page).classList.add('active');
   document.getElementById('nav-'+page).classList.add('active');
   if(page==='history') renderHistory();
-  if(page==='live') setTimeout(focusScan,300);
+  if(page==='live') setTimeout(focusScan,100);
 }
 
 function logOut(){
@@ -1187,11 +1132,7 @@ function doInit(apiKey,projectId,dbUrl){
     db=firebase.database();
     db.ref('.info/connected').on('value',snap=>{
       fbConnected=snap.val()===true;
-      if(fbConnected){
-          setStatus('connected','✅ เชื่อมต่อแล้ว');
-          // ✅ เขียน device เฉพาะเมื่อ auth พร้อม (rules: write: auth != null)
-          try{ const u=firebase.auth().currentUser; if(u) db.ref(shopPath+'/devices/'+DEVICE_ID).set({ts:Date.now(),alive:true}).catch(()=>{}); }catch(e){}
-        }
+      if(fbConnected){ setStatus('connected','✅ เชื่อมต่อแล้ว'); db.ref(shopPath+'/devices/'+DEVICE_ID).set({ts:Date.now(),alive:true}); }
       else setStatus('error','⚠️ หลุดการเชื่อมต่อ...');
     });
     document.getElementById('configSection').style.display='none';
@@ -1204,19 +1145,6 @@ function doInit(apiKey,projectId,dbUrl){
     });
     // init Storage
     try{ storage=firebase.storage(); loadProductImages(); }catch(e){ console.warn('Storage not ready:', e); }
-    // ✅ โหลด state สุ่มแจกที่เคยตั้งไว้
-    db.ref(shopPath+'/lucky').once('value',snap=>{
-      const d=snap.val(); if(!d) return;
-      if(d.min!==undefined&&d.max!==undefined){
-        luckyMin=d.min; luckyMax=d.max; luckyUsed=d.used||[];
-        const elS=document.getElementById('luckyStart'), elE=document.getElementById('luckyEnd');
-        if(elS) elS.value=luckyMin; if(elE) elE.value=luckyMax;
-        const info=document.getElementById('luckyRangeInfo');
-        if(info) info.textContent='ช่วง '+luckyMin+' - '+luckyMax+' — สุ่มไปแล้ว '+luckyUsed.length+'/'+(luckyMax-luckyMin+1)+' คนค่ะ';
-        const btn=document.getElementById('btnLuckyDraw');
-        if(btn){ btn.disabled=false; btn.style.opacity='1'; }
-      }
-    });
   }catch(e){ console.error('doInit error',e); setStatus('error','❌ เชื่อมต่อไม่สำเร็จ: '+e.message); document.getElementById('configSection').style.display='block'; }
 }
 
@@ -1236,15 +1164,6 @@ function syncFromRemote(d){
     else { btnV.style.background='#5c7a6b'; btnV.style.color='white'; btnV.style.border='none'; btnH.style.background='#f0ece6'; btnH.style.color='#5c7a6b'; btnH.style.border='2px solid #5c7a6b'; }
   }
   // sync bgTransparent button state
-  if(d.soldOutSticker!==undefined){
-    soldOutSticker=d.soldOutSticker;
-    const btn=document.getElementById('btnSoldOut');
-    if(btn){
-      btn.style.background=soldOutSticker?'#cc0000':'#f0ece6';
-      btn.style.color=soldOutSticker?'white':'#cc0000';
-      btn.textContent=soldOutSticker?'🔴 ปิด Sold Out':'🔴 Sold Out';
-    }
-  }
   if(d.bgTransparent!==undefined){
     bgTransparent=d.bgTransparent;
     const btn=document.getElementById('btnBgOpacity');
@@ -1260,7 +1179,7 @@ function syncFromRemote(d){
 function pushState(){
   if(!db||!fbConnected) return;
   if(!currentCode||!products[currentCode]) return;
-  db.ref(shopPath+'/state').update({code:currentCode,soldSizes,salePrice,hidden:overlayHidden,hiddenCodes,bgTransparent,secondCode:secondCode||null,soldOutSticker,ts:Date.now()});
+  db.ref(shopPath+'/state').update({code:currentCode,soldSizes,salePrice,hidden:overlayHidden,hiddenCodes,bgTransparent,secondCode:secondCode||null,ts:Date.now()});
 }
 
 function getProduct(code){
@@ -1291,7 +1210,6 @@ function selectProduct(code){
   document.getElementById('priceInput').value=salePrice||'';
   // ✅ overlayHidden reset เป็น false เมื่อเปลี่ยนสินค้า
   overlayHidden=false;
-  soldOutSticker=false;
   const btn=document.getElementById('btnHide');
   btn.textContent='👁 ซ่อน Overlay'; btn.classList.remove('hidden');
   const prev=document.getElementById('previewSection');
@@ -1346,18 +1264,6 @@ function renderSizePills(){
 }
 
 var hiddenCodes={};
-function toggleSoldOut(){
-  soldOutSticker=!soldOutSticker;
-  const btn=document.getElementById('btnSoldOut');
-  if(btn){
-    btn.style.background=soldOutSticker?'#cc0000':'#f0ece6';
-    btn.style.color=soldOutSticker?'white':'#cc0000';
-    btn.textContent=soldOutSticker?'🔴 ปิด Sold Out':'🔴 Sold Out';
-  }
-  pushState();
-  showToast(soldOutSticker?'🔴 Sold Out แล้วค่ะ':'ปิด Sold Out แล้วค่ะ');
-}
-
 function toggleBgOpacity(){
   bgTransparent=!bgTransparent;
   const btn=document.getElementById('btnBgOpacity');
@@ -1376,13 +1282,11 @@ function toggleOverlay(){
 }
 
 function resetAll(){
-  soldSizes=[]; salePrice=null; overlayHidden=false; soldOutSticker=false;
+  soldSizes=[]; salePrice=null; overlayHidden=false;
   if(currentCode){ delete soldSizesMap[currentCode]; delete salePriceMap[currentCode]; }
   document.getElementById('priceInput').value='';
   document.getElementById('btnHide').textContent='👁 ซ่อน Overlay';
   document.getElementById('btnHide').classList.remove('hidden');
-  const btnSO=document.getElementById('btnSoldOut');
-  if(btnSO){btnSO.style.background='#f0ece6';btnSO.style.color='#cc0000';btnSO.textContent='🔴 Sold Out';}
   updateCurrentUI(); renderSizePills(); updatePreview(); pushState();
   showToast('รีเซ็ตทั้งหมดแล้วค่ะ');
 }
@@ -1393,17 +1297,14 @@ function applyPrice(){
   salePrice=val; salePriceMap[currentCode]=val;
   updateCurrentUI(); updatePreview(); pushState(); saveMemory();
   showToast('✅ ลดราคา '+currentCode+' → ฿'+Number(val).toLocaleString()+' แล้วค่ะ');
-  clearTimeout(window._priceFocusTimer);
-  window._priceFocusTimer=setTimeout(focusScan,5000);
+  focusScan();
 }
 
 function resetPrice(){
   salePrice=null; delete salePriceMap[currentCode]; saveMemory();
   document.getElementById('priceInput').value='';
   updateCurrentUI(); updatePreview(); pushState();
-  showToast('รีเซ็ตราคาแล้วค่ะ');
-  clearTimeout(window._priceFocusTimer);
-  window._priceFocusTimer=setTimeout(focusScan,5000);
+  showToast('รีเซ็ตราคาแล้วค่ะ'); focusScan();
 }
 
 function updateCurrentUI(){
@@ -1421,14 +1322,18 @@ function buildOV(p,sold,sale){
   const fmt=v=>{ const n=Number(v); return isNaN(n)?v:n.toLocaleString(); };
   const ph=sale?'<div class="OV-price"><div class="OV-price-lbl">ราคา</div><div class="OV-price-sale"><div class="OV-price-original">'+fmt(p.price)+'</div><div class="OV-price-new">'+fmt(sale)+'</div></div></div>':'<div class="OV-price"><div class="OV-price-lbl">ราคา</div><div class="OV-price-num">'+fmt(p.price)+'</div></div>';
   const footer='<div class="OV-footer">Chiccoco Live @ 2025</div>';
+  // ✅ ดึงรูปสินค้า รองรับทั้ง uppercase และ lowercase
+  const imgUrl=productImages[p.code]||productImages[(p.code||'').toUpperCase()]||productImages[(p.code||'').toLowerCase()]||null;
+  const codeBox=imgUrl
+    ?'<div class="OV-box"><div class="OV-box-with-img"><img class="OV-prod-img" src="'+imgUrl+'"><div><div class="OV-box-lbl">รหัสสินค้า</div><div class="OV-box-code">'+p.code+'</div></div></div></div>'
+    :'<div class="OV-box"><div class="OV-box-lbl">รหัสสินค้า</div><div class="OV-box-code">'+p.code+'</div></div>';
   if(p.type==='misc'){
     const ms=p.size||(p.sizes&&p.sizes.length?p.sizes.map(s=>s.size).filter(Boolean).join(', '):'');
-    return '<div class="OV"><div class="OV-brand">'+shopDisplayName+'</div><div class="OV-toprow"><div class="OV-box" style="flex:1.1"><div class="OV-box-lbl">รหัสสินค้า</div><div class="OV-box-code">'+p.code+'</div></div>'+ph.replace('class="OV-price"','class="OV-price" style="flex:1"')+'</div><div class="OV-name">'+p.name+'</div><div class="OV-inforow">'+(p.color?'<div class="OV-info"><div class="OV-info-lbl">สี</div><div class="OV-info-val">'+p.color+'</div></div>':'')+(ms?'<div class="OV-info"><div class="OV-info-lbl">ขนาด</div><div class="OV-info-val" style="font-size:32px">'+ms+'</div></div>':'')+'</div>'+(p.material?'<div class="OV-inforow"><div class="OV-info"><div class="OV-info-lbl">วัสดุ</div><div class="OV-info-val" style="font-size:28px">'+p.material+'</div></div></div>':'')+footer+'</div>';
+    return '<div class="OV"><div class="OV-brand">'+shopDisplayName+'</div><div class="OV-toprow">'+codeBox.replace('style="flex:1.1"','').replace('<div class="OV-box">','<div class="OV-box" style="flex:1.1">')+ph.replace('class="OV-price"','class="OV-price" style="flex:1"')+'</div><div class="OV-name">'+p.name+'</div><div class="OV-inforow">'+(p.color?'<div class="OV-info"><div class="OV-info-lbl">สี</div><div class="OV-info-val">'+p.color+'</div></div>':'')+(ms?'<div class="OV-info"><div class="OV-info-lbl">ขนาด</div><div class="OV-info-val" style="font-size:32px">'+ms+'</div></div>':'')+'</div>'+(p.material?'<div class="OV-inforow"><div class="OV-info"><div class="OV-info-lbl">วัสดุ</div><div class="OV-info-val" style="font-size:28px">'+p.material+'</div></div></div>':'')+footer+'</div>';
   }
   const rows=av.map(s=>'<tr><td>'+s.size+'</td>'+co.map(c=>'<td>'+(s[c]||'—')+'</td>').join('')+'</tr>').join('');
-  return '<div class="OV"><div class="OV-brand">'+shopDisplayName+'</div><div class="OV-toprow"><div class="OV-box"><div class="OV-box-lbl">รหัสสินค้า</div><div class="OV-box-code">'+p.code+'</div></div><div class="OV-box"><div class="OV-box-lbl">ไซส์</div><div class="OV-box-sizes">'+(lb.join(', ')||'—')+'</div></div></div>'+ph+'<div class="OV-name">'+p.name+'</div><div class="OV-inforow">'+(p.color?'<div class="OV-info"><div class="OV-info-lbl">สี</div><div class="OV-info-val">'+p.color+'</div></div>':'')+(p.material?'<div class="OV-info"><div class="OV-info-lbl">วัสดุ</div><div class="OV-info-val" style="font-size:28px">'+p.material+'</div></div>':'')+'</div>'+(rows?'<table class="OV-table"><thead><tr><th>ไซส์</th>'+co.map(c=>'<th>'+c+'</th>').join('')+'</tr></thead><tbody>'+rows+'</tbody></table>':'')+footer+'</div>';
+  return '<div class="OV"><div class="OV-brand">'+shopDisplayName+'</div><div class="OV-toprow">'+codeBox+'<div class="OV-box"><div class="OV-box-lbl">ไซส์</div><div class="OV-box-sizes">'+(lb.join(', ')||'—')+'</div></div></div>'+ph+'<div class="OV-name">'+p.name+'</div><div class="OV-inforow">'+(p.color?'<div class="OV-info"><div class="OV-info-lbl">สี</div><div class="OV-info-val">'+p.color+'</div></div>':'')+(p.material?'<div class="OV-info"><div class="OV-info-lbl">วัสดุ</div><div class="OV-info-val" style="font-size:28px">'+p.material+'</div></div>':'')+'</div>'+(rows?'<table class="OV-table"><thead><tr><th>ไซส์</th>'+co.map(c=>'<th>'+c+'</th>').join('')+'</tr></thead><tbody>'+rows+'</tbody></table>':'')+footer+'</div>';
 }
-
 function updatePreview(){
   const p=getProduct(currentCode);
   const section=document.getElementById('previewSection');
@@ -1471,146 +1376,6 @@ function saveEdit(){
 function resetEdit(){
   if(!currentCode||!db||!fbConnected) return;
   db.ref(shopPath+'/edits/'+currentCode).remove().then(()=>{ delete edits[currentCode]; closeEditModal(); updateCurrentUI(); updatePreview(); showToast('คืนข้อมูลเดิมแล้วค่ะ'); focusScan(); });
-}
-
-// ── LUCKY DRAW (สุ่มแจกจากเลขบิล) ──
-// ── LUCKY DRAW SOUNDS ──
-let _audioCtx=null;
-function getAudioCtx(){
-  if(!_audioCtx) _audioCtx=new(window.AudioContext||window.webkitAudioContext)();
-  return _audioCtx;
-}
-
-function playDrumTick(speed){
-  try{
-    const ctx=getAudioCtx();
-    const t=ctx.currentTime;
-    // เสียงกลองสั้น: noise burst + lowpass filter
-    const bufSize=ctx.sampleRate*0.04;
-    const buf=ctx.createBuffer(1,bufSize,ctx.sampleRate);
-    const data=buf.getChannelData(0);
-    for(let i=0;i<bufSize;i++) data[i]=(Math.random()*2-1)*Math.exp(-i/bufSize*8);
-    const src=ctx.createBufferSource();
-    src.buffer=buf;
-    // lowpass = เสียงกลองทอม ไม่ใช่เสียงแหลม
-    const filter=ctx.createBiquadFilter();
-    filter.type='lowpass';
-    filter.frequency.value=speed>200?200:400; // ช้า=ทุ้ม เร็ว=กลาง
-    const gain=ctx.createGain();
-    gain.gain.setValueAtTime(speed>200?0.6:1.0,t); // ช้า=เบา เร็ว=ดัง
-    gain.gain.exponentialRampToValueAtTime(0.01,t+0.08);
-    src.connect(filter);
-    filter.connect(gain);
-    gain.connect(ctx.destination);
-    src.start(t);
-    src.stop(t+0.08);
-  }catch(e){}
-}
-
-function playWinSound(){
-  try{
-    const ctx=getAudioCtx();
-    // เสียงฟานฟาร์ชนะ: โน้ต C-E-G-C อย่างรวดเร็ว
-    const notes=[523,659,784,1047];
-    notes.forEach((freq,i)=>{
-      const t=ctx.currentTime+i*0.12;
-      const osc=ctx.createOscillator();
-      const gain=ctx.createGain();
-      osc.type='sine';
-      osc.frequency.value=freq;
-      gain.gain.setValueAtTime(0.4,t);
-      gain.gain.exponentialRampToValueAtTime(0.01,t+0.3);
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.start(t);
-      osc.stop(t+0.3);
-    });
-  }catch(e){}
-}
-
-function setupLuckyRange(){
-  const s=parseInt(document.getElementById('luckyStart').value);
-  const e=parseInt(document.getElementById('luckyEnd').value);
-  if(isNaN(s)||isNaN(e)||s>e){ showToast('❌ กรุณากรอกช่วงเลขบิลให้ถูกต้องค่ะ'); return; }
-  if(e-s>100000){ showToast('❌ ช่วงเลขกว้างเกินไปค่ะ'); return; }
-  luckyMin=s; luckyMax=e; luckyUsed=[];
-  document.getElementById('luckyRangeInfo').textContent='ช่วง '+s+' - '+e+' ('+(e-s+1)+' เลข) — ยังไม่มีผู้โชคดีค่ะ';
-  document.getElementById('btnLuckyDraw').disabled=false;
-  document.getElementById('btnLuckyDraw').style.opacity='1';
-  document.getElementById('luckyDisplay').textContent='—';
-  // บันทึกลง Firebase เพื่อ sync กับ overlay
-  if(db&&fbConnected) db.ref(shopPath+'/lucky').set({min:s,max:e,used:[],ts:Date.now()});
-  showToast('✅ ตั้งช่วงเลขบิล '+s+' - '+e+' แล้วค่ะ');
-}
-
-function drawLucky(){
-  if(luckyMin===null||luckyMax===null){ showToast('❌ กรุณาตั้งช่วงเลขบิลก่อนค่ะ'); return; }
-  const total=luckyMax-luckyMin+1;
-  if(luckyUsed.length>=total){ showToast('🎉 สุ่มครบทุกเลขในช่วงนี้แล้วค่ะ'); return; }
-  // หาเลขที่ยังไม่ถูกสุ่ม
-  let available=[];
-  for(let n=luckyMin;n<=luckyMax;n++){ if(!luckyUsed.includes(n)) available.push(n); }
-  const winner=available[Math.floor(Math.random()*available.length)];
-
-  const btn=document.getElementById('btnLuckyDraw');
-  btn.disabled=true; btn.style.opacity='.5';
-  const display=document.getElementById('luckyDisplay');
-  display.classList.add('warning');
-
-  // ✅ animation แบบสล็อต 6 วิ — เริ่มเร็ว แล้วค่อยๆ ช้าลงก่อนหยุดที่ผู้โชคดี (เหมือนสล็อตจริง)
-  if(luckySlotInterval) clearTimeout(luckySlotInterval);
-  const totalDurationMs=10000; // 10 วินาที
-  const startTime=Date.now();
-
-  function tick(){
-    const elapsed=Date.now()-startTime;
-    if(elapsed>=totalDurationMs){
-      display.textContent=winner;
-      display.classList.remove('warning');
-      luckyUsed.push(winner);
-      luckyHistory.unshift({num:winner,time:new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'})});
-      renderLuckyHistory();
-      document.getElementById('luckyRangeInfo').textContent='ช่วง '+luckyMin+' - '+luckyMax+' — สุ่มไปแล้ว '+luckyUsed.length+'/'+total+' คนค่ะ';
-      if(db&&fbConnected) db.ref(shopPath+'/lucky').update({winner,used:luckyUsed,isSpinning:false,ts:Date.now()});
-      playWinSound(); // ✅ เสียงฟานฟาร์ตอนได้ผู้โชคดี
-      showToast('🎉 ผู้โชคดี: เลขบิล '+winner+' ค่ะ!');
-      btn.disabled=false; btn.style.opacity='1';
-      return;
-    }
-    const randDisplay=luckyMin+Math.floor(Math.random()*(luckyMax-luckyMin+1));
-    display.textContent=randDisplay;
-    if(db&&fbConnected) db.ref(shopPath+'/lucky').update({spinning:randDisplay,isSpinning:true,ts:Date.now()});
-    // ✅ เร็วใน 7 วิแรก แล้วชะลอมากใน 3 วิสุดท้าย (ลุ้นระทึก)
-    const progress=elapsed/totalDurationMs; // 0 → 1
-    let delay;
-    if(progress<0.7){
-      delay=50; // เร็วตลอด 7 วิแรก
-    } else {
-      const slowProgress=(progress-0.7)/0.3; // 0 → 1 ใน 3 วิสุดท้าย
-      delay=50+Math.pow(slowProgress,2.5)*550; // 50ms → 600ms แบบ ease-out
-    }
-    // ✅ เสียงกลองรัวตามความเร็ว
-    playDrumTick(delay);
-    luckySlotInterval=setTimeout(tick,delay);
-  }
-  tick();
-}
-
-function renderLuckyHistory(){
-  document.getElementById('luckyCount').textContent=luckyHistory.length;
-  const list=document.getElementById('luckyHistoryList');
-  if(!luckyHistory.length){ list.innerHTML=''; return; }
-  list.innerHTML=luckyHistory.map(h=>'<div style="padding:8px 14px;background:#fdf0f5;border:2px solid #c44f82;border-radius:10px;font-family:Kanit,sans-serif;font-weight:800;color:#c44f82;font-size:15px;">'+h.num+'<div style="font-size:9px;color:#aaa;font-weight:400;">'+h.time+'</div></div>').join('');
-}
-
-function resetLuckyHistory(){
-  if(!confirm('รีเซ็ตประวัติผู้โชคดีทั้งหมด? (ช่วงเลขบิลยังคงเดิม)')) return;
-  luckyUsed=[]; luckyHistory=[];
-  renderLuckyHistory();
-  if(luckyMin!==null) document.getElementById('luckyRangeInfo').textContent='ช่วง '+luckyMin+' - '+luckyMax+' — ยังไม่มีผู้โชคดีค่ะ';
-  document.getElementById('luckyDisplay').textContent='—';
-  if(db&&fbConnected) db.ref(shopPath+'/lucky').update({used:[],winner:null,ts:Date.now()});
-  showToast('↺ รีเซ็ตประวัติแล้วค่ะ');
 }
 
 // ── TIMER ──
@@ -1685,13 +1450,10 @@ function parseCustom(rows){
   return order.map(c=>{
     const p=map[c]; const nl=p.name.toLowerCase();
     const isPants=/กางเกง|กระโปรง|วอร์ม|เล็กกิ้ง|legging|ยีนส์|jeans/.test(nl);
-    const isDressOrSet=/เดรส|dress|ชุดเซ็ท|ชุดเซต|ชุดชั้นใน|ชั้นใน|lingerie|underwear|bra set|สายเดี่ยว|สายไขว้/.test(nl);
-    const hasW=p.sizes.some(s=>s['เอว']);
-    const hasA=p.sizes.some(s=>s['อก']);
+    const hasW=p.sizes.some(s=>s['เอว']),hasA=p.sizes.some(s=>s['อก']);
     let co;
-    if(isDressOrSet||(hasA&&hasW))  co=['อก','เอว','สะโพก','ยาว'];
-    else if(isPants||(hasW&&!hasA)) co=['เอว','สะโพก','เป้า','ยาว'];
-    else                             co=['คัฟอก','อก','ยาว','วงแขน','บ่า','เอว','สะโพก','เป้า'];
+    if(isPants||hasW) co=['เอว','สะโพก','เป้า','ยาว'];
+    else co=['คัฟอก','อก','ยาว','วงแขน','บ่า','เอว','สะโพก','เป้า'];
     p.activeCols=co.filter(f=>p.sizes.some(s=>s[f]));
     if(!p.activeCols.length) p.type='misc';
     return p;
@@ -1835,7 +1597,6 @@ document.addEventListener('DOMContentLoaded',()=>{
     const banner=document.getElementById('expiryBanner');
     const bannerText=document.getElementById('expiryBannerText');
     const months=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
-    const expire=new Date(expireDate);
     const expStr=expire.getDate()+' '+months[expire.getMonth()]+' '+(expire.getFullYear()+543);
     if(daysLeft<=0){ banner.style.display='block'; banner.classList.add('danger'); bannerText.textContent='❌ สมาชิกหมดอายุแล้ว กรุณาต่ออายุเพื่อใช้งานต่อค่ะ'; }
     else if(daysLeft<=3){ banner.style.display='block'; bannerText.textContent='⚠️ สมาชิกหมดอายุใน '+daysLeft+' วัน ('+expStr+') กรุณาต่ออายุค่ะ'; }
@@ -1843,96 +1604,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 
   document.getElementById('editModal').addEventListener('click',function(e){ if(e.target===this) closeEditModal(); });
   document.getElementById('manualModal').addEventListener('click',function(e){ if(e.target===this) closeManualModal(); });
-  // ✅ Auto-focus scan input เมื่อคลิกที่อื่น
-  document.addEventListener('click', function(e){
-    const tag=e.target.tagName.toLowerCase();
-    if(['input','select','textarea','button','label','a'].includes(tag)) return;
-    if(e.target.closest && e.target.closest('.modal-overlay,.camera-modal,.theme-modal-overlay,#imgManagerModal')) return;
-    const lp=document.getElementById('page-live');
-    if(!lp||!lp.classList.contains('active')) return;
-    const sc=document.getElementById('scanInput');
-    if(sc&&document.activeElement!==sc) sc.focus();
-  });
-  // ✅ Interval focus กลับมาทุก 2 วิ เมื่ออยู่หน้าไลฟ์
-  setInterval(function(){
-    const lp=document.getElementById('page-live');
-    if(!lp||!lp.classList.contains('active')) return;
-    const scan=document.getElementById('scanInput');
-    if(!scan) return;
-    const active=document.activeElement;
-    // ไม่แย่ง focus ถ้ากำลังพิมพ์ใน input อื่น (เช่น priceInput)
-    if(active&&active!==scan&&active.tagName.toLowerCase()==='input') return;
-    const imgModal=document.getElementById('imgManagerModal');
-    if(imgModal&&imgModal.style.display==='flex') return;
-    if(active!==scan) scan.focus();
-  },2000);
 });
-
-// ── Image Manager ──
-let imgManagerSelection={};
-function openImgManagerModal(){imgManagerSelection={};renderImgManagerList();document.getElementById('imgManagerModal').style.display='flex';}
-function closeImgManagerModal(){document.getElementById('imgManagerModal').style.display='none';imgManagerSelection={};}
-function renderImgManagerList(){
-  const list=document.getElementById('imgManagerList');list.innerHTML='';
-  const codes=Object.keys(productImages).sort();
-  if(!codes.length){list.innerHTML='<div style="color:#888;font-size:13px;text-align:center;padding:24px;">ยังไม่มีรูปสินค้าค่ะ</div>';updateImgManagerActions();return;}
-  codes.forEach(code=>{
-    const url=productImages[code],sel=!!imgManagerSelection[code];
-    const row=document.createElement('div');row.id='imgrow-'+code;
-    row.style.cssText='display:flex;align-items:center;gap:10px;background:'+(sel?'#2a3d35':'#2a2a3e')+';border-radius:12px;padding:10px 12px;border:2px solid '+(sel?'#5c7a6b':'transparent')+';cursor:pointer;margin-bottom:2px;';
-    row.onclick=()=>toggleImgSelect(code);
-    var chkHtml='<input type="checkbox" id="chk-'+code+'" '+(sel?'checked':'')+' onclick="event.stopPropagation();toggleImgSelect(\'' + code + '\')" style="width:18px;height:18px;accent-color:#5c7a6b;flex-shrink:0;">';
-    var imgHtml='<img src="'+url+'" style="width:54px;height:54px;object-fit:cover;border-radius:8px;flex-shrink:0;">';
-    var lblHtml='<div style="flex:1;"><div style="font-family:Kanit,sans-serif;font-size:16px;font-weight:800;color:#ff6b9d;">'+code+'</div></div>';
-    row.innerHTML=chkHtml+imgHtml+lblHtml;
-    list.appendChild(row);
-  });updateImgManagerActions();
-}
-function toggleImgSelect(code){
-  if(imgManagerSelection[code])delete imgManagerSelection[code];else imgManagerSelection[code]=true;
-  const row=document.getElementById('imgrow-'+code),chk=document.getElementById('chk-'+code),sel=!!imgManagerSelection[code];
-  if(row){row.style.background=sel?'#2a3d35':'#2a2a3e';row.style.border='2px solid '+(sel?'#5c7a6b':'transparent');}
-  if(chk)chk.checked=sel;updateImgManagerActions();
-}
-function updateImgManagerActions(){
-  const n=Object.keys(imgManagerSelection).length;
-  const bR=document.getElementById('btnImgReplace'),bD=document.getElementById('btnImgDelete'),lb=document.getElementById('imgSelLabel');
-  if(lb)lb.textContent=n?'เลือก '+n+' รายการ':'';
-  if(bR){bR.disabled=n!==1;bR.style.opacity=n===1?'1':'0.4';}
-  if(bD){bD.disabled=n===0;bD.style.opacity=n>0?'1':'0.4';}
-}
-function triggerReplaceImg(){const c=Object.keys(imgManagerSelection);if(c.length!==1)return;document.getElementById('replaceImgInput').dataset.targetCode=c[0];document.getElementById('replaceImgInput').click();}
-async function onReplaceImgSelected(input){
-  const file=input.files[0];if(!file)return;const code=input.dataset.targetCode;if(!code||!storage)return;
-  const shopId=sessionStorage.getItem('shopId')||'default';const ext=file.name.split('.').pop().toLowerCase()||'jpg';
-  showToast('⏳ กำลังอัปโหลดทับ '+code+'...');
-  try{
-    const ref=storage.ref('products/'+shopId+'/'+code+'.'+ext);
-    await ref.put(file);const url=await ref.getDownloadURL();
-    productImages[code]=url;
-    if(db&&fbConnected)db.ref(shopPath+'/productImages/'+code).set(url);
-    document.getElementById('imgInfo').textContent=Object.keys(productImages).length+' รูป ✅';
-    showToast('✅ อัปโหลดทับ '+code+' สำเร็จค่ะ');
-    imgManagerSelection={};renderImgManagerList();updatePreview();
-  }catch(e){showToast('❌ '+e.message);}
-  input.value='';
-}
-async function deleteSelectedImages(){
-  const codes=Object.keys(imgManagerSelection);if(!codes.length)return;
-  if(!confirm('ลบรูป '+codes.length+' รายการ? ('+codes.join(', ')+')'))return;
-  const shopId=sessionStorage.getItem('shopId')||'default';let done=0;
-  for(const code of codes){
-    const url=productImages[code]||'';
-    const extM=url.match(/products%2F[^%]+%2F[^.?]+\.([^?&]+)/);const ext=extM?extM[1]:'jpg';
-    try{
-      if(storage)await storage.ref('products/'+shopId+'/'+code+'.'+ext).delete().catch(()=>storage.ref('products/'+shopId+'/'+code.toLowerCase()+'.'+ext).delete().catch(()=>{}));
-      delete productImages[code];if(db&&fbConnected)db.ref(shopPath+'/productImages/'+code).remove();done++;
-    }catch(e){console.error(e);}
-  }
-  document.getElementById('imgInfo').textContent=Object.keys(productImages).length?Object.keys(productImages).length+' รูป ✅':'ยังไม่มีรูป';
-  showToast('✅ ลบสำเร็จ '+done+' รูปค่ะ');imgManagerSelection={};renderImgManagerList();updatePreview();
-}
-
 </script>
 <!-- Theme Picker Modal -->
 <div class="theme-modal-overlay" id="themeModal" onclick="if(event.target===this)closeThemeModal()">
@@ -1967,25 +1639,6 @@ async function deleteSelectedImages(){
     <div class="theme-modal-group">กำหนดเอง</div>
     <div class="theme-swatches-grid">
       <div class="theme-swatch" data-theme="theme-custom" title="กำหนดสีเอง" style="background:conic-gradient(red,yellow,green,blue,red);border:2px dashed #aaa;" onclick="toggleCustomPanel(this);closeThemeModal()"></div>
-    </div>
-  </div>
-</div>
-
-<input type="file" id="replaceImgInput" accept="image/*" style="display:none" onchange="onReplaceImgSelected(this)">
-<div id="imgManagerModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:9999;align-items:flex-end;justify-content:center;">
-  <div style="background:#1a1a2a;border-radius:24px 24px 0 0;padding:20px 16px 32px;width:100%;max-width:480px;max-height:88vh;display:flex;flex-direction:column;gap:12px;">
-    <div style="display:flex;align-items:center;justify-content:space-between;">
-      <div style="font-family:'Kanit',sans-serif;font-size:17px;font-weight:800;color:white;">🖼️ รูปสินค้าที่อัปโหลด</div>
-      <button onclick="closeImgManagerModal()" style="background:#333;border:none;color:#ccc;border-radius:50%;width:32px;height:32px;font-size:16px;cursor:pointer;">✕</button>
-    </div>
-    <div style="font-size:12px;color:#888;">ติ๊กเลือก → อัปโหลดทับ (1 รายการ) หรือ ลบ (หลายรายการ)</div>
-    <div id="imgManagerList" style="overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:4px;min-height:60px;"></div>
-    <div style="display:flex;flex-direction:column;gap:8px;padding-top:8px;border-top:1px solid #333;">
-      <div id="imgSelLabel" style="font-size:12px;color:#5c7a6b;font-family:'Kanit',sans-serif;font-weight:700;min-height:16px;"></div>
-      <div style="display:flex;gap:8px;">
-        <button id="btnImgReplace" onclick="triggerReplaceImg()" disabled style="flex:1;padding:11px 8px;background:#3d4f47;color:white;border:none;border-radius:12px;font-family:'Kanit',sans-serif;font-size:13px;font-weight:700;cursor:pointer;opacity:.4;">📤 อัปโหลดทับ</button>
-        <button id="btnImgDelete" onclick="deleteSelectedImages()" disabled style="flex:1;padding:11px 8px;background:#6b1a1a;color:white;border:none;border-radius:12px;font-family:'Kanit',sans-serif;font-size:13px;font-weight:700;cursor:pointer;opacity:.4;">🗑️ ลบที่เลือก</button>
-      </div>
     </div>
   </div>
 </div>
