@@ -62,7 +62,7 @@ body { font-family:'Sarabun',sans-serif; background:#f0ede8; min-height:100vh; p
 .preview-wrap .OV { width:100% !important; padding:14px 12px; gap:7px; opacity:1 !important; border-radius:12px; }
 .preview-wrap .OV-brand { font-size:9px; letter-spacing:5px; }
 .preview-wrap .OV-box { padding:7px 8px; border-radius:8px; }
-.preview-wrap .OV-box-with-img { display:flex; align-items:center; gap:8px; }
+.preview-wrap .OV-box-with-img { display:flex; align-items:center; gap:6px; }
 .preview-wrap .OV-prod-img { width:44px; height:44px; border-radius:8px; object-fit:cover; flex-shrink:0; }
 .preview-wrap .OV-box-lbl { font-size:10px; margin-bottom:3px; }
 .preview-wrap .OV-box-code { font-size:28px; }
@@ -317,6 +317,14 @@ body.theme-gold { --ov-bg:#fdf8ee; --ov-accent:#b8860b; --ov-code:#8b1a1a; --ov-
         style="padding:8px 16px;border-radius:10px;font-family:'Kanit',sans-serif;font-size:13px;font-weight:700;cursor:pointer;border:2px solid #5c7a6b;background:#f0ece6;color:#5c7a6b;">
         พื้นหลังทึบ
       </button>
+      <button id="btnSoldOut" onclick="toggleSoldOut()"
+        style="padding:8px 16px;border-radius:10px;font-family:'Kanit',sans-serif;font-size:13px;font-weight:700;cursor:pointer;border:2px solid #cc0000;background:#f0ece6;color:#cc0000;">
+        🔴 Sold Out
+      </button>
+      <button id="btnImgLayout" onclick="toggleImgLayout()"
+        style="padding:8px 16px;border-radius:10px;font-family:'Kanit',sans-serif;font-size:13px;font-weight:700;cursor:pointer;border:2px solid #5c7a6b;background:#f0ece6;color:#5c7a6b;">
+        🖼️ รูปเล็ก
+      </button>
       <button class="btn-reset-all" onclick="resetAll()">🔄 รีเซ็ตทั้งหมด</button>
     </div>
   </div>
@@ -473,6 +481,8 @@ let secondCode=null; // รหัสสินค้าเสริม
 let storage=null, productImages={}; // รูปสินค้า {code: url}
 let timerInterval=null, timerSeconds=0, timerRunning=false;
 let wakeLock=null, fbConnected=false;
+let soldOutSticker=false;
+let imgLayout='small';
 let shopDisplayName='CHICCOCO';
 let shopPath='chiccoco/shops/default';
 const DEVICE_ID='dev_'+Math.random().toString(36).slice(2,7);
@@ -1169,11 +1179,18 @@ function syncFromRemote(d){
   if(d.bgTransparent!==undefined){
     bgTransparent=d.bgTransparent;
     const btn=document.getElementById('btnBgOpacity');
-    if(btn){
-      btn.textContent=bgTransparent?'พื้นหลังโปร่ง 80%':'พื้นหลังทึบ';
-      btn.style.background=bgTransparent?'#5c7a6b':'#f0ece6';
-      btn.style.color=bgTransparent?'white':'#5c7a6b';
-    }
+    if(btn){btn.textContent=bgTransparent?'พื้นหลังโปร่ง 80%':'พื้นหลังทึบ';btn.style.background=bgTransparent?'#5c7a6b':'#f0ece6';btn.style.color=bgTransparent?'white':'#5c7a6b';}
+  }
+  if(d.soldOutSticker!==undefined){
+    soldOutSticker=d.soldOutSticker;
+    const bSO=document.getElementById('btnSoldOut');
+    if(bSO){bSO.style.background=soldOutSticker?'#cc0000':'#f0ece6';bSO.style.color=soldOutSticker?'white':'#cc0000';bSO.textContent=soldOutSticker?'🔴 ปิด Sold Out':'🔴 Sold Out';}
+  }
+  if(d.imgLayout!==undefined){
+    imgLayout=d.imgLayout||'small';
+    const bIL=document.getElementById('btnImgLayout');
+    if(bIL){bIL.textContent=imgLayout==='small'?'🖼️ รูปเล็ก':'🖼️ รูปใหญ่';bIL.style.background=imgLayout==='large'?'#5c7a6b':'#f0ece6';bIL.style.color=imgLayout==='large'?'white':'#5c7a6b';}
+    updatePreview();
   }
   renderSizePills(); renderGroupColors(); updatePreview();
 }
@@ -1181,7 +1198,7 @@ function syncFromRemote(d){
 function pushState(){
   if(!db||!fbConnected) return;
   if(!currentCode||!products[currentCode]) return;
-  db.ref(shopPath+'/state').update({code:currentCode,soldSizes,salePrice,hidden:overlayHidden,hiddenCodes,bgTransparent,secondCode:secondCode||null,ts:Date.now()});
+  db.ref(shopPath+'/state').update({code:currentCode,soldSizes,salePrice,hidden:overlayHidden,hiddenCodes,bgTransparent,secondCode:secondCode||null,soldOutSticker,imgLayout,ts:Date.now()});
 }
 
 function getProduct(code){
@@ -1266,6 +1283,21 @@ function renderSizePills(){
 }
 
 var hiddenCodes={};
+function toggleSoldOut(){
+  soldOutSticker=!soldOutSticker;
+  const btn=document.getElementById('btnSoldOut');
+  if(btn){btn.style.background=soldOutSticker?'#cc0000':'#f0ece6';btn.style.color=soldOutSticker?'white':'#cc0000';btn.textContent=soldOutSticker?'🔴 ปิด Sold Out':'🔴 Sold Out';}
+  pushState(); showToast(soldOutSticker?'🔴 Sold Out แล้วค่ะ':'ปิด Sold Out แล้วค่ะ');
+}
+
+function toggleImgLayout(){
+  imgLayout=imgLayout==='small'?'large':'small';
+  const btn=document.getElementById('btnImgLayout');
+  if(btn){btn.textContent=imgLayout==='small'?'🖼️ รูปเล็ก':'🖼️ รูปใหญ่';btn.style.background=imgLayout==='large'?'#5c7a6b':'#f0ece6';btn.style.color=imgLayout==='large'?'white':'#5c7a6b';}
+  pushState(); updatePreview();
+  showToast(imgLayout==='large'?'🖼️ รูปใหญ่ด้านบนแล้วค่ะ':'🖼️ รูปเล็กข้างรหัสแล้วค่ะ');
+}
+
 function toggleBgOpacity(){
   bgTransparent=!bgTransparent;
   const btn=document.getElementById('btnBgOpacity');
@@ -1324,17 +1356,25 @@ function buildOV(p,sold,sale){
   const fmt=v=>{ const n=Number(v); return isNaN(n)?v:n.toLocaleString(); };
   const ph=sale?'<div class="OV-price"><div class="OV-price-lbl">ราคา</div><div class="OV-price-sale"><div class="OV-price-original">'+fmt(p.price)+'</div><div class="OV-price-new">'+fmt(sale)+'</div></div></div>':'<div class="OV-price"><div class="OV-price-lbl">ราคา</div><div class="OV-price-num">'+fmt(p.price)+'</div></div>';
   const footer='<div class="OV-footer">Chiccoco Live @ 2025</div>';
-  // ✅ ดึงรูปสินค้า รองรับทั้ง uppercase และ lowercase
-  const imgUrl=productImages[p.code]||productImages[(p.code||'').toUpperCase()]||productImages[(p.code||'').toLowerCase()]||null;
-  const codeBox=imgUrl
-    ?'<div class="OV-box"><div class="OV-box-with-img"><img class="OV-prod-img" src="'+imgUrl+'"><div><div class="OV-box-lbl">รหัสสินค้า</div><div class="OV-box-code">'+p.code+'</div></div></div></div>'
+  const curImgUrl=productImages[p.code]||productImages[(p.code||'').toUpperCase()]||productImages[(p.code||'').toLowerCase()]||null;
+  const isLarge=(imgLayout==='large');
+
+  // ── รูปใหญ่ด้านบน ──
+  const largeBanner=curImgUrl&&isLarge
+    ?'<div style="width:100%;border-radius:16px;overflow:hidden;margin-bottom:4px;"><img src="'+curImgUrl+'" style="width:100%;height:auto;display:block;object-fit:cover;border-radius:16px;max-height:300px;"></div>'
+    :'';
+
+  // ── code box (รูปเล็กข้างรหัส หรือไม่มีรูปถ้า large) ──
+  const codeBox=(!isLarge&&curImgUrl)
+    ?'<div class="OV-box"><div class="OV-box-with-img"><img class="OV-prod-img" src="'+curImgUrl+'"><div><div class="OV-box-lbl">รหัสสินค้า</div><div class="OV-box-code">'+p.code+'</div></div></div></div>'
     :'<div class="OV-box"><div class="OV-box-lbl">รหัสสินค้า</div><div class="OV-box-code">'+p.code+'</div></div>';
+
   if(p.type==='misc'){
     const ms=p.size||(p.sizes&&p.sizes.length?p.sizes.map(s=>s.size).filter(Boolean).join(', '):'');
-    return '<div class="OV"><div class="OV-brand">'+shopDisplayName+'</div><div class="OV-toprow">'+codeBox.replace('style="flex:1.1"','').replace('<div class="OV-box">','<div class="OV-box" style="flex:1.1">')+ph.replace('class="OV-price"','class="OV-price" style="flex:1"')+'</div><div class="OV-name">'+p.name+'</div><div class="OV-inforow">'+(p.color?'<div class="OV-info"><div class="OV-info-lbl">สี</div><div class="OV-info-val">'+p.color+'</div></div>':'')+(ms?'<div class="OV-info"><div class="OV-info-lbl">ขนาด</div><div class="OV-info-val" style="font-size:32px">'+ms+'</div></div>':'')+'</div>'+(p.material?'<div class="OV-inforow"><div class="OV-info"><div class="OV-info-lbl">วัสดุ</div><div class="OV-info-val" style="font-size:28px">'+p.material+'</div></div></div>':'')+footer+'</div>';
+    return '<div class="OV">'+largeBanner+'<div class="OV-brand">'+shopDisplayName+'</div><div class="OV-toprow"><div class="OV-box" style="flex:1.1">'+codeBox.replace('<div class="OV-box">','').replace('</div>','')+'</div>'+ph.replace('class="OV-price"','class="OV-price" style="flex:1"')+'</div><div class="OV-name">'+p.name+'</div><div class="OV-inforow">'+(p.color?'<div class="OV-info"><div class="OV-info-lbl">สี</div><div class="OV-info-val">'+p.color+'</div></div>':'')+(ms?'<div class="OV-info"><div class="OV-info-lbl">ขนาด</div><div class="OV-info-val" style="font-size:32px">'+ms+'</div></div>':'')+'</div>'+(p.material?'<div class="OV-inforow"><div class="OV-info"><div class="OV-info-lbl">วัสดุ</div><div class="OV-info-val" style="font-size:28px">'+p.material+'</div></div></div>':'')+footer+'</div>';
   }
   const rows=av.map(s=>'<tr><td>'+s.size+'</td>'+co.map(c=>'<td>'+(s[c]||'—')+'</td>').join('')+'</tr>').join('');
-  return '<div class="OV"><div class="OV-brand">'+shopDisplayName+'</div><div class="OV-toprow">'+codeBox+'<div class="OV-box"><div class="OV-box-lbl">ไซส์</div><div class="OV-box-sizes">'+(lb.join(', ')||'—')+'</div></div></div>'+ph+'<div class="OV-name">'+p.name+'</div><div class="OV-inforow">'+(p.color?'<div class="OV-info"><div class="OV-info-lbl">สี</div><div class="OV-info-val">'+p.color+'</div></div>':'')+(p.material?'<div class="OV-info"><div class="OV-info-lbl">วัสดุ</div><div class="OV-info-val" style="font-size:28px">'+p.material+'</div></div>':'')+'</div>'+(rows?'<table class="OV-table"><thead><tr><th>ไซส์</th>'+co.map(c=>'<th>'+c+'</th>').join('')+'</tr></thead><tbody>'+rows+'</tbody></table>':'')+footer+'</div>';
+  return '<div class="OV">'+largeBanner+'<div class="OV-brand">'+shopDisplayName+'</div><div class="OV-toprow">'+codeBox+'<div class="OV-box"><div class="OV-box-lbl">ไซส์</div><div class="OV-box-sizes">'+(lb.join(', ')||'—')+'</div></div></div>'+ph+'<div class="OV-name">'+p.name+'</div><div class="OV-inforow">'+(p.color?'<div class="OV-info"><div class="OV-info-lbl">สี</div><div class="OV-info-val">'+p.color+'</div></div>':'')+(p.material?'<div class="OV-info"><div class="OV-info-lbl">วัสดุ</div><div class="OV-info-val" style="font-size:28px">'+p.material+'</div></div>':'')+'</div>'+(rows?'<table class="OV-table"><thead><tr><th>ไซส์</th>'+co.map(c=>'<th>'+c+'</th>').join('')+'</tr></thead><tbody>'+rows+'</tbody></table>':'')+footer+'</div>';
 }
 function updatePreview(){
   const p=getProduct(currentCode);
