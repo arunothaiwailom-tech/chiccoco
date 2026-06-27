@@ -58,17 +58,7 @@ body.theme-gold    { --ov-bg:#fdf8ee; --ov-accent:#b8860b; --ov-code:#8b1a1a; --
 .OV-color-pills { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; }
 .OV-color-pill { padding:10px 22px; border-radius:30px; font-size:38px; font-weight:700; font-family:'Kanit',sans-serif; background:var(--ov-bg); color:var(--ov-text); border:2px solid var(--ov-border); white-space:nowrap; }
 .OV-color-pill.active { background:var(--ov-price-bg); color:var(--ov-code); border:3px solid var(--ov-code); font-size:42px; }
-.OV-second {
-  margin-top:24px;
-  background:var(--ov-bg);
-  border-radius:28px;
-  padding:28px 24px;
-  gap:14px;
-  display:flex;
-  flex-direction:column;
-  border:3px solid var(--ov-border);
-  box-shadow:0 4px 20px rgba(0,0,0,.10);
-}
+.OV-second { margin-top:16px; }
 .OV-second-divider { display:flex; align-items:center; gap:10px; margin-bottom:14px; }
 .OV-second-divider-line { flex:1; height:1px; background:var(--ov-border); }
 .OV-second-divider-text { font-family:'Kanit',sans-serif; font-size:18px; color:var(--ov-muted); letter-spacing:2px; }
@@ -123,100 +113,13 @@ body.theme-gold    { --ov-bg:#fdf8ee; --ov-accent:#b8860b; --ov-code:#8b1a1a; --
   hyphens:auto;
   line-height:1.2;
 }
-/* ── LUCKY DRAW ── */
-.lucky-overlay {
-  position:fixed; inset:0; z-index:998;
-  display:flex; align-items:center; justify-content:center;
-  pointer-events:none;
-  opacity:0; transition:opacity .3s;
-}
-.lucky-overlay.visible { opacity:1; }
-.lucky-box {
-  background:linear-gradient(135deg,#fdf0f5,#ffe3ee);
-  border:6px solid #c44f82;
-  border-radius:32px;
-  padding:40px 64px;
-  text-align:center;
-  box-shadow:0 8px 40px rgba(196,79,130,.4);
-}
-.lucky-label {
-  font-family:'Kanit',sans-serif;
-  font-size:36px;
-  font-weight:700;
-  color:#c44f82;
-  letter-spacing:4px;
-  margin-bottom:12px;
-}
-.lucky-number {
-  font-family:'Kanit',sans-serif;
-  font-size:140px;
-  font-weight:800;
-  color:#8b1a1a;
-  line-height:1;
-  letter-spacing:4px;
-}
-.lucky-number.spinning {
-  animation:luckyShake .1s infinite;
-}
-@keyframes luckyShake {
-  0%,100% { transform:translateY(0); }
-  50% { transform:translateY(-6px); }
-}
-.lucky-sub {
-  font-family:'Sarabun',sans-serif;
-  font-size:32px;
-  font-weight:600;
-  color:#a05070;
-  margin-top:12px;
-}
-
-/* ── SOLD OUT STICKER ── */
-.sold-out-overlay {
-  position:fixed; inset:0; z-index:999;
-  display:flex; align-items:center; justify-content:center;
-  pointer-events:none;
-  opacity:0; transition:opacity .4s;
-}
-.sold-out-overlay.visible { opacity:1; }
-.sold-out-sticker {
-  background:#cc0000;
-  color:white;
-  font-family:'Kanit',sans-serif;
-  font-size:120px;
-  font-weight:800;
-  letter-spacing:8px;
-  padding:32px 64px;
-  border-radius:24px;
-  border:8px solid #fff;
-  box-shadow:0 8px 40px rgba(0,0,0,.5);
-  transform:rotate(-12deg);
-  text-align:center;
-  line-height:1.1;
-  text-shadow:4px 4px 0px rgba(0,0,0,.3);
-}
-.sold-out-sticker .sub {
-  font-size:52px;
-  font-weight:700;
-  letter-spacing:4px;
-  opacity:.9;
-  display:block;
-}
+/* ── IMG LARGE BANNER ── */
+.OV-img-banner { width:100%; border-radius:16px; overflow:hidden; margin-bottom:4px; }
+.OV-img-banner img { width:100%; height:auto; display:block; object-fit:cover; border-radius:16px; max-height:400px; }
 </style>
 </head>
 <body>
 
-<div class="lucky-overlay" id="lucky-overlay">
-  <div class="lucky-box">
-    <div class="lucky-label">🎰 เลขบิลผู้โชคดี 🎰</div>
-    <div class="lucky-number" id="lucky-number">—</div>
-    <div class="lucky-sub" id="lucky-sub"></div>
-  </div>
-</div>
-<div class="sold-out-overlay" id="sold-out-overlay">
-  <div class="sold-out-sticker">
-    SOLD OUT<span class="sub">หมดแล้วค่ะ 🎀</span>
-  </div>
-</div>
 <div class="OV-timer" id="OV-timer">
   <div class="OV-timer-label" id="OV-timer-label">Flash Sale!</div>
   <div class="OV-timer-count" id="OV-timer-count">00:00</div>
@@ -233,15 +136,7 @@ var _shopId   = new URLSearchParams(window.location.search).get('shop') || 'defa
 var _shopPath = 'chiccoco/shops/' + _shopId;
 var _db=null, _state=null, _prod={}, _edits={}, _shopName='', _hiddenCodes={}, _bgTransparent=false, _productImages={}, _secondCode=null, _imagesLoaded=false;
 var _timerLocal=0, _timerInterval=null;
-var _soldOutManual=false; // กดปุ่มเองค่ะ
-
-/* ── Sold Out Sticker ── */
-function drawSoldOut(allSold, manualOn){
-  var el=document.getElementById('sold-out-overlay');
-  if(!el) return;
-  if(allSold||manualOn) el.classList.add('visible');
-  else el.classList.remove('visible');
-}
+var _imgLayout='small';
 
 /* ── Timer ── */
 function drawTimer(d){
@@ -340,44 +235,12 @@ function startDB(){
       }).catch(function(){_shopName='CHICCOCO';draw();});
     }catch(e){_shopName='CHICCOCO';draw();}
 
-    // ✅ โหลดรูปจาก Storage โดยตรง (URL สด ไม่หมดอายุ)
-    // และ fallback อ่านจาก DB ถ้า Storage ไม่ได้
-    function refreshImages(){
-      try{
-        var stor=firebase.storage();
-        stor.ref('products/'+_shopId).listAll().then(function(res){
-          return Promise.all(res.items.map(function(item){
-            return item.getDownloadURL().then(function(url){
-              var code=item.name.replace(/\.[^.]+$/,'').toUpperCase();
-              _productImages[code]=url;
-              _productImages[code.toLowerCase()]=url;
-            });
-          }));
-        }).then(function(){
-          _imagesLoaded=true;
-          draw();
-        }).catch(function(){
-          // fallback: อ่านจาก DB
-          _db.ref(_shopPath+'/productImages').once('value',function(snap){
-            var d=snap.val();
-            if(d){ Object.assign(_productImages,d); }
-            _imagesLoaded=true;
-            draw();
-          });
-        });
-      }catch(e){
-        _imagesLoaded=true; draw();
-      }
-    }
-    refreshImages();
-    // ✅ refresh URL ใหม่ทุก 2 ชั่วโมง ป้องกันรูปหายระหว่างไลฟ์ยาว
-    setInterval(refreshImages, 2*60*60*1000);
-
-    // sync จาก DB เมื่อมีรูปใหม่อัปโหลด
+    // โหลดรูปสินค้าจาก Storage
+    // โหลด URL รูปสินค้าจาก Realtime DB (ไม่มี CORS issue)
     _db.ref(_shopPath+'/productImages').on('value',function(snap){
       var d=snap.val();
       if(d){ Object.assign(_productImages,d); }
-      if(!_imagesLoaded){ _imagesLoaded=true; }
+      _imagesLoaded=true;
       draw();
     });
 
@@ -388,30 +251,10 @@ function startDB(){
         _hiddenCodes=d.hiddenCodes||{};
         _secondCode=d.secondCode||null;
         _bgTransparent=d.bgTransparent||false;
-        _soldOutManual=d.soldOutSticker||false;
+        _imgLayout=d.imgLayout||'small';
         try{ if(d.theme!==undefined) applyTheme(d.theme,d.customColors); }catch(e){ console.warn('applyTheme err:',e); }
         try{ applyBgOpacity(_bgTransparent); }catch(e){ console.warn('applyBgOpacity err:',e); }
         try{ draw(); }catch(e){ console.error('draw() err:',e); }
-      }
-    });
-    _db.ref(_shopPath+'/lucky').on('value',function(s){
-      var d=s.val();
-      var el=document.getElementById('lucky-overlay');
-      var numEl=document.getElementById('lucky-number');
-      var subEl=document.getElementById('lucky-sub');
-      if(!d){ el.classList.remove('visible'); return; }
-      if(d.isSpinning){
-        el.classList.add('visible');
-        numEl.textContent=d.spinning!=null?d.spinning:'—';
-        numEl.classList.add('spinning');
-        subEl.textContent='กำลังสุ่ม...';
-      } else if(d.winner!=null){
-        el.classList.add('visible');
-        numEl.textContent=d.winner;
-        numEl.classList.remove('spinning');
-        subEl.textContent='🎉 ยินดีด้วยค่ะ! 🎉';
-      } else {
-        el.classList.remove('visible');
       }
     });
     _db.ref(_shopPath+'/timer').on('value',function(s){
@@ -440,7 +283,7 @@ function makeSecondOV(){
   var p=getP(_secondCode);
   if(!p) return '';
 
-  var divider='<div class="OV-second-header"><div class="OV-second-header-line"></div><div class="OV-second-header-badge">✨ สินค้าคู่</div><div class="OV-second-header-line"></div></div>';
+  var divider='<div class="OV-second-divider"><div class="OV-second-divider-line"></div><div class="OV-second-divider-text">แมตช์กับ</div><div class="OV-second-divider-line"></div></div>';
 
   // ── สินค้าเบ็ดเตล็ด (misc) ──
   if(p.type==='misc'){
@@ -457,14 +300,10 @@ function makeSecondOV(){
       tableHtml2='<table class="OV-table"><thead><tr><th>ไซส์</th></tr></thead>'
         +'<tbody><tr><td style="font-size:36px;font-weight:600;color:#2c2c2c;padding:10px;">'+ms+'</td></tr></tbody></table>';
     }
-  var imgUrlM=_productImages[p.code]||_productImages[(p.code||'').toUpperCase()]||_productImages[(p.code||'').toLowerCase()]||null;
-    var codeBoxM=imgUrlM
-      ?'<div class="OV-box"><div class="OV-box-with-img"><img class="OV-prod-img" src="'+imgUrlM+'"><div><div class="OV-box-lbl">รหัสสินค้า</div><div class="OV-box-code">'+p.code+'</div></div></div></div>'
-      :'<div class="OV-box"><div class="OV-box-lbl">รหัสสินค้า</div><div class="OV-box-code">'+p.code+'</div></div>';
     return '<div class="OV-second">'
       +divider
       +'<div class="OV-toprow">'
-        +codeBoxM
+        +'<div class="OV-box"><div class="OV-box-lbl">รหัสสินค้า</div><div class="OV-box-code">'+p.code+'</div></div>'
         +(ms?'<div class="OV-box"><div class="OV-box-lbl">ขนาด</div><div class="OV-box-sizes" style="font-size:26px;line-height:1.4;">'+ms+'</div></div>':'')
       +'</div>'
       +'<div class="OV-price"><div class="OV-price-lbl">ราคา</div><div class="OV-price-num">'+fmt(p.price)+'</div></div>'
@@ -478,39 +317,40 @@ function makeSecondOV(){
   var co=p.activeCols||[];
   var av=(p.sizes||[]).filter(function(s){ return sold.indexOf(s.size)===-1; });
   var lb=av.map(function(s){ return s.size; }).filter(Boolean);
-  // ✅ ใช้ขนาดเดียวกับตารางหลักทุกอย่าง
+  var totalCols=co.length+1;
+  var cellW=Math.floor(660/totalCols);
+  var hdrFs=totalCols<=3?26:totalCols<=5?22:18;
+
+  // price block
   var ph='<div class="OV-price"><div class="OV-price-lbl">ราคา</div><div class="OV-price-num">'+fmt(p.price)+'</div></div>';
 
-  // table — ขนาดเหมือนตารางหลัก: hdrFs=35, sFs=40, vFs=44
+  // table
   var rows=av.map(function(s){
-    var cells='<td style="font-size:40px;font-weight:800;color:var(--ov-code);font-family:\'Kanit\',sans-serif;padding:10px 4px;">'+s.size+'</td>';
+    var sFs=autoFs(s.size,cellW,40,16);
+    var cells='<td style="font-size:'+sFs+'px;font-weight:800;color:var(--ov-code);font-family:Kanit,sans-serif;">'+s.size+'</td>';
     co.forEach(function(col){
       var val=s[col]||'—';
-      cells+='<td style="font-size:44px;padding:10px 4px;white-space:normal;overflow-wrap:break-word;word-break:break-word;">'+val+'</td>';
+      var vFs=autoFs(val,cellW,44,16);
+      cells+='<td style="font-size:'+vFs+'px;">'+val+'</td>';
     });
     return '<tr>'+cells+'</tr>';
   }).join('');
-  var tableHtml=rows?'<table class="OV-table"><thead><tr><th style="font-size:35px;padding:12px 4px;">ไซส์</th>'+co.map(function(col){ return '<th style="font-size:35px;padding:12px 4px;">'+col+'</th>'; }).join('')+'</tr></thead><tbody>'+rows+'</tbody></table>':'';
+  var tableHtml=rows?'<table class="OV-table"><thead><tr><th style="font-size:'+hdrFs+'px;">ไซส์</th>'+co.map(function(col){ return '<th style="font-size:'+hdrFs+'px;">'+col+'</th>'; }).join('')+'</tr></thead><tbody>'+rows+'</tbody></table>':'';
 
-  // info row — ขนาดเหมือนตารางหลัก: colorFs=50, matFs dynamic
+  // info row
   var infoHtml='';
   if(p.color||p.material){
-    var matLen2=(p.material||'').length;
-    var matFs2=matLen2<=6?50:matLen2<=12?44:matLen2<=18?38:matLen2<=26?32:26;
+    var ivFs=infoValFs(p.color,p.material,44);
     infoHtml='<div class="OV-inforow">';
-    if(p.color)    infoHtml+='<div class="OV-info"><div class="OV-info-lbl">สี</div><div class="OV-info-val" style="font-size:50px;white-space:normal;overflow-wrap:break-word;word-break:break-word;">'+p.color+'</div></div>';
-    if(p.material) infoHtml+='<div class="OV-info"><div class="OV-info-lbl">วัสดุ</div><div class="OV-info-val" style="font-size:'+matFs2+'px;white-space:normal;overflow-wrap:break-word;word-break:break-word;">'+p.material+'</div></div>';
+    if(p.color)    infoHtml+='<div class="OV-info"><div class="OV-info-lbl">สี</div><div class="OV-info-val" style="font-size:50px;">'+p.color+'</div></div>';
+    if(p.material) infoHtml+='<div class="OV-info"><div class="OV-info-lbl">วัสดุ</div><div class="OV-info-val" style="font-size:'+ivFs+'px;">'+p.material+'</div></div>';
     infoHtml+='</div>';
   }
 
-  var imgUrl2=_productImages[p.code]||_productImages[(p.code||'').toUpperCase()]||_productImages[(p.code||'').toLowerCase()]||null;
-  var codeBox2=imgUrl2
-    ?'<div class="OV-box"><div class="OV-box-with-img"><img class="OV-prod-img" src="'+imgUrl2+'"><div><div class="OV-box-lbl">รหัสสินค้า</div><div class="OV-box-code">'+p.code+'</div></div></div></div>'
-    :'<div class="OV-box"><div class="OV-box-lbl">รหัสสินค้า</div><div class="OV-box-code">'+p.code+'</div></div>';
   return '<div class="OV-second">'
     +divider
     +'<div class="OV-toprow">'
-      +codeBox2
+      +'<div class="OV-box"><div class="OV-box-lbl">รหัสสินค้า</div><div class="OV-box-code">'+p.code+'</div></div>'
       +'<div class="OV-box"><div class="OV-box-lbl">ไซส์</div><div class="OV-box-sizes">'+(lb.join(', ')||'—')+'</div></div>'
     +'</div>'
     +ph
@@ -635,7 +475,7 @@ function draw(){
         +'<div class="OV-col-L">'
           +(function(){
         var imgUrl=_productImages[p.code]||_productImages[(p.code||'').toUpperCase()]||_productImages[(p.code||'').toLowerCase()]||null;
-        if(imgUrl){
+        if(imgUrl&&_imgLayout==='small'){
           return '<div class="OV-box"><div class="OV-box-with-img"><img class="OV-prod-img" src="'+imgUrl+'"><div><div class="OV-box-lbl">รหัสสินค้า</div><div class="OV-box-code">'+p.code+'</div></div></div></div>';
         }
         return '<div class="OV-box"><div class="OV-box-lbl">รหัสสินค้า</div><div class="OV-box-code">'+p.code+'</div></div>';
@@ -648,9 +488,6 @@ function draw(){
       +'</div>'
       +'<div class="OV-footer">'+brand+' Live @ 2025</div>';
     ov.className='OV horizontal visible';
-    var avH=(p.sizes||[]).filter(function(s){return sold.indexOf(s.size)===-1;});
-    var allSoldH=p.type!=='misc'&&avH.length===0&&(p.sizes||[]).length>0;
-    drawSoldOut(allSoldH, _soldOutManual);
 
   /* ── VERTICAL ── */
   } else {
@@ -659,13 +496,18 @@ function draw(){
     // ✅ sync timer width ให้พอดีกับ OV
     document.getElementById('OV-timer').style.width=ovW+'px';
     var h='';
+    // ✅ รูปใหญ่ด้านบน
+    var _imgUrlLg=_productImages[p.code]||_productImages[(p.code||'').toUpperCase()]||_productImages[(p.code||'').toLowerCase()]||null;
+    var _largeBanner=(_imgUrlLg&&_imgLayout==='large')
+      ?'<div class="OV-img-banner"><img src="'+_imgUrlLg+'"></div>'
+      :'';
     if(p.type==='misc'){
       var ms2=p.size||(p.sizes&&p.sizes.length?p.sizes.map(function(s){return s.size;}).filter(Boolean).join(', '):'');
-      h='<div class="OV-brand">'+brand+'</div>'
+      h=_largeBanner+'<div class="OV-brand">'+brand+'</div>'
         +'<div class="OV-toprow">'
           +(function(){
         var imgUrl=_productImages[p.code]||_productImages[(p.code||'').toUpperCase()]||_productImages[(p.code||'').toLowerCase()]||null;
-        if(imgUrl){
+        if(imgUrl&&_imgLayout==='small'){
           return '<div class="OV-box"><div class="OV-box-with-img"><img class="OV-prod-img" src="'+imgUrl+'"><div><div class="OV-box-lbl">รหัสสินค้า</div><div class="OV-box-code">'+p.code+'</div></div></div></div>';
         }
         return '<div class="OV-box"><div class="OV-box-lbl">รหัสสินค้า</div><div class="OV-box-code">'+p.code+'</div></div>';
@@ -677,11 +519,11 @@ function draw(){
         +(ms2?'<div class="OV-inforow"><div class="OV-info"><div class="OV-info-lbl">ขนาด</div><div class="OV-info-val" style="font-size:38px;white-space:normal;overflow-wrap:break-word;word-break:break-word;">'+ms2+'</div></div></div>':'')
         +makeColorGroup(p.code)+makeSecondOV()+'<div class="OV-footer">Chiccoco Live @ 2025</div>';
     } else {
-      h='<div class="OV-brand">'+brand+'</div>'
+      h=_largeBanner+'<div class="OV-brand">'+brand+'</div>'
         +'<div class="OV-toprow">'
           +(function(){
         var imgUrl=_productImages[p.code]||_productImages[(p.code||'').toUpperCase()]||_productImages[(p.code||'').toLowerCase()]||null;
-        if(imgUrl){
+        if(imgUrl&&_imgLayout==='small'){
           return '<div class="OV-box"><div class="OV-box-with-img"><img class="OV-prod-img" src="'+imgUrl+'"><div><div class="OV-box-lbl">รหัสสินค้า</div><div class="OV-box-code">'+p.code+'</div></div></div></div>';
         }
         return '<div class="OV-box"><div class="OV-box-lbl">รหัสสินค้า</div><div class="OV-box-code">'+p.code+'</div></div>';
@@ -696,9 +538,6 @@ function draw(){
     }
     ov.innerHTML=h;
     ov.className='OV visible';
-    // ✅ sticker อัตโนมัติเมื่อไซส์หมดทุกตัว
-    var allSold=p.type!=='misc'&&av.length===0&&(p.sizes||[]).length>0;
-    drawSoldOut(allSold, _soldOutManual);
   }
 }
 </script>
