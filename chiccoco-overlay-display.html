@@ -116,10 +116,36 @@ body.theme-gold    { --ov-bg:#fdf8ee; --ov-accent:#b8860b; --ov-code:#8b1a1a; --
 /* ── IMG LARGE BANNER ── */
 .OV-img-banner { width:100%; border-radius:16px; overflow:hidden; margin-bottom:4px; aspect-ratio:1/1; }
 .OV-img-banner img { width:100%; height:100%; display:block; object-fit:cover; border-radius:16px; }
+
+/* ── SOLD OUT STICKER ── */
+.sold-out-overlay { position:fixed; inset:0; z-index:999; display:flex; align-items:center; justify-content:center; pointer-events:none; opacity:0; transition:opacity .4s; }
+.sold-out-overlay.visible { opacity:1; }
+.sold-out-sticker { background:#cc0000; color:white; font-family:'Kanit',sans-serif; font-size:120px; font-weight:800; letter-spacing:8px; padding:32px 64px; border-radius:24px; border:8px solid #fff; box-shadow:0 8px 40px rgba(0,0,0,.5); transform:rotate(-12deg); text-align:center; line-height:1.1; text-shadow:4px 4px 0px rgba(0,0,0,.3); }
+.sold-out-sticker .sub { font-size:52px; font-weight:700; letter-spacing:4px; opacity:.9; display:block; }
+
+/* ── LUCKY DRAW ── */
+.lucky-overlay { position:fixed; inset:0; z-index:998; display:flex; align-items:center; justify-content:center; pointer-events:none; opacity:0; transition:opacity .3s; }
+.lucky-overlay.visible { opacity:1; }
+.lucky-box { background:linear-gradient(135deg,#fdf0f5,#ffe3ee); border:6px solid #c44f82; border-radius:32px; padding:40px 64px; text-align:center; box-shadow:0 8px 40px rgba(196,79,130,.4); }
+.lucky-label { font-family:'Kanit',sans-serif; font-size:36px; font-weight:700; color:#c44f82; letter-spacing:4px; margin-bottom:12px; }
+.lucky-number { font-family:'Kanit',sans-serif; font-size:140px; font-weight:800; color:#8b1a1a; line-height:1; letter-spacing:4px; }
+.lucky-number.spinning { animation:luckyShake .1s infinite; }
+@keyframes luckyShake { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+.lucky-sub { font-family:'Sarabun',sans-serif; font-size:32px; font-weight:600; color:#a05070; margin-top:12px; }
 </style>
 </head>
 <body>
 
+<div class="sold-out-overlay" id="sold-out-overlay">
+  <div class="sold-out-sticker">SOLD OUT<span class="sub">หมดแล้วค่ะ 🎀</span></div>
+</div>
+<div class="lucky-overlay" id="lucky-overlay">
+  <div class="lucky-box">
+    <div class="lucky-label">🎰 เลขบิลผู้โชคดี 🎰</div>
+    <div class="lucky-number" id="lucky-number">—</div>
+    <div class="lucky-sub" id="lucky-sub"></div>
+  </div>
+</div>
 <div class="OV-timer" id="OV-timer">
   <div class="OV-timer-label" id="OV-timer-label">Flash Sale!</div>
   <div class="OV-timer-count" id="OV-timer-count">00:00</div>
@@ -136,7 +162,16 @@ var _shopId   = new URLSearchParams(window.location.search).get('shop') || 'defa
 var _shopPath = 'chiccoco/shops/' + _shopId;
 var _db=null, _state=null, _prod={}, _edits={}, _shopName='', _hiddenCodes={}, _bgTransparent=false, _productImages={}, _secondCode=null, _imagesLoaded=false;
 var _timerLocal=0, _timerInterval=null;
+var _soldOutManual=false;
 var _imgLayout='small';
+
+/* ── Sold Out Sticker ── */
+function drawSoldOut(allSold, manualOn){
+  var el=document.getElementById('sold-out-overlay');
+  if(!el) return;
+  if(allSold||manualOn) el.classList.add('visible');
+  else el.classList.remove('visible');
+}
 
 /* ── Timer ── */
 function drawTimer(d){
@@ -252,9 +287,28 @@ function startDB(){
         _secondCode=d.secondCode||null;
         _bgTransparent=d.bgTransparent||false;
         _imgLayout=d.imgLayout||'small';
+        _soldOutManual=d.soldOutSticker||false;
         try{ if(d.theme!==undefined) applyTheme(d.theme,d.customColors); }catch(e){ console.warn('applyTheme err:',e); }
         try{ applyBgOpacity(_bgTransparent); }catch(e){ console.warn('applyBgOpacity err:',e); }
         try{ draw(); }catch(e){ console.error('draw() err:',e); }
+      }
+    });
+    _db.ref(_shopPath+'/lucky').on('value',function(s){
+      var d=s.val();
+      var el=document.getElementById('lucky-overlay');
+      var numEl=document.getElementById('lucky-number');
+      var subEl=document.getElementById('lucky-sub');
+      if(!d){ if(el) el.classList.remove('visible'); return; }
+      if(d.isSpinning){
+        if(el) el.classList.add('visible');
+        if(numEl){ numEl.textContent=d.spinning!=null?d.spinning:'—'; numEl.classList.add('spinning'); }
+        if(subEl) subEl.textContent='กำลังสุ่ม...';
+      } else if(d.winner!=null){
+        if(el) el.classList.add('visible');
+        if(numEl){ numEl.textContent=d.winner; numEl.classList.remove('spinning'); }
+        if(subEl) subEl.textContent='🎉 ยินดีด้วยค่ะ! 🎉';
+      } else {
+        if(el) el.classList.remove('visible');
       }
     });
     _db.ref(_shopPath+'/timer').on('value',function(s){
@@ -538,6 +592,8 @@ function draw(){
     }
     ov.innerHTML=h;
     ov.className='OV visible';
+    var allSold=p.type!=='misc'&&av.length===0&&(p.sizes||[]).length>0;
+    drawSoldOut(allSold, _soldOutManual);
   }
 }
 </script>
