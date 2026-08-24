@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<title>Chiccoco — Card Generator</title>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700;800&family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Sarabun',sans-serif;background:#f0ece6;min-height:100vh;padding:20px;}
+.header{text-align:center;margin-bottom:24px;}
+.header h1{font-family:'Kanit',sans-serif;font-size:22px;font-weight:800;color:#3d4f47;letter-spacing:4px;}
+.header p{font-size:13px;color:#888;margin-top:4px;}
+.card-sec{background:white;border-radius:16px;padding:20px;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,.06);}
+.sec-title{font-family:'Kanit',sans-serif;font-size:14px;font-weight:700;color:#3d4f47;margin-bottom:14px;}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:10px;}
+input[type=text],input[type=number]{border:1.5px solid #ddd;border-radius:8px;padding:9px 12px;font-family:'Sarabun',sans-serif;font-size:14px;outline:none;width:100%;}
+input:focus{border-color:#5c7a6b;}
+.btn{padding:10px 18px;border:none;border-radius:10px;font-family:'Kanit',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:opacity .2s;}
+.btn-primary{background:#3d4f47;color:white;}
+.btn-green{background:#5c7a6b;color:white;}
+.btn-red{background:#8b1a1a;color:white;}
+.btn-gray{background:#eee;color:#666;}
+.btn:disabled{opacity:.4;cursor:not-allowed;}
+.status{font-size:12px;color:#888;margin-top:8px;}
+.status.ok{color:#5c7a6b;}
+.status.err{color:#cc0000;}
+
+/* grid รายการสินค้า */
+.product-grid{display:flex;flex-direction:column;gap:6px;max-height:400px;overflow-y:auto;margin-top:10px;}
+.product-item{display:flex;align-items:center;gap:10px;background:#f8f6f3;border-radius:10px;padding:8px 12px;cursor:pointer;border:2px solid transparent;}
+.product-item.selected{background:#e8f4ee;border-color:#5c7a6b;}
+.product-item input[type=checkbox]{width:16px;height:16px;accent-color:#5c7a6b;flex-shrink:0;}
+.product-code{font-family:'Kanit',sans-serif;font-size:15px;font-weight:800;color:#8b1a1a;min-width:70px;}
+.product-name{font-size:12px;color:#666;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.product-img{width:40px;height:40px;border-radius:6px;object-fit:cover;flex-shrink:0;background:#ddd;}
+
+/* progress */
+.progress-bar{width:100%;height:8px;background:#eee;border-radius:4px;overflow:hidden;margin-top:8px;}
+.progress-fill{height:100%;background:#5c7a6b;border-radius:4px;transition:width .3s;}
+
+/* render zone ซ่อนไว้ */
+#RZ{position:fixed;left:-9999px;top:0;width:720px;visibility:hidden;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🃏 CHICCOCO CARD</h1>
+  <p>สร้างภาพ Card สินค้าจากข้อมูลสต๊อก</p>
+</div>
+
+<!-- สถานะ Firebase -->
+<div class="card-sec">
+  <div class="row">
+    <span id="fbStatus" style="font-size:13px;color:#888;">⏳ กำลังเชื่อมต่อ...</span>
+    <span id="stockStatus" style="font-size:13px;color:#888;margin-left:12px;"></span>
+  </div>
+</div>
+
+<!-- กรองช่วงรหัส -->
+<div class="card-sec">
+  <div class="sec-title">🔍 กรองรหัสสินค้า</div>
+  <div class="row">
+    <div style="flex:1;"><label style="font-size:12px;color:#888;">รหัสเริ่ม</label><input type="text" id="codeFrom" placeholder="เช่น A01"></div>
+    <div style="flex:1;"><label style="font-size:12px;color:#888;">รหัสสิ้นสุด</label><input type="text" id="codeTo" placeholder="เช่น A50"></div>
+    <button class="btn btn-primary" onclick="applyFilter()" style="margin-top:18px;">กรอง</button>
+    <button class="btn btn-gray" onclick="clearFilter()" style="margin-top:18px;">ล้าง</button>
+  </div>
+  <div class="row" style="gap:6px;margin-top:4px;">
+    <button class="btn btn-gray" onclick="selectAll()" style="font-size:12px;padding:6px 12px;">✅ เลือกทั้งหมด</button>
+    <button class="btn btn-gray" onclick="deselectAll()" style="font-size:12px;padding:6px 12px;">☐ ยกเลิกทั้งหมด</button>
+    <span id="selCount" style="font-size:12px;color:#5c7a6b;font-weight:700;margin-left:4px;"></span>
+  </div>
+  <div class="product-grid" id="productGrid"></div>
+</div>
+
+<!-- Download -->
+<div class="card-sec">
+  <div class="sec-title">📥 Download Card</div>
+  <div class="row">
+    <button class="btn btn-green" id="btnDlSelected" onclick="downloadSelected()" disabled>📥 Download ที่เลือก (ZIP)</button>
+    <button class="btn btn-red" id="btnDlAll" onclick="downloadAll()" disabled>📥 Download ทั้งหมด (ZIP)</button>
+  </div>
+  <div class="progress-bar" id="progressBar" style="display:none;"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+  <div class="status" id="dlStatus"></div>
+</div>
+
+<!-- Render Zone -->
+<div id="RZ"></div>
+
+<script>
+// ── Firebase Config ──
+const FB_CONFIG = {
+  apiKey: "AIzaSyBwIlvqugbNYNbFd44DtgKSZWsQrXNnSuI",
+  authDomain: "chiccoco-live.firebaseapp.com",
+  projectId: "chiccoco-live",
+  databaseURL: "https://chiccoco-live-default-rtdb.asia-southeast1.firebasedatabase.app",
+  storageBucket: "chiccoco-live.firebasestorage.app",
+};
+
+firebase.initializeApp(FB_CONFIG);
+const auth = firebase.auth();
+const db = firebase.database();
+const storage = firebase.storage();
+
+// ── State ──
+let products = [];      // array ของ product objects
+let productImages = {}; // code → url
+let filteredCodes = []; // codes ที่กรองแล้ว
+let selectedCodes = new Set();
+let shopPath = '';
+
+// ── Auth + Init ──
+auth.onAuthStateChanged(user => {
+  if (!user) {
+    // ลอง re-auth จาก localStorage
+    const em = localStorage.getItem('chiccoco_email');
+    const pw = localStorage.getItem('chiccoco_pw');
+    if (em && pw) {
+      auth.signInWithEmailAndPassword(em, pw).catch(() => {
+        document.getElementById('fbStatus').textContent = '❌ กรุณา login จากหน้า Remote ก่อนค่ะ';
+        document.getElementById('fbStatus').style.color = '#cc0000';
+      });
+    } else {
+      document.getElementById('fbStatus').textContent = '❌ กรุณา login จากหน้า Remote ก่อนค่ะ';
+      document.getElementById('fbStatus').style.color = '#cc0000';
+    }
+    return;
+  }
+
+  const shopId = sessionStorage.getItem('shopId') || 'shop_001';
+  shopPath = 'chiccoco/shops/' + shopId;
+  document.getElementById('fbStatus').textContent = '✅ เชื่อมต่อแล้วค่ะ';
+  document.getElementById('fbStatus').style.color = '#5c7a6b';
+
+  // โหลดสต๊อก
+  db.ref(shopPath + '/products').once('value', snap => {
+    const data = snap.val();
+    if (!data) { document.getElementById('stockStatus').textContent = 'ไม่มีสต๊อกค่ะ'; return; }
+    // แปลงเป็น array
+    products = Object.values(data);
+    document.getElementById('stockStatus').textContent = products.length + ' รายการ';
+    document.getElementById('btnDlAll').disabled = false;
+    renderGrid(products.map(p => p.code));
+  });
+
+  // โหลดรูปสินค้า
+  storage.ref('products/' + shopId).listAll().then(res => {
+    return Promise.all(res.items.map(item =>
+      item.getDownloadURL().then(url => {
+        const code = item.name.replace(/\.[^.]+$/, '');
+        productImages[code] = url;
+        productImages[code.toUpperCase()] = url;
+        productImages[code.toLowerCase()] = url;
+      })
+    ));
+  }).then(() => {
+    console.log('รูป:', Object.keys(productImages).length / 3, 'รูป');
+  }).catch(e => console.warn('โหลดรูปไม่ได้:', e));
+});
+
+// ── Render Grid ──
+function renderGrid(codes) {
+  filteredCodes = codes;
+  const grid = document.getElementById('productGrid');
+  grid.innerHTML = '';
+
+  if (!codes.length) {
+    grid.innerHTML = '<div style="color:#aaa;font-size:13px;text-align:center;padding:16px;">ไม่พบสินค้าในช่วงที่กำหนดค่ะ</div>';
+    updateSelCount(); return;
+  }
+
+  codes.forEach(code => {
+    const p = products.find(x => x.code === code);
+    if (!p) return;
+    const sel = selectedCodes.has(code);
+    const imgUrl = productImages[code] || productImages[code.toUpperCase()] || productImages[code.toLowerCase()] || '';
+
+    const item = document.createElement('div');
+    item.className = 'product-item' + (sel ? ' selected' : '');
+    item.id = 'item-' + code;
+    item.onclick = () => toggleSelect(code);
+    item.innerHTML = `
+      <input type="checkbox" ${sel ? 'checked' : ''} onclick="event.stopPropagation();toggleSelect('${code}')">
+      ${imgUrl ? `<img class="product-img" src="${imgUrl}">` : '<div class="product-img" style="background:#eee;border-radius:6px;"></div>'}
+      <span class="product-code">${code}</span>
+      <span class="product-name">${p.name || ''}</span>
+    `;
+    grid.appendChild(item);
+  });
+  updateSelCount();
+}
+
+function toggleSelect(code) {
+  if (selectedCodes.has(code)) selectedCodes.delete(code);
+  else selectedCodes.add(code);
+  const item = document.getElementById('item-' + code);
+  const chk = item?.querySelector('input');
+  if (item) item.className = 'product-item' + (selectedCodes.has(code) ? ' selected' : '');
+  if (chk) chk.checked = selectedCodes.has(code);
+  updateSelCount();
+}
+function selectAll() { filteredCodes.forEach(c => selectedCodes.add(c)); renderGrid(filteredCodes); }
+function deselectAll() { filteredCodes.forEach(c => selectedCodes.delete(c)); renderGrid(filteredCodes); }
+function updateSelCount() {
+  document.getElementById('selCount').textContent = selectedCodes.size ? selectedCodes.size + ' รายการที่เลือก' : '';
+  document.getElementById('btnDlSelected').disabled = selectedCodes.size === 0;
+}
+
+// ── Filter ──
+function applyFilter() {
+  const from = document.getElementById('codeFrom').value.trim().toUpperCase();
+  const to = document.getElementById('codeTo').value.trim().toUpperCase();
+  if (!from && !to) { renderGrid(products.map(p => p.code)); return; }
+  const allCodes = products.map(p => p.code).sort();
+  const filtered = allCodes.filter(code => {
+    const c = code.toUpperCase();
+    if (from && to) return c >= from && c <= to;
+    if (from) return c >= from;
+    if (to) return c <= to;
+    return true;
+  });
+  renderGrid(filtered);
+}
+function clearFilter() {
+  document.getElementById('codeFrom').value = '';
+  document.getElementById('codeTo').value = '';
+  renderGrid(products.map(p => p.code));
+}
+
+// ── Format ──
+function fmt(v) { const n = Number(v); return isNaN(n) ? v : n.toLocaleString(); }
+
+// ── Build Product Card HTML ──
+function buildProductCard(p) {
+  const imgSrc = productImages[p.code] || productImages[(p.code||'').toUpperCase()] || productImages[(p.code||'').toLowerCase()] || null;
+  const imgTag = imgSrc
+    ? `<img class="PC-img" src="${imgSrc}" crossorigin="anonymous">`
+    : `<div class="PC-img-placeholder"><div class="PC-img-placeholder-icon">📷</div><div class="PC-img-placeholder-txt">ไม่มีรูปสินค้า</div></div>`;
+
+  const co = p.activeCols || [];
+  const sizes = p.sizes || [];
+
+  // price block
+  let priceHtml = '';
+  if (p.salePrice) {
+    priceHtml = `<div class="PC-box"><div class="PC-box-lbl">ราคา</div><div class="PC-box-val price-orig">${fmt(p.price)}</div><div class="PC-box-val price-sale">${fmt(p.salePrice)}</div></div>`;
+  } else {
+    priceHtml = `<div class="PC-box"><div class="PC-box-lbl">ราคา</div><div class="PC-box-val price">${fmt(p.price)}</div></div>`;
+  }
+
+  // sizes available
+  const av = sizes.filter(s => !(p.soldSizes||[]).includes(s.size));
+  const sizeList = av.map(s => s.size).filter(Boolean).join(', ') || '—';
+
+  // table rows
+  let tableHtml = '';
+  if (co.length && av.length) {
+    const headerCells = co.map(c => `<th>${c}</th>`).join('');
+    const rows = av.map((s,i) => {
+      const cells = co.map(c => `<td>${s[c]||'—'}</td>`).join('');
+      return `<tr class="${i%2===0?'odd':'even'}"><td class="sz">${s.size}</td>${cells}</tr>`;
+    }).join('');
+    tableHtml = `<table class="PC-table"><thead><tr><th>ไซส์</th>${headerCells}</tr></thead><tbody>${rows}</tbody></table>`;
+  }
+
+  // info
+  const colorHtml = p.color ? `<div class="PC-color"><div class="PC-color-lbl">สี</div><div class="PC-color-val">${p.color}</div></div>` : '';
+  const matHtml = p.material ? `<div class="PC-color"><div class="PC-color-lbl">วัสดุ</div><div class="PC-color-val" style="font-size:26px;">${p.material}</div></div>` : '';
+
+  return `<div class="PC-card">
+    ${imgTag}
+    <div class="PC-body">
+      <div class="PC-brand">C H I C C O C O</div>
+      <div class="PC-name">${p.name||''}</div>
+      <div class="PC-row">
+        <div class="PC-box"><div class="PC-box-lbl">รหัสสินค้า</div><div class="PC-box-val">${p.code}</div></div>
+        ${priceHtml}
+      </div>
+      <div class="PC-row">
+        <div class="PC-box"><div class="PC-box-lbl">ไซส์</div><div class="PC-box-val" style="font-size:36px;">${sizeList}</div></div>
+      </div>
+      ${colorHtml}${matHtml}
+      ${tableHtml}
+      <div class="PC-footer">Chiccoco Live @ 2025</div>
+    </div>
+  </div>`;
+}
+
+// ── Render to Canvas ──
+async function toCardCanvas(p) {
+  const rz = document.getElementById('RZ');
+  rz.innerHTML = buildProductCard(p);
+  const el = rz.firstElementChild;
+  el.style.width = '720px';
+  const img = el.querySelector('img.PC-img');
+  if (img) {
+    await new Promise(res => { if (img.complete) { res(); return; } img.onload=res; img.onerror=res; });
+  }
+  await new Promise(r => setTimeout(r, 100));
+  const cv = await html2canvas(el, { scale:2, backgroundColor:'#f0ece6', useCORS:true, allowTaint:true });
+  rz.innerHTML = '';
+  return cv;
+}
+
+// ── Download ──
+async function downloadSelected() {
+  const codes = [...selectedCodes];
+  if (!codes.length) return;
+  await runDownload(codes);
+}
+async function downloadAll() {
+  const codes = filteredCodes.length ? filteredCodes : products.map(p => p.code);
+  if (!confirm('Download ' + codes.length + ' รายการ?')) return;
+  await runDownload(codes);
+}
+
+async function runDownload(codes) {
+  const statusEl = document.getElementById('dlStatus');
+  const progressBar = document.getElementById('progressBar');
+  const progressFill = document.getElementById('progressFill');
+  progressBar.style.display = 'block';
+  progressFill.style.width = '0%';
+  statusEl.textContent = 'กำลังสร้างภาพ...';
+  statusEl.className = 'status';
+
+  const zip = new JSZip();
+  let done = 0;
+  for (const code of codes) {
+    const p = products.find(x => x.code === code);
+    if (!p) { done++; continue; }
+    try {
+      const cv = await toCardCanvas(p);
+      const blob = await new Promise(res => cv.toBlob(res, 'image/png'));
+      zip.file('card_' + code + '.png', blob);
+    } catch(e) { console.error('card error:', code, e); }
+    done++;
+    progressFill.style.width = (done/codes.length*100) + '%';
+    statusEl.textContent = `สร้างแล้ว ${done}/${codes.length} รายการ...`;
+  }
+
+  const zipBlob = await zip.generateAsync({type:'blob'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(zipBlob);
+  a.download = 'chiccoco-cards.zip';
+  a.click();
+  progressBar.style.display = 'none';
+  statusEl.textContent = `✅ Download สำเร็จ ${done} รายการค่ะ`;
+  statusEl.className = 'status ok';
+}
+</script>
+
+<!-- PC Card CSS + Table -->
+<style>
+.PC-card { width:720px; background:#f0ece6; font-family:'Sarabun',sans-serif; border-radius:0; }
+.PC-img { width:720px; height:720px; object-fit:cover; display:block; background:#e8e4df; }
+.PC-img-placeholder { width:720px; height:720px; background:linear-gradient(135deg,#e8e4df,#d9d4cd); display:flex; flex-direction:column; align-items:center; justify-content:center; }
+.PC-img-placeholder-icon { font-size:80px; margin-bottom:16px; opacity:.4; }
+.PC-img-placeholder-txt { font-size:28px; color:#aaa; font-family:'Kanit',sans-serif; }
+.PC-body { padding:30px 36px 36px; display:flex; flex-direction:column; gap:14px; }
+.PC-brand { font-size:15px; font-weight:400; letter-spacing:10px; color:#5c7a6b; text-align:center; font-family:'Kanit',sans-serif; }
+.PC-name { font-size:38px; font-weight:700; color:#2c2c2c; text-align:center; line-height:1.3; }
+.PC-row { display:flex; gap:12px; }
+.PC-box { flex:1; background:white; border-radius:14px; padding:14px 16px; text-align:center; box-shadow:0 1px 6px rgba(0,0,0,.05); }
+.PC-box-lbl { font-size:20px; color:#888880; margin-bottom:6px; }
+.PC-box-val { font-size:48px; font-weight:800; color:#8b1a1a; line-height:1; font-family:'Kanit',sans-serif; }
+.PC-box-val.price { color:#2c2c2c; }
+.PC-box-val.price-sale { color:#8b1a1a; }
+.PC-box-val.price-orig { font-size:28px; color:#aaa; text-decoration:line-through; line-height:1; }
+.PC-color { background:white; border-radius:14px; padding:12px 16px; text-align:center; box-shadow:0 1px 6px rgba(0,0,0,.05); }
+.PC-color-lbl { font-size:20px; color:#888880; margin-bottom:4px; }
+.PC-color-val { font-size:34px; font-weight:700; color:#2c2c2c; }
+.PC-table { width:100%; border-collapse:collapse; border-radius:14px; overflow:hidden; }
+.PC-table thead tr { background:#3d4f47; }
+.PC-table thead th { color:white; padding:12px 8px; font-size:26px; font-weight:700; text-align:center; }
+.PC-table tbody tr.odd { background:white; }
+.PC-table tbody tr.even { background:#f5f1eb; }
+.PC-table tbody td { padding:12px 8px; text-align:center; font-size:30px; font-weight:600; color:#2c2c2c; }
+.PC-table tbody td.sz { font-size:28px; font-weight:800; color:#8b1a1a; font-family:'Kanit',sans-serif; }
+.PC-footer { text-align:center; font-family:'Kanit',sans-serif; font-size:18px; color:#bbb; letter-spacing:4px; margin-top:4px; }
+</style>
+</body>
+</html>
