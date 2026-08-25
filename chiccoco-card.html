@@ -13,7 +13,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700;800&family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Sarabun',sans-serif;background:#ede9e4;min-height:100vh;padding:16px;}
+body{font-family:'Sarabun',sans-serif;background:#ede9e4;min-height:100vh;padding:16px;max-width:100%;overflow-x:hidden;}
 .app-title{text-align:center;font-family:'Kanit',sans-serif;font-size:18px;font-weight:800;color:#2c2c2c;letter-spacing:6px;margin-bottom:2px;}
 .app-sub{text-align:center;font-size:11px;color:#aaa;letter-spacing:2px;margin-bottom:16px;}
 
@@ -53,9 +53,7 @@ body{font-family:'Sarabun',sans-serif;background:#ede9e4;min-height:100vh;paddin
 @media(max-width:600px){ #GRID{grid-template-columns:1fr;} }
 
 /* card ui list */
-#GRID{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
-@media(max-width:900px){#GRID{grid-template-columns:repeat(2,1fr);}}
-@media(max-width:600px){#GRID{grid-template-columns:1fr;}}
+#GRID{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;width:100%;}
 .card-ui{background:white;border-radius:14px;padding:14px;box-shadow:0 1px 8px rgba(0,0,0,.06);}
 .card-ui-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
 .card-ui-name{font-size:12px;font-weight:700;color:#444;flex:1;margin-right:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
@@ -321,7 +319,16 @@ function renderGrid(prods){
     const prev=document.createElement('div'); prev.className='card-preview'; prev.id='prev-'+pi;
     prev.innerHTML=buildCardHTML(p);
     const inner=prev.firstElementChild;
-    if(inner){inner.style.transform='scale(0.36)';inner.style.transformOrigin='top left';prev.style.height=Math.round(inner.scrollHeight*0.36)+'px';prev.style.overflow='hidden';}
+    if(inner){
+      inner.style.width='720px';
+      inner.style.transform='scale(0.36)';
+      inner.style.transformOrigin='top left';
+      // ตั้ง height หลัง append เพื่อให้ scrollHeight ถูกต้อง
+      requestAnimationFrame(()=>{
+        prev.style.height=Math.round(inner.scrollHeight*0.36)+'px';
+        prev.style.overflow='hidden';
+      });
+    }
 
     // ── Sold-out pills ──
     let soldWrap=null;
@@ -418,7 +425,13 @@ function renderGrid(prods){
 function refreshPreview(pi,p){
   const np=document.getElementById('prev-'+pi); if(!np)return;
   np.innerHTML=buildCardHTML(p._updated||p);
-  const ni=np.firstElementChild; if(ni){ni.style.transform='scale(0.36)';ni.style.transformOrigin='top left';np.style.height=Math.round(ni.scrollHeight*0.36)+'px';}
+  const ni=np.firstElementChild;
+  if(ni){
+    ni.style.width='720px';
+    ni.style.transform='scale(0.36)';
+    ni.style.transformOrigin='top left';
+    requestAnimationFrame(()=>{np.style.height=Math.round(ni.scrollHeight*0.36)+'px';np.style.overflow='hidden';});
+  }
 }
 
 // ── Build Card HTML ──
