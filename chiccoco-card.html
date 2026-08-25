@@ -209,18 +209,17 @@ auth.onAuthStateChanged(user=>{
     renderGrid(allProducts);
   });
 
-  // ✅ ใช้ URL ตรงๆ สำหรับ preview (เร็ว) — แปลง base64 เฉพาะตอน download
-  storage.ref('products/'+shopId).listAll().then(res=>{
-    return Promise.all(res.items.map(item=>
-      item.getDownloadURL().then(url=>{
-        const base=item.name.replace(/\.[^.]+$/,'');
-        productImages[base]=url;
-        productImages[base.toUpperCase()]=url;
-        productImages[base.toLowerCase()]=url;
-      })
-    ));
-  }).then(()=>renderGrid(filtered.length?filtered:allProducts))
-    .catch(e=>console.warn('Storage:',e));
+  // ✅ อ่าน URL รูปจาก Realtime DB (ไม่มี CORS issue — เหมือน Overlay ใช้)
+  db.ref(shopPath+'/productImages').once('value',snap=>{
+    const data=snap.val()||{};
+    Object.keys(data).forEach(code=>{
+      const url=data[code];
+      productImages[code]=url;
+      productImages[code.toUpperCase()]=url;
+      productImages[code.toLowerCase()]=url;
+    });
+    renderGrid(filtered.length?filtered:allProducts);
+  });
 });
 
 // ── Sync from Remote ──
