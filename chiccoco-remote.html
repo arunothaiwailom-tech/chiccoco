@@ -62,6 +62,8 @@ body { font-family:'Sarabun',sans-serif; background:#f0ede8; min-height:100vh; p
 .preview-wrap .OV { width:100% !important; padding:14px 12px; gap:7px; opacity:1 !important; border-radius:12px; }
 .preview-wrap .OV-brand { font-size:9px; letter-spacing:5px; }
 .preview-wrap .OV-box { padding:7px 8px; border-radius:8px; }
+.preview-wrap .OV-box-with-img { display:flex; align-items:center; gap:6px; }
+.preview-wrap .OV-prod-img { width:44px; height:44px; border-radius:8px; object-fit:cover; flex-shrink:0; }
 .preview-wrap .OV-box-lbl { font-size:10px; margin-bottom:3px; }
 .preview-wrap .OV-box-code { font-size:28px; }
 .preview-wrap .OV-box-sizes { font-size:24px; }
@@ -265,6 +267,10 @@ body.theme-gold { --ov-bg:#fdf8ee; --ov-accent:#b8860b; --ov-code:#8b1a1a; --ov-
         style="background:#3d4f47;color:white;border-color:#3d4f47;">
         📥 Download ZIP
       </button>
+      <button class="btn-manual-open" onclick="openImgManagerModal()"
+        style="background:#3d4f47;color:white;border-color:#3d4f47;">
+        🖼️ ดูรูปที่อัปโหลด
+      </button>
       <span id="imgInfo" style="font-size:12px;color:#666;align-self:center;">ยังไม่มีรูป</span>
     </div>
     <div style="font-size:11px;color:#888;margin-top:4px;">ตั้งชื่อไฟล์ตามรหัส เช่น B290.jpg · Download ZIP = ภาพ overlay ทุกรหัส</div>
@@ -315,6 +321,8 @@ body.theme-gold { --ov-bg:#fdf8ee; --ov-accent:#b8860b; --ov-code:#8b1a1a; --ov-
         style="padding:8px 16px;border-radius:10px;font-family:'Kanit',sans-serif;font-size:13px;font-weight:700;cursor:pointer;border:2px solid #5c7a6b;background:#f0ece6;color:#5c7a6b;">
         พื้นหลังทึบ
       </button>
+      <button id="btnSoldOut" onclick="toggleSoldOut()" style="padding:8px 16px;border-radius:10px;font-family:'Kanit',sans-serif;font-size:13px;font-weight:700;cursor:pointer;border:2px solid #cc0000;background:#f0ece6;color:#cc0000;">🔴 Sold Out</button>
+      <button id="btnImgLayout" onclick="toggleImgLayout()" style="padding:8px 16px;border-radius:10px;font-family:'Kanit',sans-serif;font-size:13px;font-weight:700;cursor:pointer;border:2px solid #5c7a6b;background:#f0ece6;color:#5c7a6b;">🖼️ รูปเล็ก</button>
       <button class="btn-reset-all" onclick="resetAll()">🔄 รีเซ็ตทั้งหมด</button>
     </div>
   </div>
@@ -402,6 +410,26 @@ body.theme-gold { --ov-bg:#fdf8ee; --ov-accent:#b8860b; --ov-code:#8b1a1a; --ov-
   </div>
 </div>
 
+<div class="page" id="page-lucky">
+  <div class="sec">
+    <div class="sec-lbl">🎰 สุ่มแจกจากเลขบิล</div>
+    <div style="display:flex;gap:8px;margin-bottom:10px;">
+      <input class="edit-input" id="luckyStart" type="number" placeholder="เลขบิลเริ่ม เช่น 30001" style="flex:1;">
+      <input class="edit-input" id="luckyEnd" type="number" placeholder="เลขบิลสุด เช่น 30100" style="flex:1;">
+    </div>
+    <button onclick="setupLuckyRange()" style="width:100%;padding:12px;background:#5c7a6b;color:white;border:none;border-radius:10px;font-family:'Kanit',sans-serif;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:10px;">⚙️ ตั้งช่วงเลขบิล</button>
+    <div id="luckyRangeInfo" style="font-size:12px;color:#888;text-align:center;margin-bottom:14px;">ยังไม่ได้ตั้งช่วงเลขบิลค่ะ</div>
+    <div class="timer-display" id="luckyDisplay" style="font-size:64px;">—</div>
+    <div style="display:flex;gap:8px;margin-top:10px;">
+      <button id="btnLuckyDraw" onclick="drawLucky()" disabled style="flex:1;padding:14px;background:#c44f82;color:white;border:none;border-radius:12px;font-family:'Kanit',sans-serif;font-size:16px;font-weight:700;cursor:pointer;opacity:.4;">🎰 สุ่มเลย!</button>
+      <button onclick="resetLuckyHistory()" style="padding:14px 16px;background:#f5f5f5;color:#888;border:none;border-radius:12px;font-family:'Kanit',sans-serif;font-size:13px;font-weight:700;cursor:pointer;">↺ รีเซ็ตประวัติ</button>
+    </div>
+    <div style="margin-top:14px;">
+      <div class="sec-lbl" style="margin-bottom:6px;">🏆 ผู้โชคดีที่ผ่านมา (<span id="luckyCount">0</span> คน)</div>
+      <div id="luckyHistoryList" style="display:flex;flex-wrap:wrap;gap:6px;max-height:160px;overflow-y:auto;"></div>
+    </div>
+  </div>
+</div>
 <div class="page" id="page-history">
   <div class="sec">
     <div class="sec-lbl">🕐 ประวัติสินค้าล่าสุด</div>
@@ -412,6 +440,7 @@ body.theme-gold { --ov-bg:#fdf8ee; --ov-accent:#b8860b; --ov-code:#8b1a1a; --ov-
 <div class="bottom-nav">
   <button class="nav-btn active" id="nav-live" onclick="switchPage('live')"><span class="icon">📡</span>ไลฟ์</button>
   <button class="nav-btn" id="nav-timer" onclick="switchPage('timer')"><span class="icon">⏱</span>Timer</button>
+  <button class="nav-btn" id="nav-lucky" onclick="switchPage('lucky')"><span class="icon">🎰</span>สุ่มแจก</button>
   <button class="nav-btn" id="nav-history" onclick="switchPage('history')"><span class="icon">🕐</span>ประวัติ</button>
 </div>
 
@@ -470,6 +499,9 @@ let overlayHidden=false, bgTransparent=false, liveHistory=[];
 let secondCode=null; // รหัสสินค้าเสริม
 let storage=null, productImages={}; // รูปสินค้า {code: url}
 let timerInterval=null, timerSeconds=0, timerRunning=false;
+let luckyMin=null, luckyMax=null, luckyUsed=[], luckyHistory=[], luckySlotInterval=null;
+let soldOutSticker=false;
+let imgLayout='small';
 let wakeLock=null, fbConnected=false;
 let shopDisplayName='CHICCOCO';
 let shopPath='chiccoco/shops/default';
@@ -530,8 +562,15 @@ async function loadProductImages(){
       const url=await item.getDownloadURL();
       return {code, url};
     }));
-    urls.forEach(({code,url})=>{ productImages[code]=url; });
+    urls.forEach(({code,url})=>{ productImages[code]=url; productImages[code.toLowerCase()]=url; });
     console.log('รูปสินค้า:', Object.keys(productImages).length, 'รูป');
+    if(db&&fbConnected&&Object.keys(productImages).length){
+      const imgToSave={};
+      Object.keys(productImages).forEach(k=>{ imgToSave[k]=productImages[k]; imgToSave[k.toLowerCase()]=productImages[k]; });
+      db.ref(shopPath+'/productImages').update(imgToSave).catch(()=>{});
+    }
+    const cnt=Object.keys(productImages).length;
+    if(cnt) document.getElementById('imgInfo').textContent=cnt+' รูป ✅';
     updatePreview();
   }catch(e){ console.warn('loadProductImages:', e); }
 }
@@ -1130,21 +1169,44 @@ function doInit(apiKey,projectId,dbUrl){
     shopPath='chiccoco/shops/'+shopId;
     if(!firebase.apps.length) firebase.initializeApp({apiKey,projectId,databaseURL:dbUrl,storageBucket:projectId+'.firebasestorage.app'});
     db=firebase.database();
-    db.ref('.info/connected').on('value',snap=>{
-      fbConnected=snap.val()===true;
-      if(fbConnected){ setStatus('connected','✅ เชื่อมต่อแล้ว'); db.ref(shopPath+'/devices/'+DEVICE_ID).set({ts:Date.now(),alive:true}); }
-      else setStatus('error','⚠️ หลุดการเชื่อมต่อ...');
+    function startListeners(){
+      db.ref('.info/connected').on('value',snap=>{
+        fbConnected=snap.val()===true;
+        if(fbConnected){
+          setStatus('connected','✅ เชื่อมต่อแล้ว');
+          try{ const u=firebase.auth().currentUser; if(u) db.ref(shopPath+'/devices/'+DEVICE_ID).set({ts:Date.now(),alive:true}).catch(()=>{}); }catch(e){}
+        } else setStatus('error','⚠️ หลุดการเชื่อมต่อ...');
+      });
+      document.getElementById('configSection').style.display='none';
+      db.ref(shopPath+'/state').on('value',snap=>{ const d=snap.val(); if(d) syncFromRemote(d); });
+      db.ref(shopPath+'/edits').on('value',snap=>{ edits=snap.val()||{}; updatePreview(); });
+      loadMemory();
+      db.ref(shopPath+'/products').once('value',snap=>{
+        const d=snap.val();
+        if(d&&Object.keys(d).length>0){ products=d; document.getElementById('stockInfo').textContent=Object.keys(products).length+' รายการ ✅'; showToast('📦 โหลดสต๊อก '+Object.keys(products).length+' รายการแล้วค่ะ ✅'); }
+      });
+      try{ storage=firebase.storage(); loadProductImages(); }catch(e){ console.warn('Storage not ready:', e); }
+      db.ref(shopPath+'/lucky').once('value',snap=>{
+        const d=snap.val(); if(!d) return;
+        if(d.min!==undefined&&d.max!==undefined){
+          luckyMin=d.min; luckyMax=d.max; luckyUsed=d.used||[];
+          const elS=document.getElementById('luckyStart'), elE=document.getElementById('luckyEnd');
+          if(elS) elS.value=luckyMin; if(elE) elE.value=luckyMax;
+          const info=document.getElementById('luckyRangeInfo');
+          if(info) info.textContent='ช่วง '+luckyMin+' - '+luckyMax+' — สุ่มไปแล้ว '+luckyUsed.length+'/'+(luckyMax-luckyMin+1)+' คนค่ะ';
+          const btn=document.getElementById('btnLuckyDraw');
+          if(btn){ btn.disabled=false; btn.style.opacity='1'; }
+        }
+      });
+    }
+    firebase.auth().onAuthStateChanged(user=>{
+      if(user){ startListeners(); }
+      else {
+        const em=localStorage.getItem('chiccoco_email'), pw=localStorage.getItem('chiccoco_pw');
+        if(em&&pw){ firebase.auth().signInWithEmailAndPassword(em,pw).then(()=>startListeners()).catch(()=>startListeners()); }
+        else { startListeners(); }
+      }
     });
-    document.getElementById('configSection').style.display='none';
-    db.ref(shopPath+'/state').on('value',snap=>{ const d=snap.val(); if(d) syncFromRemote(d); });
-    db.ref(shopPath+'/edits').on('value',snap=>{ edits=snap.val()||{}; updatePreview(); });
-    loadMemory(); // โหลด soldSizesMap + salePriceMap จาก Firebase
-    db.ref(shopPath+'/products').once('value',snap=>{
-      const d=snap.val();
-      if(d&&Object.keys(d).length>0){ products=d; document.getElementById('stockInfo').textContent=Object.keys(products).length+' รายการ ✅'; showToast('📦 โหลดสต๊อก '+Object.keys(products).length+' รายการแล้วค่ะ ✅'); }
-    });
-    // init Storage
-    try{ storage=firebase.storage(); loadProductImages(); }catch(e){ console.warn('Storage not ready:', e); }
   }catch(e){ console.error('doInit error',e); setStatus('error','❌ เชื่อมต่อไม่สำเร็จ: '+e.message); document.getElementById('configSection').style.display='block'; }
 }
 
@@ -1167,11 +1229,18 @@ function syncFromRemote(d){
   if(d.bgTransparent!==undefined){
     bgTransparent=d.bgTransparent;
     const btn=document.getElementById('btnBgOpacity');
-    if(btn){
-      btn.textContent=bgTransparent?'พื้นหลังโปร่ง 80%':'พื้นหลังทึบ';
-      btn.style.background=bgTransparent?'#5c7a6b':'#f0ece6';
-      btn.style.color=bgTransparent?'white':'#5c7a6b';
-    }
+    if(btn){btn.textContent=bgTransparent?'พื้นหลังโปร่ง 80%':'พื้นหลังทึบ';btn.style.background=bgTransparent?'#5c7a6b':'#f0ece6';btn.style.color=bgTransparent?'white':'#5c7a6b';}
+  }
+  if(d.soldOutSticker!==undefined){
+    soldOutSticker=d.soldOutSticker;
+    const bSO=document.getElementById('btnSoldOut');
+    if(bSO){bSO.style.background=soldOutSticker?'#cc0000':'#f0ece6';bSO.style.color=soldOutSticker?'white':'#cc0000';bSO.textContent=soldOutSticker?'🔴 ปิด Sold Out':'🔴 Sold Out';}
+  }
+  if(d.imgLayout!==undefined){
+    imgLayout=d.imgLayout||'small';
+    const bIL=document.getElementById('btnImgLayout');
+    if(bIL){bIL.textContent=imgLayout==='small'?'🖼️ รูปเล็ก':'🖼️ รูปใหญ่';bIL.style.background=imgLayout==='large'?'#5c7a6b':'#f0ece6';bIL.style.color=imgLayout==='large'?'white':'#5c7a6b';}
+    updatePreview();
   }
   renderSizePills(); renderGroupColors(); updatePreview();
 }
@@ -1179,7 +1248,7 @@ function syncFromRemote(d){
 function pushState(){
   if(!db||!fbConnected) return;
   if(!currentCode||!products[currentCode]) return;
-  db.ref(shopPath+'/state').update({code:currentCode,soldSizes,salePrice,hidden:overlayHidden,hiddenCodes,bgTransparent,secondCode:secondCode||null,ts:Date.now()});
+  db.ref(shopPath+'/state').update({code:currentCode,soldSizes,salePrice,hidden:overlayHidden,hiddenCodes,bgTransparent,secondCode:secondCode||null,soldOutSticker,imgLayout,ts:Date.now()});
 }
 
 function getProduct(code){
@@ -1209,7 +1278,7 @@ function selectProduct(code){
   salePrice=salePriceMap[code]||null;
   document.getElementById('priceInput').value=salePrice||'';
   // ✅ overlayHidden reset เป็น false เมื่อเปลี่ยนสินค้า
-  overlayHidden=false;
+  overlayHidden=false; soldOutSticker=false;
   const btn=document.getElementById('btnHide');
   btn.textContent='👁 ซ่อน Overlay'; btn.classList.remove('hidden');
   const prev=document.getElementById('previewSection');
@@ -1346,45 +1415,15 @@ function openEditModal(){
   document.getElementById('editModalCode').textContent=currentCode;
   const cols=p.activeCols||[];
   let html='<div class="edit-field"><div class="edit-label">ชื่อสินค้า</div><input class="edit-input" id="ef-name" value="'+(p.name||'')+'"></div><div class="edit-field"><div class="edit-label">สี</div><input class="edit-input" id="ef-color" value="'+(p.color||'')+'"></div><div class="edit-field"><div class="edit-label">วัสดุ</div><input class="edit-input" id="ef-material" value="'+(p.material||'')+'"></div><div class="edit-field"><div class="edit-label">ขนาด (เบ็ดเตล็ด)</div><input class="edit-input" id="ef-size" value="'+(p.size||'')+'"></div><div class="edit-field"><div class="edit-label">ราคา</div><input class="edit-input" id="ef-price" type="number" value="'+(p.price||'')+'"></div>';
-  if(p.type==='clothing'){
-    html+='<div class="edit-field"><div class="edit-label">ตารางสัดส่วน</div><div id="ef-size-rows">';
-    const sizesToRender=p.sizes&&p.sizes.length>0?p.sizes:[{size:''}];
-    sizesToRender.forEach((s,i)=>{
-      html+='<div class="edit-table-row" id="ef-row-'+i+'" style="grid-template-columns:60px '+cols.map(()=>'1fr').join(' ')+' 30px">'
-        +'<div><div style="font-size:10px;color:#aaa;margin-bottom:3px;">ไซส์</div><input class="edit-input" id="ef-sz-'+i+'" value="'+(s.size||'')+'"></div>'
-        +cols.map(c=>'<div><div style="font-size:10px;color:#aaa;margin-bottom:3px;">'+c+'</div><input class="edit-input" id="ef-'+c+'-'+i+'" value="'+(s[c]||'')+'"></div>').join('')
-        +'<div style="display:flex;align-items:flex-end;padding-bottom:2px;">'
-        +'<button onclick="removeEditSizeRow('+i+')" style="width:26px;height:26px;background:#fee;color:#c0392b;border:none;border-radius:6px;font-size:12px;cursor:pointer;line-height:1;">✕</button>'
-        +'</div>'
-        +'</div>';
+  if(p.type==='clothing'&&p.sizes&&p.sizes.length>0){
+    html+='<div class="edit-field"><div class="edit-label">ตารางสัดส่วน</div>';
+    p.sizes.forEach((s,i)=>{
+      html+='<div class="edit-table-row" style="grid-template-columns:60px '+cols.map(()=>'1fr').join(' ')+'"><div><div style="font-size:10px;color:#aaa;margin-bottom:3px;">ไซส์</div><input class="edit-input" id="ef-sz-'+i+'" value="'+(s.size||'')+'"></div>'+cols.map(c=>'<div><div style="font-size:10px;color:#aaa;margin-bottom:3px;">'+c+'</div><input class="edit-input" id="ef-'+c+'-'+i+'" value="'+(s[c]||'')+'"></div>').join('')+'</div>';
     });
-    html+='</div>';
-    html+='<button onclick="addEditSizeRow()" style="margin-top:8px;padding:7px 16px;background:#eaf0ec;color:#3d6b56;border:none;border-radius:8px;font-family:Kanit,sans-serif;font-size:12px;font-weight:700;cursor:pointer;">+ เพิ่มไซส์</button>';
     html+='</div>';
   }
   document.getElementById('editFields').innerHTML=html;
   document.getElementById('editModal').classList.add('open');
-}
-
-function addEditSizeRow(){
-  const p=getProduct(currentCode); if(!p) return;
-  const cols=p.activeCols||[];
-  const rows=document.getElementById('ef-size-rows');
-  const newIdx=rows.querySelectorAll('.edit-table-row').length;
-  const div=document.createElement('div');
-  div.className='edit-table-row'; div.id='ef-row-'+newIdx;
-  div.style.gridTemplateColumns='60px '+cols.map(()=>'1fr').join(' ')+' 30px';
-  div.innerHTML='<div><div style="font-size:10px;color:#aaa;margin-bottom:3px;">ไซส์</div><input class="edit-input" id="ef-sz-'+newIdx+'" value=""></div>'
-    +cols.map(c=>'<div><div style="font-size:10px;color:#aaa;margin-bottom:3px;">'+c+'</div><input class="edit-input" id="ef-'+c+'-'+newIdx+'" value=""></div>').join('')
-    +'<div style="display:flex;align-items:flex-end;padding-bottom:2px;">'
-    +'<button onclick="removeEditSizeRow('+newIdx+')" style="width:26px;height:26px;background:#fee;color:#c0392b;border:none;border-radius:6px;font-size:12px;cursor:pointer;line-height:1;">✕</button>'
-    +'</div>';
-  rows.appendChild(div);
-}
-
-function removeEditSizeRow(idx){
-  const row=document.getElementById('ef-row-'+idx);
-  if(row) row.remove();
 }
 function closeEditModal(){ document.getElementById('editModal').classList.remove('open'); }
 
@@ -1392,19 +1431,8 @@ function saveEdit(){
   if(!currentCode||!db||!fbConnected){ showToast('ไม่สามารถบันทึกได้ค่ะ'); return; }
   const p=getProduct(currentCode), cols=p.activeCols||[];
   const edit={name:document.getElementById('ef-name')?.value.trim()||'',color:document.getElementById('ef-color')?.value.trim()||'',material:document.getElementById('ef-material')?.value.trim()||'',size:document.getElementById('ef-size')?.value.trim()||'',price:document.getElementById('ef-price')?.value.trim()||'',ts:Date.now()};
-  if(p.type==='clothing'){
-    // ✅ เก็บทุก row รวมถึงที่เพิ่มใหม่ด้วยปุ่ม + เพิ่มไซส์
-    const sizeRows=document.getElementById('ef-size-rows');
-    if(sizeRows){
-      edit.sizes=[...sizeRows.querySelectorAll('.edit-table-row')].map(row=>{
-        const idx=row.id.replace('ef-row-','');
-        const ns={size:document.getElementById('ef-sz-'+idx)?.value.trim()||''};
-        cols.forEach(c=>{ns[c]=document.getElementById('ef-'+c+'-'+idx)?.value.trim()||'';});
-        return ns;
-      }).filter(s=>s.size);
-    } else if(p.sizes&&p.sizes.length>0){
-      edit.sizes=p.sizes.map((s,i)=>{ const ns={size:document.getElementById('ef-sz-'+i)?.value.trim()||s.size}; cols.forEach(c=>{ns[c]=document.getElementById('ef-'+c+'-'+i)?.value.trim()||'';}); return ns; });
-    }
+  if(p.type==='clothing'&&p.sizes&&p.sizes.length>0){
+    edit.sizes=p.sizes.map((s,i)=>{ const ns={size:document.getElementById('ef-sz-'+i)?.value.trim()||s.size}; cols.forEach(c=>{ns[c]=document.getElementById('ef-'+c+'-'+i)?.value.trim()||'';}); return ns; });
   }
   Object.keys(edit).forEach(k=>{ if(edit[k]===''&&k!=='ts') delete edit[k]; });
   db.ref(shopPath+'/edits/'+currentCode).set(edit).then(()=>{ edits[currentCode]=edit; closeEditModal(); updateCurrentUI(); updatePreview(); pushState(); showToast('✅ บันทึก '+currentCode+' แล้วค่ะ'); focusScan(); }).catch(()=>showToast('บันทึกไม่สำเร็จค่ะ'));
@@ -1413,6 +1441,100 @@ function saveEdit(){
 function resetEdit(){
   if(!currentCode||!db||!fbConnected) return;
   db.ref(shopPath+'/edits/'+currentCode).remove().then(()=>{ delete edits[currentCode]; closeEditModal(); updateCurrentUI(); updatePreview(); showToast('คืนข้อมูลเดิมแล้วค่ะ'); focusScan(); });
+}
+
+// ── SOLD OUT ──
+function toggleSoldOut(){
+  soldOutSticker=!soldOutSticker;
+  const btn=document.getElementById('btnSoldOut');
+  if(btn){btn.style.background=soldOutSticker?'#cc0000':'#f0ece6';btn.style.color=soldOutSticker?'white':'#cc0000';btn.textContent=soldOutSticker?'🔴 ปิด Sold Out':'🔴 Sold Out';}
+  pushState(); showToast(soldOutSticker?'🔴 Sold Out แล้วค่ะ':'ปิด Sold Out แล้วค่ะ');
+}
+function toggleImgLayout(){
+  imgLayout=imgLayout==='small'?'large':'small';
+  const btn=document.getElementById('btnImgLayout');
+  if(btn){btn.textContent=imgLayout==='small'?'🖼️ รูปเล็ก':'🖼️ รูปใหญ่';btn.style.background=imgLayout==='large'?'#5c7a6b':'#f0ece6';btn.style.color=imgLayout==='large'?'white':'#5c7a6b';}
+  pushState(); updatePreview();
+  showToast(imgLayout==='large'?'🖼️ รูปใหญ่ด้านบนแล้วค่ะ':'🖼️ รูปเล็กข้างรหัสแล้วค่ะ');
+}
+
+// ── LUCKY DRAW SOUNDS ──
+let _audioCtx=null;
+function getAudioCtx(){ if(!_audioCtx) _audioCtx=new(window.AudioContext||window.webkitAudioContext)(); return _audioCtx; }
+function playDrumTick(speed){
+  try{
+    const ctx=getAudioCtx(),t=ctx.currentTime,bufSize=ctx.sampleRate*0.04,buf=ctx.createBuffer(1,bufSize,ctx.sampleRate),data=buf.getChannelData(0);
+    for(let i=0;i<bufSize;i++) data[i]=(Math.random()*2-1)*Math.exp(-i/bufSize*8);
+    const src=ctx.createBufferSource(); src.buffer=buf;
+    const filter=ctx.createBiquadFilter(); filter.type='lowpass'; filter.frequency.value=speed>200?200:400;
+    const gain=ctx.createGain(); gain.gain.setValueAtTime(speed>200?0.6:1.0,t); gain.gain.exponentialRampToValueAtTime(0.01,t+0.08);
+    src.connect(filter); filter.connect(gain); gain.connect(ctx.destination); src.start(t); src.stop(t+0.08);
+  }catch(e){}
+}
+function playWinSound(){
+  try{
+    const ctx=getAudioCtx(); [523,659,784,1047].forEach((freq,i)=>{
+      const t=ctx.currentTime+i*0.12,osc=ctx.createOscillator(),gain=ctx.createGain();
+      osc.type='sine'; osc.frequency.value=freq; gain.gain.setValueAtTime(0.4,t); gain.gain.exponentialRampToValueAtTime(0.01,t+0.3);
+      osc.connect(gain); gain.connect(ctx.destination); osc.start(t); osc.stop(t+0.3);
+    });
+  }catch(e){}
+}
+
+// ── LUCKY DRAW ──
+function setupLuckyRange(){
+  const s=parseInt(document.getElementById('luckyStart').value), e=parseInt(document.getElementById('luckyEnd').value);
+  if(isNaN(s)||isNaN(e)||s>e){ showToast('❌ กรุณากรอกช่วงเลขบิลให้ถูกต้องค่ะ'); return; }
+  luckyMin=s; luckyMax=e; luckyUsed=[];
+  document.getElementById('luckyRangeInfo').textContent='ช่วง '+s+' - '+e+' ('+(e-s+1)+' เลข) — ยังไม่มีผู้โชคดีค่ะ';
+  document.getElementById('btnLuckyDraw').disabled=false; document.getElementById('btnLuckyDraw').style.opacity='1';
+  document.getElementById('luckyDisplay').textContent='—';
+  if(db&&fbConnected) db.ref(shopPath+'/lucky').set({min:s,max:e,used:[],ts:Date.now()});
+  showToast('✅ ตั้งช่วงเลขบิล '+s+' - '+e+' แล้วค่ะ');
+}
+function drawLucky(){
+  if(luckyMin===null){ showToast('❌ กรุณาตั้งช่วงเลขบิลก่อนค่ะ'); return; }
+  const total=luckyMax-luckyMin+1;
+  if(luckyUsed.length>=total){ showToast('🎉 สุ่มครบทุกเลขแล้วค่ะ'); return; }
+  let available=[]; for(let n=luckyMin;n<=luckyMax;n++){ if(!luckyUsed.includes(n)) available.push(n); }
+  const winner=available[Math.floor(Math.random()*available.length)];
+  const btn=document.getElementById('btnLuckyDraw'); btn.disabled=true; btn.style.opacity='.5';
+  const display=document.getElementById('luckyDisplay'); display.classList.add('warning');
+  if(luckySlotInterval) clearTimeout(luckySlotInterval);
+  const totalMs=10000, startTime=Date.now();
+  function tick(){
+    const elapsed=Date.now()-startTime;
+    if(elapsed>=totalMs){
+      display.textContent=winner; display.classList.remove('warning');
+      luckyUsed.push(winner);
+      luckyHistory.unshift({num:winner,time:new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'})});
+      renderLuckyHistory();
+      document.getElementById('luckyRangeInfo').textContent='ช่วง '+luckyMin+' - '+luckyMax+' — สุ่มไปแล้ว '+luckyUsed.length+'/'+total+' คนค่ะ';
+      if(db&&fbConnected) db.ref(shopPath+'/lucky').update({winner,used:luckyUsed,isSpinning:false,ts:Date.now()});
+      playWinSound(); showToast('🎉 ผู้โชคดี: เลขบิล '+winner+' ค่ะ!');
+      btn.disabled=false; btn.style.opacity='1'; return;
+    }
+    const rand=luckyMin+Math.floor(Math.random()*(luckyMax-luckyMin+1));
+    display.textContent=rand;
+    if(db&&fbConnected) db.ref(shopPath+'/lucky').update({spinning:rand,isSpinning:true,ts:Date.now()});
+    const progress=elapsed/totalMs, delay=progress<0.7?50:50+Math.pow((progress-0.7)/0.3,2.5)*550;
+    playDrumTick(delay);
+    luckySlotInterval=setTimeout(tick,delay);
+  }
+  tick();
+}
+function renderLuckyHistory(){
+  document.getElementById('luckyCount').textContent=luckyHistory.length;
+  const list=document.getElementById('luckyHistoryList');
+  list.innerHTML=luckyHistory.map(h=>'<div style="padding:8px 14px;background:#fdf0f5;border:2px solid #c44f82;border-radius:10px;font-family:Kanit,sans-serif;font-weight:800;color:#c44f82;font-size:15px;">'+h.num+'<div style="font-size:9px;color:#aaa;font-weight:400;">'+h.time+'</div></div>').join('');
+}
+function resetLuckyHistory(){
+  if(!confirm('รีเซ็ตประวัติผู้โชคดีทั้งหมด?')) return;
+  luckyUsed=[]; luckyHistory=[]; renderLuckyHistory();
+  if(luckyMin!==null) document.getElementById('luckyRangeInfo').textContent='ช่วง '+luckyMin+' - '+luckyMax+' — ยังไม่มีผู้โชคดีค่ะ';
+  document.getElementById('luckyDisplay').textContent='—';
+  if(db&&fbConnected) db.ref(shopPath+'/lucky').update({used:[],winner:null,ts:Date.now()});
+  showToast('↺ รีเซ็ตประวัติแล้วค่ะ');
 }
 
 // ── TIMER ──
@@ -1487,10 +1609,12 @@ function parseCustom(rows){
   return order.map(c=>{
     const p=map[c]; const nl=p.name.toLowerCase();
     const isPants=/กางเกง|กระโปรง|วอร์ม|เล็กกิ้ง|legging|ยีนส์|jeans/.test(nl);
-    const hasW=p.sizes.some(s=>s['เอว']),hasA=p.sizes.some(s=>s['อก']);
+    const isDressOrSet=/เดรส|dress|ชุดเซ็ท|ชุดเซต|ชุดชั้นใน|ชั้นใน|lingerie|underwear|bra set|สายเดี่ยว|สายไขว้/.test(nl);
+    const hasW=p.sizes.some(s=>s['เอว']), hasA=p.sizes.some(s=>s['อก']);
     let co;
-    if(isPants||hasW) co=['เอว','สะโพก','เป้า','ยาว'];
-    else co=['คัฟอก','อก','ยาว','วงแขน','บ่า','เอว','สะโพก','เป้า'];
+    if(isDressOrSet||(hasA&&hasW))  co=['อก','เอว','สะโพก','ยาว'];
+    else if(isPants||(hasW&&!hasA)) co=['เอว','สะโพก','เป้า','ยาว'];
+    else                             co=['คัฟอก','อก','ยาว','วงแขน','บ่า','เอว','สะโพก','เป้า'];
     p.activeCols=co.filter(f=>p.sizes.some(s=>s[f]));
     if(!p.activeCols.length) p.type='misc';
     return p;
@@ -1634,6 +1758,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     const banner=document.getElementById('expiryBanner');
     const bannerText=document.getElementById('expiryBannerText');
     const months=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+    const expire=new Date(expireDate);
     const expStr=expire.getDate()+' '+months[expire.getMonth()]+' '+(expire.getFullYear()+543);
     if(daysLeft<=0){ banner.style.display='block'; banner.classList.add('danger'); bannerText.textContent='❌ สมาชิกหมดอายุแล้ว กรุณาต่ออายุเพื่อใช้งานต่อค่ะ'; }
     else if(daysLeft<=3){ banner.style.display='block'; bannerText.textContent='⚠️ สมาชิกหมดอายุใน '+daysLeft+' วัน ('+expStr+') กรุณาต่ออายุค่ะ'; }
@@ -1641,7 +1766,93 @@ document.addEventListener('DOMContentLoaded',()=>{
 
   document.getElementById('editModal').addEventListener('click',function(e){ if(e.target===this) closeEditModal(); });
   document.getElementById('manualModal').addEventListener('click',function(e){ if(e.target===this) closeManualModal(); });
+  // ✅ Auto-focus scan input เมื่อคลิกที่อื่น
+  document.addEventListener('click',function(e){
+    const tag=e.target.tagName.toLowerCase();
+    if(['input','select','textarea','button','label','a'].includes(tag)) return;
+    if(e.target.closest&&e.target.closest('.modal-overlay,.camera-modal,.theme-modal-overlay,#imgManagerModal')) return;
+    const lp=document.getElementById('page-live');
+    if(!lp||!lp.classList.contains('active')) return;
+    const sc=document.getElementById('scanInput');
+    if(sc&&document.activeElement!==sc) sc.focus();
+  });
+  setInterval(function(){
+    const lp=document.getElementById('page-live');
+    if(!lp||!lp.classList.contains('active')) return;
+    const scan=document.getElementById('scanInput');if(!scan)return;
+    const active=document.activeElement;
+    if(active&&active!==scan&&active.tagName.toLowerCase()==='input') return;
+    const imgModal=document.getElementById('imgManagerModal');
+    if(imgModal&&imgModal.style.display==='flex') return;
+    if(active!==scan) scan.focus();
+  },2000);
 });
+
+// ── Image Manager ──
+let imgManagerSelection={};
+function openImgManagerModal(){imgManagerSelection={};renderImgManagerList();document.getElementById('imgManagerModal').style.display='flex';}
+function closeImgManagerModal(){document.getElementById('imgManagerModal').style.display='none';imgManagerSelection={};}
+function renderImgManagerList(){
+  const list=document.getElementById('imgManagerList');list.innerHTML='';
+  const codes=Object.keys(productImages).sort();
+  if(!codes.length){list.innerHTML='<div style="color:#888;font-size:13px;text-align:center;padding:24px;">ยังไม่มีรูปสินค้าค่ะ</div>';updateImgManagerActions();return;}
+  codes.forEach(code=>{
+    const url=productImages[code],sel=!!imgManagerSelection[code];
+    const row=document.createElement('div');row.id='imgrow-'+code;
+    row.style.cssText='display:flex;align-items:center;gap:10px;background:'+(sel?'#2a3d35':'#2a2a3e')+';border-radius:12px;padding:10px 12px;border:2px solid '+(sel?'#5c7a6b':'transparent')+';cursor:pointer;margin-bottom:2px;';
+    row.onclick=()=>toggleImgSelect(code);
+    var chkHtml='<input type="checkbox" id="chk-'+code+'" '+(sel?'checked':'')+' onclick="event.stopPropagation();toggleImgSelect(\''+ code +'\')" style="width:18px;height:18px;accent-color:#5c7a6b;flex-shrink:0;">';
+    var imgHtml='<img src="'+url+'" style="width:54px;height:54px;object-fit:cover;border-radius:8px;flex-shrink:0;">';
+    var lblHtml='<div style="flex:1;"><div style="font-family:Kanit,sans-serif;font-size:16px;font-weight:800;color:#ff6b9d;">'+code+'</div></div>';
+    row.innerHTML=chkHtml+imgHtml+lblHtml;
+    list.appendChild(row);
+  });updateImgManagerActions();
+}
+function toggleImgSelect(code){
+  if(imgManagerSelection[code])delete imgManagerSelection[code];else imgManagerSelection[code]=true;
+  const row=document.getElementById('imgrow-'+code),chk=document.getElementById('chk-'+code),sel=!!imgManagerSelection[code];
+  if(row){row.style.background=sel?'#2a3d35':'#2a2a3e';row.style.border='2px solid '+(sel?'#5c7a6b':'transparent');}
+  if(chk)chk.checked=sel;updateImgManagerActions();
+}
+function updateImgManagerActions(){
+  const n=Object.keys(imgManagerSelection).length;
+  const bR=document.getElementById('btnImgReplace'),bD=document.getElementById('btnImgDelete'),lb=document.getElementById('imgSelLabel');
+  if(lb)lb.textContent=n?'เลือก '+n+' รายการ':'';
+  if(bR){bR.disabled=n!==1;bR.style.opacity=n===1?'1':'0.4';}
+  if(bD){bD.disabled=n===0;bD.style.opacity=n>0?'1':'0.4';}
+}
+function triggerReplaceImg(){const c=Object.keys(imgManagerSelection);if(c.length!==1)return;document.getElementById('replaceImgInput').dataset.targetCode=c[0];document.getElementById('replaceImgInput').click();}
+async function onReplaceImgSelected(input){
+  const file=input.files[0];if(!file)return;const code=input.dataset.targetCode;if(!code||!storage)return;
+  const shopId=sessionStorage.getItem('shopId')||'default';const ext=file.name.split('.').pop().toLowerCase()||'jpg';
+  showToast('⏳ กำลังอัปโหลดทับ '+code+'...');
+  try{
+    const ref=storage.ref('products/'+shopId+'/'+code+'.'+ext);
+    await ref.put(file);const url=await ref.getDownloadURL();
+    productImages[code]=url;productImages[code.toLowerCase()]=url;
+    if(db&&fbConnected){const upd={};upd[code]=url;upd[code.toLowerCase()]=url;db.ref(shopPath+'/productImages').update(upd);}
+    document.getElementById('imgInfo').textContent=Object.keys(productImages).length+' รูป ✅';
+    showToast('✅ อัปโหลดทับ '+code+' สำเร็จค่ะ');
+    imgManagerSelection={};renderImgManagerList();updatePreview();
+  }catch(e){showToast('❌ '+e.message);}
+  input.value='';
+}
+async function deleteSelectedImages(){
+  const codes=Object.keys(imgManagerSelection);if(!codes.length)return;
+  if(!confirm('ลบรูป '+codes.length+' รายการ? ('+codes.join(', ')+')'))return;
+  const shopId=sessionStorage.getItem('shopId')||'default';let done=0;
+  for(const code of codes){
+    const url=productImages[code]||'';const extM=url.match(/products%2F[^%]+%2F[^.?]+\.([^?&]+)/);const ext=extM?extM[1]:'jpg';
+    try{
+      if(storage)await storage.ref('products/'+shopId+'/'+code+'.'+ext).delete().catch(()=>storage.ref('products/'+shopId+'/'+code.toLowerCase()+'.'+ext).delete().catch(()=>{}));
+      delete productImages[code];delete productImages[code.toLowerCase()];
+      if(db&&fbConnected)db.ref(shopPath+'/productImages/'+code).remove();done++;
+    }catch(e){console.error(e);}
+  }
+  document.getElementById('imgInfo').textContent=Object.keys(productImages).length?Object.keys(productImages).length+' รูป ✅':'ยังไม่มีรูป';
+  showToast('✅ ลบสำเร็จ '+done+' รูปค่ะ');imgManagerSelection={};renderImgManagerList();updatePreview();
+}
+
 </script>
 <!-- Theme Picker Modal -->
 <div class="theme-modal-overlay" id="themeModal" onclick="if(event.target===this)closeThemeModal()">
@@ -1676,6 +1887,25 @@ document.addEventListener('DOMContentLoaded',()=>{
     <div class="theme-modal-group">กำหนดเอง</div>
     <div class="theme-swatches-grid">
       <div class="theme-swatch" data-theme="theme-custom" title="กำหนดสีเอง" style="background:conic-gradient(red,yellow,green,blue,red);border:2px dashed #aaa;" onclick="toggleCustomPanel(this);closeThemeModal()"></div>
+    </div>
+  </div>
+</div>
+
+<input type="file" id="replaceImgInput" accept="image/*" style="display:none" onchange="onReplaceImgSelected(this)">
+<div id="imgManagerModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:9999;align-items:flex-end;justify-content:center;">
+  <div style="background:#1a1a2a;border-radius:24px 24px 0 0;padding:20px 16px 32px;width:100%;max-width:480px;max-height:88vh;display:flex;flex-direction:column;gap:12px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;">
+      <div style="font-family:'Kanit',sans-serif;font-size:17px;font-weight:800;color:white;">🖼️ รูปสินค้าที่อัปโหลด</div>
+      <button onclick="closeImgManagerModal()" style="background:#333;border:none;color:#ccc;border-radius:50%;width:32px;height:32px;font-size:16px;cursor:pointer;">✕</button>
+    </div>
+    <div style="font-size:12px;color:#888;">ติ๊กเลือก → อัปโหลดทับ (1 รายการ) หรือ ลบ (หลายรายการ)</div>
+    <div id="imgManagerList" style="overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:4px;min-height:60px;"></div>
+    <div style="display:flex;flex-direction:column;gap:8px;padding-top:8px;border-top:1px solid #333;">
+      <div id="imgSelLabel" style="font-size:12px;color:#5c7a6b;font-family:'Kanit',sans-serif;font-weight:700;min-height:16px;"></div>
+      <div style="display:flex;gap:8px;">
+        <button id="btnImgReplace" onclick="triggerReplaceImg()" disabled style="flex:1;padding:11px 8px;background:#3d4f47;color:white;border:none;border-radius:12px;font-family:'Kanit',sans-serif;font-size:13px;font-weight:700;cursor:pointer;opacity:.4;">📤 อัปโหลดทับ</button>
+        <button id="btnImgDelete" onclick="deleteSelectedImages()" disabled style="flex:1;padding:11px 8px;background:#6b1a1a;color:white;border:none;border-radius:12px;font-family:'Kanit',sans-serif;font-size:13px;font-weight:700;cursor:pointer;opacity:.4;">🗑️ ลบที่เลือก</button>
+      </div>
     </div>
   </div>
 </div>
