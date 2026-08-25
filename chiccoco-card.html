@@ -209,29 +209,18 @@ auth.onAuthStateChanged(user=>{
     renderGrid(allProducts);
   });
 
+  // ✅ ใช้ URL ตรงๆ สำหรับ preview (เร็ว) — แปลง base64 เฉพาะตอน download
   storage.ref('products/'+shopId).listAll().then(res=>{
     return Promise.all(res.items.map(item=>
       item.getDownloadURL().then(url=>{
-        // ✅ แปลงรูปเป็น base64 เพื่อแก้ปัญหา CORS ใน html2canvas
-        return fetch(url,{mode:'cors',credentials:'omit'})
-          .then(r=>r.blob())
-          .then(blob=>new Promise(resolve=>{
-            const fr=new FileReader();
-            fr.onload=()=>{
-              const base=item.name.replace(/\.[^.]+$/,'');
-              const b64=fr.result;
-              productImages[base]=b64; productImages[base.toUpperCase()]=b64; productImages[base.toLowerCase()]=b64;
-            };
-            fr.onloadend=resolve;
-            fr.readAsDataURL(blob);
-          })).catch(()=>{
-            // fallback: ใช้ URL ตรงๆ ถ้า fetch ไม่ได้
-            const base=item.name.replace(/\.[^.]+$/,'');
-            productImages[base]=url; productImages[base.toUpperCase()]=url; productImages[base.toLowerCase()]=url;
-          });
+        const base=item.name.replace(/\.[^.]+$/,'');
+        productImages[base]=url;
+        productImages[base.toUpperCase()]=url;
+        productImages[base.toLowerCase()]=url;
       })
     ));
-  }).then(()=>renderGrid(filtered.length?filtered:allProducts)).catch(e=>console.warn('Storage:',e));
+  }).then(()=>renderGrid(filtered.length?filtered:allProducts))
+    .catch(e=>console.warn('Storage:',e));
 });
 
 // ── Sync from Remote ──
@@ -438,10 +427,8 @@ function refreshPreview(pi,p){
 function buildCardHTML(p){
   const code=p.code||'';
   const imgUrl=productImages[code]||productImages[code.toUpperCase()]||productImages[code.toLowerCase()]||'';
-  // base64 ไม่ต้องใช้ crossorigin
-  const isB64=imgUrl&&imgUrl.startsWith('data:');
   const imgHtml=imgUrl
-    ?(isB64?`<img class="PC-img" src="${imgUrl}">`:`<img class="PC-img" src="${imgUrl}" crossorigin="anonymous">`)
+    ?`<img class="PC-img" src="${imgUrl}" crossorigin="anonymous">`
     :`<div class="PC-no-img"><div class="PC-no-img-icon">📷</div><div class="PC-no-img-txt">ไม่มีรูปสินค้า</div></div>`;
   const co=p.activeCols||[];
   const av=(p.sizes||[]).filter(s=>!(p.soldSizes||[]).includes(s.size));
@@ -478,17 +465,52 @@ function buildCardHTML(p){
   </div>`;
 }
 
-// ── Canvas render ──
+// ── Canvas render (fetch base64 ก่อน เพื่อแก้ CORS ตอน download) ──
+async function fetchBase64(url){
+  try{
+    const res=await fetch(url,{mode:'cors',credentials:'omit'});
+    if(!res.ok) return url;
+    const blob=await res.blob();
+    return await new Promise(resolve=>{
+      const fr=new FileReader(); fr.onload=()=>resolve(fr.result); fr.onerror=()=>resolve(url); fr.readAsDataURL(blob);
+    });
+  }catch(e){ return url; }
+}
+
 async function toCanvas(p){
+  const target=p._updated||p;
+  const code=target.code||'';
+  const imgUrl=productImages[code]||productImages[code.toUpperCase()]||productImages[code.toLowerCase()]||'';
+
+  // แปลง URL → base64 ก่อน render
+  let b64Url=imgUrl;
+  if(imgUrl&&!imgUrl.startsWith('data:')){
+    b64Url=await fetchBase64(imgUrl);
+  }
+
+  // สร้าง version ชั่วคราวที่ใช้ base64
+  const imgBak=productImages[code];
+  if(b64Url&&b64Url!==imgUrl){
+    productImages[code]=b64Url;
+    productImages[code.toUpperCase()]=b64Url;
+    productImages[code.toLowerCase()]=b64Url;
+  }
+
   const rz=document.getElementById('RZ');
-  rz.innerHTML=buildCardHTML(p._updated||p);
+  rz.innerHTML=buildCardHTML(target);
   const el=rz.firstElementChild;
+
   const img=el.querySelector('img.PC-img');
   if(img) await new Promise(res=>{if(img.complete&&img.naturalHeight>0){res();return;}img.onload=res;img.onerror=res;});
   await document.fonts.ready;
-  await new Promise(r=>setTimeout(r,300));
-  const cv=await html2canvas(el,{scale:2,backgroundColor:'#f0ece6',useCORS:true,allowTaint:true,width:720,logging:false});
-  rz.innerHTML=''; return cv;
+  await new Promise(r=>setTimeout(r,200));
+
+  const cv=await html2canvas(el,{scale:2,backgroundColor:'#f0ece6',useCORS:true,allowTaint:false,width:720,logging:false});
+  rz.innerHTML='';
+
+  // restore URL เดิม
+  if(imgBak){ productImages[code]=imgBak; productImages[code.toUpperCase()]=imgBak; productImages[code.toLowerCase()]=imgBak; }
+  return cv;
 }
 
 async function dlOne(p){
