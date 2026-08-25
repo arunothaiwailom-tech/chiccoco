@@ -108,6 +108,15 @@ body{font-family:'Sarabun',sans-serif;background:#ede9e4;min-height:100vh;paddin
 .pi-select input{width:16px;height:16px;accent-color:#5c7a6b;cursor:pointer;}
 .pi-select label{font-size:12px;color:#5c7a6b;font-weight:700;cursor:pointer;}
 
+/* photo upload */
+.photo-zone{border:2.5px dashed #c8b898;border-radius:12px;padding:18px;text-align:center;cursor:pointer;background:#faf8f4;transition:all .2s;position:relative;}
+.photo-zone:hover{border-color:#5c7a6b;background:#f0f5f2;}
+.photo-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+.photo-zone-icon{font-size:28px;margin-bottom:6px;}
+.photo-zone-txt{font-size:12px;color:#888;}
+.photo-zone-txt b{color:#5c7a6b;}
+.photo-stat{font-size:12px;color:#5c7a6b;font-weight:700;margin-top:8px;}
+
 /* render zone */
 #RZ{position:fixed;left:-9999px;top:0;width:720px;pointer-events:none;}
 </style>
@@ -121,6 +130,17 @@ body{font-family:'Sarabun',sans-serif;background:#ede9e4;min-height:100vh;paddin
   <span class="topbar-status" id="fbStatus">⏳ กำลังเชื่อมต่อ...</span>
   <button class="btn btn-green" id="btnSync" onclick="syncFromRemote()" disabled style="font-size:12px;">🔄 ซิงค์จาก Remote</button>
   <span id="syncStatus" style="font-size:11px;color:#888;"></span>
+</div>
+
+<!-- Photo Upload Section -->
+<div class="filter-bar" id="photoSection" style="display:none;">
+  <div class="sec-title" style="font-family:'Kanit',sans-serif;font-size:13px;font-weight:700;color:#3d4f47;margin-bottom:12px;">🖼️ อัปโหลดรูปสินค้า</div>
+  <div class="photo-zone" id="photoDZ">
+    <input type="file" id="photoInput" accept="image/*" multiple onchange="loadPhotos(this.files)">
+    <div class="photo-zone-icon">📸</div>
+    <div class="photo-zone-txt">ลากรูปมาวาง หรือคลิกเพื่อเลือก<br><b>ชื่อไฟล์ = รหัสสินค้า</b> เช่น C900.jpg, i892.png</div>
+  </div>
+  <div class="photo-stat" id="photoStat"></div>
 </div>
 
 <div class="filter-bar">
@@ -184,6 +204,7 @@ firebase.initializeApp(FB);
 const auth=firebase.auth(), db=firebase.database(), storage=firebase.storage();
 
 let allProducts=[], productImages={}, filtered=[], selected=new Set(), shopPath='';
+let photoMap={}; // code.toLowerCase() → dataURL
 
 function setStatus(msg,ok){const el=document.getElementById('fbStatus');el.textContent=msg;el.className='topbar-status'+(ok?' ok':' err');}
 function fmt(v){const n=Number(v);return isNaN(n)?v:n.toLocaleString();}
@@ -206,20 +227,12 @@ auth.onAuthStateChanged(user=>{
     setStatus('✅ เชื่อมต่อแล้ว — สต๊อก '+allProducts.length+' รายการ',true);
     document.getElementById('btnDlAll').disabled=false;
     document.getElementById('btnSync').disabled=false;
+    document.getElementById('photoSection').style.display='block';
     renderGrid(allProducts);
   });
 
-  // ✅ อ่าน URL รูปจาก Realtime DB (ไม่มี CORS issue — เหมือน Overlay ใช้)
-  db.ref(shopPath+'/productImages').once('value',snap=>{
-    const data=snap.val()||{};
-    Object.keys(data).forEach(code=>{
-      const url=data[code];
-      productImages[code]=url;
-      productImages[code.toUpperCase()]=url;
-      productImages[code.toLowerCase()]=url;
-    });
-    renderGrid(filtered.length?filtered:allProducts);
-  });
+  // รูปมาจาก local upload (photoMap) ไม่ต้องโหลดจาก Firebase
+  // renderGrid จะใช้ photoMap โดยตรงค่ะ
 });
 
 // ── Sync from Remote ──
@@ -266,6 +279,42 @@ function syncFromRemote(){
     btn.disabled=false;
   });
 }
+
+// ── Photo Upload ──
+function loadPhotos(files){
+  const imgs=Array.from(files).filter(f=>f.type.startsWith('image/'));
+  if(!imgs.length) return;
+  let done=0;
+  imgs.forEach(f=>{
+    const key=f.name.replace(/\.[^.]+$/,'').toLowerCase().trim();
+    const fr=new FileReader();
+    fr.onload=ev=>{
+      photoMap[key]=ev.target.result;
+      done++;
+      if(done===imgs.length){
+        // อัปเดต productImages ด้วย local photos
+        Object.keys(photoMap).forEach(k=>{
+          productImages[k]=photoMap[k];
+          productImages[k.toUpperCase()]=photoMap[k];
+        });
+        const matched=allProducts.filter(p=>photoMap[p.code.toLowerCase()]).length;
+        document.getElementById('photoStat').textContent=
+          'โหลดแล้ว '+imgs.length+' รูป · แมตช์กับสินค้า '+matched+'/'+allProducts.length+' รายการ';
+        renderGrid(filtered.length?filtered:allProducts);
+      }
+    };
+    fr.readAsDataURL(f);
+  });
+}
+
+// drag-drop support
+document.addEventListener('DOMContentLoaded',()=>{
+  const dz=document.getElementById('photoDZ');
+  if(!dz) return;
+  dz.addEventListener('dragover',e=>{e.preventDefault();dz.style.borderColor='#5c7a6b';});
+  dz.addEventListener('dragleave',()=>dz.style.borderColor='#c8b898');
+  dz.addEventListener('drop',e=>{e.preventDefault();dz.style.borderColor='#c8b898';loadPhotos(e.dataTransfer.files);});
+});
 
 // ── Filter ──
 function applyFilter(){
@@ -425,7 +474,8 @@ function refreshPreview(pi,p){
 // ── Build Card HTML ──
 function buildCardHTML(p){
   const code=p.code||'';
-  const imgUrl=productImages[code]||productImages[code.toUpperCase()]||productImages[code.toLowerCase()]||'';
+  // ✅ ใช้ local photoMap ก่อน (ไม่มี CORS), fallback productImages
+  const imgUrl=photoMap[code.toLowerCase()]||productImages[code]||productImages[code.toUpperCase()]||productImages[code.toLowerCase()]||'';
   const imgHtml=imgUrl
     ?`<img class="PC-img" src="${imgUrl}" crossorigin="anonymous">`
     :`<div class="PC-no-img"><div class="PC-no-img-icon">📷</div><div class="PC-no-img-txt">ไม่มีรูปสินค้า</div></div>`;
@@ -479,21 +529,10 @@ async function fetchBase64(url){
 async function toCanvas(p){
   const target=p._updated||p;
   const code=target.code||'';
-  const imgUrl=productImages[code]||productImages[code.toUpperCase()]||productImages[code.toLowerCase()]||'';
+  // ✅ ใช้ local photoMap ก่อน (ไม่มี CORS), fallback productImages
+  const imgUrl=photoMap[code.toLowerCase()]||productImages[code]||productImages[code.toUpperCase()]||productImages[code.toLowerCase()]||'';
 
-  // แปลง URL → base64 ก่อน render
-  let b64Url=imgUrl;
-  if(imgUrl&&!imgUrl.startsWith('data:')){
-    b64Url=await fetchBase64(imgUrl);
-  }
-
-  // สร้าง version ชั่วคราวที่ใช้ base64
-  const imgBak=productImages[code];
-  if(b64Url&&b64Url!==imgUrl){
-    productImages[code]=b64Url;
-    productImages[code.toUpperCase()]=b64Url;
-    productImages[code.toLowerCase()]=b64Url;
-  }
+  // photoMap เป็น base64 อยู่แล้ว ไม่ต้อง fetch เพิ่ม
 
   const rz=document.getElementById('RZ');
   rz.innerHTML=buildCardHTML(target);
@@ -507,8 +546,6 @@ async function toCanvas(p){
   const cv=await html2canvas(el,{scale:2,backgroundColor:'#f0ece6',useCORS:true,allowTaint:false,width:720,logging:false});
   rz.innerHTML='';
 
-  // restore URL เดิม
-  if(imgBak){ productImages[code]=imgBak; productImages[code.toUpperCase()]=imgBak; productImages[code.toLowerCase()]=imgBak; }
   return cv;
 }
 
