@@ -47,8 +47,16 @@ body{font-family:'Sarabun',sans-serif;background:#ede9e4;min-height:100vh;paddin
 .dl-stat{font-size:12px;color:#888;margin-top:5px;}
 .dl-stat.ok{color:#5c7a6b;}
 
+/* grid layout */
+#GRID { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+@media(max-width:900px){ #GRID{grid-template-columns:repeat(2,1fr);} }
+@media(max-width:600px){ #GRID{grid-template-columns:1fr;} }
+
 /* card ui list */
-.card-ui{background:white;border-radius:14px;padding:14px;box-shadow:0 1px 8px rgba(0,0,0,.06);margin-bottom:12px;}
+#GRID{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+@media(max-width:900px){#GRID{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:600px){#GRID{grid-template-columns:1fr;}}
+.card-ui{background:white;border-radius:14px;padding:14px;box-shadow:0 1px 8px rgba(0,0,0,.06);}
 .card-ui-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
 .card-ui-name{font-size:12px;font-weight:700;color:#444;flex:1;margin-right:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .card-ui-code{font-size:11px;font-weight:800;color:#c8a96e;background:#f7f3ee;padding:3px 10px;border-radius:20px;flex-shrink:0;}
@@ -203,12 +211,29 @@ auth.onAuthStateChanged(user=>{
     renderGrid(allProducts);
   });
 
-  storage.ref('products/'+shopId).listAll().then(res=>
-    Promise.all(res.items.map(item=>item.getDownloadURL().then(url=>{
-      const base=item.name.replace(/\.[^.]+$/,'');
-      productImages[base]=url; productImages[base.toUpperCase()]=url; productImages[base.toLowerCase()]=url;
-    })))
-  ).then(()=>renderGrid(filtered.length?filtered:allProducts)).catch(e=>console.warn('Storage:',e));
+  storage.ref('products/'+shopId).listAll().then(res=>{
+    return Promise.all(res.items.map(item=>
+      item.getDownloadURL().then(url=>{
+        // ✅ แปลงรูปเป็น base64 เพื่อแก้ปัญหา CORS ใน html2canvas
+        return fetch(url,{mode:'cors',credentials:'omit'})
+          .then(r=>r.blob())
+          .then(blob=>new Promise(resolve=>{
+            const fr=new FileReader();
+            fr.onload=()=>{
+              const base=item.name.replace(/\.[^.]+$/,'');
+              const b64=fr.result;
+              productImages[base]=b64; productImages[base.toUpperCase()]=b64; productImages[base.toLowerCase()]=b64;
+            };
+            fr.onloadend=resolve;
+            fr.readAsDataURL(blob);
+          })).catch(()=>{
+            // fallback: ใช้ URL ตรงๆ ถ้า fetch ไม่ได้
+            const base=item.name.replace(/\.[^.]+$/,'');
+            productImages[base]=url; productImages[base.toUpperCase()]=url; productImages[base.toLowerCase()]=url;
+          });
+      })
+    ));
+  }).then(()=>renderGrid(filtered.length?filtered:allProducts)).catch(e=>console.warn('Storage:',e));
 });
 
 // ── Sync from Remote ──
@@ -400,7 +425,11 @@ function refreshPreview(pi,p){
 function buildCardHTML(p){
   const code=p.code||'';
   const imgUrl=productImages[code]||productImages[code.toUpperCase()]||productImages[code.toLowerCase()]||'';
-  const imgHtml=imgUrl?`<img class="PC-img" src="${imgUrl}" crossorigin="anonymous">`:`<div class="PC-no-img"><div class="PC-no-img-icon">📷</div><div class="PC-no-img-txt">ไม่มีรูปสินค้า</div></div>`;
+  // base64 ไม่ต้องใช้ crossorigin
+  const isB64=imgUrl&&imgUrl.startsWith('data:');
+  const imgHtml=imgUrl
+    ?(isB64?`<img class="PC-img" src="${imgUrl}">`:`<img class="PC-img" src="${imgUrl}" crossorigin="anonymous">`)
+    :`<div class="PC-no-img"><div class="PC-no-img-icon">📷</div><div class="PC-no-img-txt">ไม่มีรูปสินค้า</div></div>`;
   const co=p.activeCols||[];
   const av=(p.sizes||[]).filter(s=>!(p.soldSizes||[]).includes(s.size));
   const sizeList=av.map(s=>s.size).filter(Boolean).join(', ')||'—';
@@ -445,7 +474,7 @@ async function toCanvas(p){
   if(img) await new Promise(res=>{if(img.complete&&img.naturalHeight>0){res();return;}img.onload=res;img.onerror=res;});
   await document.fonts.ready;
   await new Promise(r=>setTimeout(r,300));
-  const cv=await html2canvas(el,{scale:2,backgroundColor:'#f0ece6',useCORS:true,allowTaint:false,width:720,logging:false});
+  const cv=await html2canvas(el,{scale:2,backgroundColor:'#f0ece6',useCORS:true,allowTaint:true,width:720,logging:false});
   rz.innerHTML=''; return cv;
 }
 
