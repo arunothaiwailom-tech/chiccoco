@@ -129,6 +129,7 @@ body{font-family:'Sarabun',sans-serif;background:#ede9e4;min-height:100vh;paddin
 <div class="topbar">
   <span class="topbar-status" id="fbStatus">⏳ กำลังเชื่อมต่อ...</span>
   <button class="btn btn-green" id="btnSync" onclick="syncFromRemote()" disabled style="font-size:12px;">🔄 ซิงค์จาก Remote</button>
+  <button class="btn btn-dk" id="btnLoadStorageImages" onclick="loadImagesFromStorage()" disabled style="font-size:12px;">📥 ดึงรูปจาก Storage</button>
   <span id="syncStatus" style="font-size:11px;color:#888;"></span>
 </div>
 
@@ -227,6 +228,7 @@ auth.onAuthStateChanged(user=>{
     setStatus('✅ เชื่อมต่อแล้ว — สต๊อก '+allProducts.length+' รายการ',true);
     document.getElementById('btnDlAll').disabled=false;
     document.getElementById('btnSync').disabled=false;
+    document.getElementById('btnLoadStorageImages').disabled=false;
     document.getElementById('photoSection').style.display='block';
     renderGrid(allProducts);
   });
@@ -278,6 +280,56 @@ function syncFromRemote(){
     stat.style.color='#cc0000';
     btn.disabled=false;
   });
+}
+
+// ── ดึงรูปที่เคยอัปโหลดไว้ใน Firebase Storage (จากรีโมท) มาแปลงเป็น base64 ──
+// หมายเหตุ: แปลงเป็น base64 แล้วเก็บใน photoMap เหมือนอัปโหลดมือ เพื่อให้ผ่าน html2canvas ได้ชัวร์
+// ถ้ารหัสไหนติด CORS block จาก Firebase Storage bucket จะแจ้งเตือนชัดเจน ไม่ export แบบรูปหายเงียบๆ
+async function loadImagesFromStorage(){
+  const btn=document.getElementById('btnLoadStorageImages');
+  const stat=document.getElementById('syncStatus');
+  if(!storage||!shopPath){ if(stat){stat.textContent='❌ ยังไม่พร้อมค่ะ'; stat.style.color='#cc0000';} return; }
+  btn.disabled=true;
+  if(stat){ stat.textContent='⏳ กำลังดึงรูปจาก Storage...'; stat.style.color='#888'; }
+  try{
+    const shopId=sessionStorage.getItem('shopId')||'shop_001';
+    const ref=storage.ref('products/'+shopId);
+    const list=await ref.listAll();
+    let ok=0, failCodes=[];
+    await Promise.all(list.items.map(async item=>{
+      const code=item.name.replace(/\.[^.]+$/,'').toLowerCase();
+      try{
+        const url=await item.getDownloadURL();
+        const res=await fetch(url,{mode:'cors',credentials:'omit'});
+        if(!res.ok) throw new Error('fetch failed');
+        const blob=await res.blob();
+        const dataUrl=await new Promise((resolve,reject)=>{
+          const fr=new FileReader();
+          fr.onload=()=>resolve(fr.result);
+          fr.onerror=reject;
+          fr.readAsDataURL(blob);
+        });
+        photoMap[code]=dataUrl;
+        ok++;
+      }catch(err){
+        failCodes.push(code.toUpperCase());
+      }
+    }));
+    const matched=allProducts.filter(p=>photoMap[(p.code||'').toLowerCase()]).length;
+    if(stat){
+      if(failCodes.length){
+        stat.textContent='⚠️ ดึงได้ '+ok+' รูป · ดึงไม่ได้ '+failCodes.length+' รูป ('+failCodes.slice(0,5).join(', ')+(failCodes.length>5?' ...':'')+') กรุณาอัปโหลดรหัสเหล่านี้ด้วยมือค่ะ';
+        stat.style.color='#cc7a00';
+      } else {
+        stat.textContent='✅ ดึงรูปจาก Storage แล้ว '+ok+' รูป · แมตช์ '+matched+'/'+allProducts.length+' รายการ';
+        stat.style.color='#5c7a6b';
+      }
+    }
+    renderGrid(filtered.length?filtered:allProducts);
+  }catch(e){
+    if(stat){ stat.textContent='❌ ดึงรูปไม่สำเร็จ: '+e.message; stat.style.color='#cc0000'; }
+  }
+  btn.disabled=false;
 }
 
 // ── Photo Upload ──
