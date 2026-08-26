@@ -409,7 +409,7 @@ function renderGrid(prods){
       let sizeEditor='';
       if(co.length){
         const lblRow=`<div class="edit-size-lbl"><span>ไซส์</span>${co.map(c=>'<span class="dim-lbl">'+c+'</span>').join('')}</div>`;
-        const rows=sizesArr.map((s,si)=>`<div class="edit-size-row" data-si="${si}"><input class="size-field" data-field="size" value="${s.size||''}"><${co.map(c=>'<input class="dim-field" data-field="'+c+'" value="'+(s[c]||'')+'">').join('')}<button class="btn-del-size" data-del="${si}">✕</button></div>`).join('');
+        const rows=sizesArr.map((s,si)=>`<div class="edit-size-row" data-si="${si}"><input class="size-field" data-field="size" value="${s.size||''}">${co.map(c=>'<input class="dim-field" data-field="'+c+'" value="'+(s[c]||'')+'">').join('')}<button class="btn-del-size" data-del="${si}">✕</button></div>`).join('');
         sizeEditor=`<div class="edit-size-lbl" style="font-size:10px;font-weight:700;color:#a3791f;font-family:'Kanit',sans-serif;margin-top:8px;margin-bottom:4px;">ตารางไซส์</div>${lblRow}<div id="srows-${pi}">${rows}</div><button class="btn-add-size" id="addsz-${pi}">+ เพิ่มไซส์</button>`;
       }
       editPanel.innerHTML=`
@@ -428,7 +428,7 @@ function renderGrid(prods){
       const addSzBtn=document.getElementById('addsz-'+pi);
       if(addSzBtn) addSzBtn.onclick=()=>{
         const rw=document.getElementById('srows-'+pi); const div=document.createElement('div'); div.className='edit-size-row';
-        div.innerHTML=`<input class="size-field" data-field="size" value=""><${co.map(c=>'<input class="dim-field" data-field="'+c+'" value="">').join('')}<button class="btn-del-size">✕</button>`;
+        div.innerHTML=`<input class="size-field" data-field="size" value="">${co.map(c=>'<input class="dim-field" data-field="'+c+'" value="">').join('')}<button class="btn-del-size">✕</button>`;
         div.querySelector('.btn-del-size').onclick=()=>div.remove(); rw.appendChild(div);
       };
       editPanel.querySelectorAll('.btn-del-size').forEach(b=>b.onclick=()=>b.closest('.edit-size-row').remove());
