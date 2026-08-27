@@ -130,6 +130,7 @@ body{font-family:'Sarabun',sans-serif;background:#ede9e4;min-height:100vh;paddin
   <span class="topbar-status" id="fbStatus">⏳ กำลังเชื่อมต่อ...</span>
   <button class="btn btn-green" id="btnSync" onclick="syncFromRemote()" disabled style="font-size:12px;">🔄 ซิงค์จาก Remote</button>
   <button class="btn btn-dk" id="btnLoadStorageImages" onclick="loadImagesFromStorage()" disabled style="font-size:12px;">📥 ดึงรูปจาก Storage</button>
+  <button class="btn btn-dk" id="btnLoadDriveImages" onclick="loadImagesFromDrive()" disabled style="font-size:12px;">📁 ดึงรูปจาก Google Drive</button>
   <span id="syncStatus" style="font-size:11px;color:#888;"></span>
 </div>
 
@@ -201,6 +202,8 @@ body{font-family:'Sarabun',sans-serif;background:#ede9e4;min-height:100vh;paddin
 
 <script>
 const FB={apiKey:"AIzaSyBwIlvqugbNYNbFd44DtgKSZWsQrXNnSuI",authDomain:"chiccoco-live.firebaseapp.com",databaseURL:"https://chiccoco-live-default-rtdb.asia-southeast1.firebasedatabase.app",storageBucket:"chiccoco-live.firebasestorage.app"};
+const DRIVE_API_KEY = 'AIzaSyBb1URl7-Y2fWVtoXEwJIto90sxYE8XkGY';
+const DRIVE_FOLDER_ID = '1zHnjc3VJwqhuOrBZ1Guoq_LNSKnXpCQz';
 firebase.initializeApp(FB);
 const auth=firebase.auth(), db=firebase.database(), storage=firebase.storage();
 
@@ -229,6 +232,7 @@ auth.onAuthStateChanged(user=>{
     document.getElementById('btnDlAll').disabled=false;
     document.getElementById('btnSync').disabled=false;
     document.getElementById('btnLoadStorageImages').disabled=false;
+    document.getElementById('btnLoadDriveImages').disabled=false;
     document.getElementById('photoSection').style.display='block';
     renderGrid(allProducts);
   });
@@ -328,6 +332,58 @@ async function loadImagesFromStorage(){
     renderGrid(filtered.length?filtered:allProducts);
   }catch(e){
     if(stat){ stat.textContent='❌ ดึงรูปไม่สำเร็จ: '+e.message; stat.style.color='#cc0000'; }
+  }
+  btn.disabled=false;
+}
+
+// ── ดึงรูปจากโฟลเดอร์ Google Drive (แหล่งรูปเดียวกับที่ใช้ในขั้น VRich) ──
+// ใช้ Google Drive API v3 (list ไฟล์ในโฟลเดอร์ + ดาวน์โหลดแต่ละไฟล์เป็น base64)
+// ไฟล์ในโฟลเดอร์ต้องแชร์เป็น "ทุกคนที่มีลิงก์ - ผู้ดู" ไม่งั้น API จะดึงไม่ได้
+async function loadImagesFromDrive(){
+  const btn=document.getElementById('btnLoadDriveImages');
+  const stat=document.getElementById('syncStatus');
+  btn.disabled=true;
+  if(stat){ stat.textContent='⏳ กำลังดึงรูปจาก Google Drive...'; stat.style.color='#888'; }
+  try{
+    const q=encodeURIComponent("'"+DRIVE_FOLDER_ID+"' in parents and trashed = false");
+    const listUrl='https://www.googleapis.com/drive/v3/files?q='+q+'&fields=files(id,name)&pageSize=1000&key='+DRIVE_API_KEY;
+    const res=await fetch(listUrl);
+    if(!res.ok) throw new Error('list failed '+res.status);
+    const data=await res.json();
+    const files=data.files||[];
+    let ok=0, failCodes=[];
+    await Promise.all(files.map(async f=>{
+      const code=f.name.replace(/\.[^.]+$/,'').toLowerCase();
+      try{
+        const imgUrl='https://www.googleapis.com/drive/v3/files/'+f.id+'?alt=media&key='+DRIVE_API_KEY;
+        const r2=await fetch(imgUrl);
+        if(!r2.ok) throw new Error('fetch img failed');
+        const blob=await r2.blob();
+        const dataUrl=await new Promise((resolve,reject)=>{
+          const fr=new FileReader();
+          fr.onload=()=>resolve(fr.result);
+          fr.onerror=reject;
+          fr.readAsDataURL(blob);
+        });
+        photoMap[code]=dataUrl;
+        ok++;
+      }catch(err){
+        failCodes.push(code.toUpperCase());
+      }
+    }));
+    const matched=allProducts.filter(p=>photoMap[(p.code||'').toLowerCase()]).length;
+    if(stat){
+      if(failCodes.length){
+        stat.textContent='⚠️ ดึงได้ '+ok+' รูป · ดึงไม่ได้ '+failCodes.length+' รูป ('+failCodes.slice(0,5).join(', ')+(failCodes.length>5?' ...':'')+')';
+        stat.style.color='#cc7a00';
+      } else {
+        stat.textContent='✅ ดึงรูปจาก Google Drive แล้ว '+ok+' รูป · แมตช์ '+matched+'/'+allProducts.length+' รายการ';
+        stat.style.color='#5c7a6b';
+      }
+    }
+    renderGrid(filtered.length?filtered:allProducts);
+  }catch(e){
+    if(stat){ stat.textContent='❌ ดึงรูปจาก Drive ไม่สำเร็จ: '+e.message; stat.style.color='#cc0000'; }
   }
   btn.disabled=false;
 }
