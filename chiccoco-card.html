@@ -131,6 +131,8 @@ body{font-family:'Sarabun',sans-serif;background:#ede9e4;min-height:100vh;paddin
   <button class="btn btn-green" id="btnSync" onclick="syncFromRemote()" disabled style="font-size:12px;">🔄 ซิงค์จาก Remote</button>
   <button class="btn btn-dk" id="btnLoadStorageImages" onclick="loadImagesFromStorage()" disabled style="font-size:12px;">📥 ดึงรูปจาก Storage</button>
   <button class="btn btn-dk" id="btnLoadDriveImages" onclick="loadImagesFromDrive()" disabled style="font-size:12px;">📁 ดึงรูปจาก Google Drive</button>
+  <button class="btn btn-green" id="btnImportVrich" onclick="document.getElementById('vrichFileInput').click()" disabled style="font-size:12px;">📤 Import ข้อมูลจาก VRich</button>
+  <input type="file" id="vrichFileInput" accept=".json" style="display:none;" onchange="importVrichData(this.files[0])">
   <span id="syncStatus" style="font-size:11px;color:#888;"></span>
 </div>
 
@@ -233,6 +235,7 @@ auth.onAuthStateChanged(user=>{
     document.getElementById('btnSync').disabled=false;
     document.getElementById('btnLoadStorageImages').disabled=false;
     document.getElementById('btnLoadDriveImages').disabled=false;
+    document.getElementById('btnImportVrich').disabled=false;
     document.getElementById('photoSection').style.display='block';
     renderGrid(allProducts);
   });
@@ -355,7 +358,7 @@ async function loadImagesFromDrive(){
     await Promise.all(files.map(async f=>{
       const code=f.name.replace(/\.[^.]+$/,'').toLowerCase();
       try{
-        const imgUrl='https://www.googleapis.com/drive/v3/files/'+f.id+'?alt=media&key='+DRIVE_API_KEY;
+        const imgUrl='https://lh3.googleusercontent.com/d/'+f.id;
         const r2=await fetch(imgUrl);
         if(!r2.ok) throw new Error('fetch img failed');
         const blob=await r2.blob();
@@ -386,6 +389,44 @@ async function loadImagesFromDrive(){
     if(stat){ stat.textContent='❌ ดึงรูปจาก Drive ไม่สำเร็จ: '+e.message; stat.style.color='#cc0000'; }
   }
   btn.disabled=false;
+}
+
+// ── Import ข้อมูลจาก VRich (ราคา + สต๊อกคงเหลือ) ──
+// ไฟล์ JSON รูปแบบ: {"A02-S":{"qty":5,"price":299}, "A02-M":{"qty":0,"price":299}, ...}
+// คีย์คือ รหัสสต๊อก (รหัสหลัก+ไซซ์) qty=0 → นับเป็นไซซ์หมด, price → อัปเดตราคาให้ตรงของจริง
+async function importVrichData(file){
+  const stat=document.getElementById('syncStatus');
+  if(!file) return;
+  try{
+    const text=await file.text();
+    const data=JSON.parse(text);
+    let matched=0;
+    allProducts.forEach(p=>{
+      const code=p.code||'';
+      const sizes=p.sizes||[];
+      let foundAny=false, soldSizes=[], priceFromVrich=null;
+      sizes.forEach(s=>{
+        const key=code+'-'+s.size;
+        const entry=data[key];
+        if(entry){
+          foundAny=true;
+          if(Number(entry.qty)===0) soldSizes.push(s.size);
+          if(entry.price!=null) priceFromVrich=entry.price;
+        }
+      });
+      if(foundAny){
+        matched++;
+        if(!p._updated) p._updated={...p};
+        p._updated.soldSizes=soldSizes;
+        if(priceFromVrich!=null) p._updated.price=priceFromVrich;
+      }
+    });
+    renderGrid(filtered.length?filtered:allProducts);
+    if(stat){ stat.textContent='✅ Import จาก VRich แล้ว · จับคู่ได้ '+matched+'/'+allProducts.length+' รหัส'; stat.style.color='#5c7a6b'; }
+  }catch(e){
+    if(stat){ stat.textContent='❌ Import ไม่สำเร็จ: '+e.message; stat.style.color='#cc0000'; }
+  }
+  document.getElementById('vrichFileInput').value='';
 }
 
 // ── Photo Upload ──
