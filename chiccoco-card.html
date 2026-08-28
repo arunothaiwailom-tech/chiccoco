@@ -133,6 +133,8 @@ body{font-family:'Sarabun',sans-serif;background:#ede9e4;min-height:100vh;paddin
   <button class="btn btn-dk" id="btnLoadDriveImages" onclick="loadImagesFromDrive()" disabled style="font-size:12px;">📁 ดึงรูปจาก Google Drive</button>
   <button class="btn btn-green" id="btnImportVrich" onclick="document.getElementById('vrichFileInput').click()" disabled style="font-size:12px;">📤 Import ข้อมูลจาก VRich</button>
   <input type="file" id="vrichFileInput" accept=".json" style="display:none;" onchange="importVrichData(this.files[0])">
+  <button class="btn btn-dk" id="btnImportCaption" onclick="document.getElementById('captionFileInput').click()" disabled style="font-size:12px;">🏷️ Import คำโปรย</button>
+  <input type="file" id="captionFileInput" accept=".json" style="display:none;" onchange="importCaptionData(this.files[0])">
   <span id="syncStatus" style="font-size:11px;color:#888;"></span>
 </div>
 
@@ -211,6 +213,7 @@ const auth=firebase.auth(), db=firebase.database(), storage=firebase.storage();
 
 let allProducts=[], productImages={}, filtered=[], selected=new Set(), shopPath='';
 let photoMap={}; // code.toLowerCase() → dataURL
+let productCaptions={}; // code (base, uppercase) → คำโปรยสั้นๆ
 
 function setStatus(msg,ok){const el=document.getElementById('fbStatus');el.textContent=msg;el.className='topbar-status'+(ok?' ok':' err');}
 function fmt(v){const n=Number(v);return isNaN(n)?v:n.toLocaleString();}
@@ -236,6 +239,7 @@ auth.onAuthStateChanged(user=>{
     document.getElementById('btnLoadStorageImages').disabled=false;
     document.getElementById('btnLoadDriveImages').disabled=false;
     document.getElementById('btnImportVrich').disabled=false;
+    document.getElementById('btnImportCaption').disabled=false;
     document.getElementById('photoSection').style.display='block';
     renderGrid(allProducts);
   });
@@ -427,6 +431,30 @@ async function importVrichData(file){
     if(stat){ stat.textContent='❌ Import ไม่สำเร็จ: '+e.message; stat.style.color='#cc0000'; }
   }
   document.getElementById('vrichFileInput').value='';
+}
+
+// ── Import คำโปรยสั้นๆ ต่อรหัสหลัก (สร้างโดย AI วิเคราะห์ภาพ) ──
+// ไฟล์ JSON รูปแบบ: {"A02":"เชือกถักปมมินิมอล...", "A03":"เชอร์รี่แดงสดใส...", ...}
+// คีย์คือรหัสหลัก (ไม่รวมไซซ์) — โชว์เป็นบรรทัดเล็กตัวเอียงใต้ชื่อสินค้า ไม่บังคับต้องมีทุกรหัส
+async function importCaptionData(file){
+  const stat=document.getElementById('syncStatus');
+  if(!file) return;
+  try{
+    const text=await file.text();
+    const data=JSON.parse(text);
+    let matched=0;
+    Object.keys(data).forEach(k=>{
+      productCaptions[k.toUpperCase()]=data[k];
+    });
+    allProducts.forEach(p=>{
+      if(productCaptions[(p.code||'').toUpperCase()]) matched++;
+    });
+    renderGrid(filtered.length?filtered:allProducts);
+    if(stat){ stat.textContent='✅ Import คำโปรยแล้ว · จับคู่ได้ '+matched+'/'+allProducts.length+' รหัส'; stat.style.color='#5c7a6b'; }
+  }catch(e){
+    if(stat){ stat.textContent='❌ Import คำโปรยไม่สำเร็จ: '+e.message; stat.style.color='#cc0000'; }
+  }
+  document.getElementById('captionFileInput').value='';
 }
 
 // ── Photo Upload ──
@@ -651,6 +679,7 @@ function buildCardHTML(p){
     <div class="PC-body">
       <div class="PC-brand">C H I C C O C O</div>
       <div class="PC-name">${p.name||''}</div>
+      ${productCaptions[code.toUpperCase()]?`<div style="text-align:center;font-style:italic;font-size:18px;color:#a3968a;margin-top:-8px;">${productCaptions[code.toUpperCase()]}</div>`:''}
       <div class="PC-row">
         <div class="PC-box"><div class="PC-lbl">รหัสสินค้า</div><div class="PC-val">${code}</div></div>
         ${priceHtml}
