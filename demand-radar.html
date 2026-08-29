@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CHICCOCO เรดาร์ความต้องการลูกค้า</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#11131b;
+    --panel:#181b27;
+    --panel-2:#1f2333;
+    --border:#2a2f45;
+    --text:#f1efe9;
+    --muted:#8d92ab;
+    --hot:#ff3f72;
+    --hot-glow:rgba(255,63,114,0.35);
+    --calm:#31d6a3;
+    --warn:#ffb02e;
+    --mono:'IBM Plex Mono', monospace;
+    --sans:'Noto Sans Thai','Noto Sans',sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:var(--sans);}
+  body{padding:20px 14px 60px;max-width:640px;margin:0 auto;}
+  .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--hot);margin:0 0 8px;}
+  h1{font-size:22px;line-height:1.3;margin:0 0 6px;font-weight:800;}
+  .sub{color:var(--muted);font-size:13.5px;line-height:1.55;margin:0 0 22px;}
+  .panel{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:14px;}
+  label{display:block;font-size:13px;font-weight:600;margin-bottom:6px;}
+  .hint{color:var(--muted);font-size:11.5px;line-height:1.5;margin:4px 0 10px;}
+  textarea{
+    width:100%;background:var(--panel-2);border:1px solid var(--border);border-radius:10px;
+    color:var(--text);font-family:var(--mono);font-size:13px;padding:10px 12px;resize:vertical;
+    min-height:90px;line-height:1.6;
+  }
+  textarea:focus, button:focus, .icon-btn:focus{outline:2px solid var(--hot);outline-offset:2px;}
+  details{margin-top:8px;}
+  summary{cursor:pointer;font-size:12.5px;color:var(--muted);font-weight:600;padding:4px 0;}
+  .adv-row{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap;}
+  .adv-row > div{flex:1;min-width:140px;}
+  button.primary{
+    width:100%;padding:14px;border:none;border-radius:12px;background:var(--hot);color:#fff;
+    font-family:var(--sans);font-weight:700;font-size:15px;cursor:pointer;margin-top:4px;
+    box-shadow:0 8px 24px var(--hot-glow);
+  }
+  button.primary:active{transform:translateY(1px);}
+  .summary-strip{display:flex;gap:10px;margin:16px 0;}
+  .stat{flex:1;background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:10px 12px;text-align:center;}
+  .stat .num{font-family:var(--mono);font-size:20px;font-weight:700;}
+  .stat .lbl{font-size:10.5px;color:var(--muted);margin-top:2px;}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:13px 14px;margin-bottom:10px;}
+  .card.hot{border-color:var(--hot);box-shadow:0 0 0 1px var(--hot) inset, 0 6px 20px var(--hot-glow);}
+  .card-top{display:flex;align-items:center;gap:10px;}
+  .rank{font-family:var(--mono);color:var(--muted);font-size:12px;width:20px;flex-shrink:0;}
+  .code{font-family:var(--mono);font-weight:700;font-size:15px;flex:1;}
+  .count{font-family:var(--mono);font-weight:700;font-size:17px;}
+  .count-lbl{font-size:10px;color:var(--muted);text-align:right;}
+  .bar-track{height:8px;border-radius:5px;background:var(--panel-2);margin-top:9px;overflow:hidden;position:relative;}
+  .bar-fill{height:100%;border-radius:5px;background:var(--calm);}
+  .bar-fill.over{background:var(--hot);}
+  .bar-fill.warn{background:var(--warn);}
+  .badge{display:inline-block;margin-top:8px;font-size:11px;font-weight:700;padding:3px 8px;border-radius:20px;background:var(--hot);color:#fff;}
+  .variants{margin-top:8px;padding-top:8px;border-top:1px dashed var(--border);font-size:12px;color:var(--muted);font-family:var(--mono);display:flex;flex-wrap:wrap;gap:6px 14px;}
+  .empty{color:var(--muted);font-size:13px;text-align:center;padding:24px 10px;}
+  .week-group{margin-bottom:16px;}
+  .week-group:last-child{margin-bottom:0;}
+  .week-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px;}
+  .week-head span{font-family:var(--mono);font-size:12px;color:var(--calm);font-weight:600;}
+  .hist-item{display:flex;justify-content:space-between;align-items:center;padding:10px 4px;border-bottom:1px solid var(--border);font-size:13px;}
+  .hist-item:last-child{border-bottom:none;}
+  .hist-meta{color:var(--muted);font-size:11.5px;}
+  .icon-btn{background:none;border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:5px 10px;font-size:12px;cursor:pointer;font-family:var(--sans);}
+  .icon-btn.danger{color:var(--hot);border-color:var(--hot);}
+  .save-row{display:flex;gap:8px;margin-top:14px;}
+  .save-row input{flex:1;background:var(--panel-2);border:1px solid var(--border);border-radius:10px;color:var(--text);padding:9px 10px;font-family:var(--sans);font-size:13px;}
+  .save-row button{background:var(--panel-2);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:0 14px;font-weight:600;font-size:13px;cursor:pointer;}
+  h2{font-size:14px;margin:22px 0 10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:700;}
+</style>
+</head>
+<body>
+
+  <div class="eyebrow">CHICCOCO · Live Demand Radar</div>
+  <h1>เรดาร์ความต้องการลูกค้า</h1>
+  <p class="sub">แปะคอมเมนต์จากไลฟ์ + ใส่รหัสสินค้าที่ขายรอบนี้ ระบบจะนับว่ารหัสไหนมีคนพิมพ์ทักถึงมากที่สุด และรหัสไหนมีคนสนใจเกินจำนวนสต๊อกที่มี ไว้ใช้วางแผนสั่งของรอบถัดไป</p>
+
+  <div class="panel">
+    <label for="codesInput">1) รหัสสินค้ารอบนี้ (+ จำนวนสต๊อก ถ้ามี)</label>
+    <p class="hint">1 บรรทัดต่อ 1 รหัส หรือคั่นด้วย , &nbsp;·&nbsp; ใส่จำนวนได้แบบ <b>รหัส:จำนวน</b><br>เช่น <code>T905-M:5</code>, <code>T905-L:5</code> หรือถ้าไม่รู้จำนวนแยกไซซ์ ใส่แค่ <code>T905:15</code> ก็นับรวมได้</p>
+    <textarea id="codesInput" placeholder="T905-S:5
+T905-M:8
+T905-L:5
+B203:20
+C110-ขาว:10
+C110-ดำ:10"></textarea>
+
+    <div style="margin-top:14px;">
+      <label for="commentsInput">2) คอมเมนต์จากไลฟ์ (วางทั้งก้อนได้เลย)</label>
+      <p class="hint">คัดลอกคอมเมนต์จากหน้าไลฟ์เฟซบุ๊กมาวางตรงนี้ 1 คอมเมนต์ต่อ 1 บรรทัด ไม่ต้องตัดแต่งอะไร</p>
+      <textarea id="commentsInput" style="min-height:140px;" placeholder="CF T905-M
+เอา T905-M ค่ะ
+สนใจ B203
+ซีเอฟ C110-ขาว
+T905-L 1 ตัว"></textarea>
+    </div>
+
+    <details>
+      <summary>ตั้งค่าคำที่นับเป็นการสนใจ (ไม่บังคับ)</summary>
+      <div class="adv-row">
+        <div>
+          <label style="font-size:12px;">คำที่บ่งบอกว่าอยากได้</label>
+          <textarea id="keywordsInput" style="min-height:50px;font-size:12px;">cf, ซีเอฟ, จอง, เอา, รับ, ขอ</textarea>
+        </div>
+      </div>
+      <p class="hint">ถ้าคอมเมนต์มีรหัสสินค้าอยู่ จะนับเป็นความสนใจ 1 ครั้งเสมอ ส่วนคำด้านบนใช้แค่ทำเครื่องหมาย "สนใจชัดเจน" เพิ่มเติมเฉยๆ</p>
+    </details>
+
+    <button class="primary" onclick="runAnalysis()">วิเคราะห์คอมเมนต์</button>
+  </div>
+
+  <div id="results"></div>
+
+  <h2>ประวัติที่บันทึกไว้</h2>
+  <div class="panel" id="historyPanel">
+    <div class="empty" id="historyEmpty">กำลังโหลด…</div>
+  </div>
+
+<script>
+const STORAGE_PREFIX = 'session:';
+
+// Works two ways: inside a Claude.ai artifact (window.storage, synced) or as a
+// standalone page hosted anywhere e.g. GitHub Pages (falls back to localStorage,
+// saved on that device/browser only).
+const hasCloudStorage = (typeof window.storage !== 'undefined');
+async function storageSet(key, value){
+  if(hasCloudStorage) return window.storage.set(key, value, false);
+  try{ localStorage.setItem(key, value); return {key, value}; }catch(e){ return null; }
+}
+async function storageGet(key){
+  if(hasCloudStorage) return window.storage.get(key, false);
+  try{ const v = localStorage.getItem(key); return v!=null ? {key, value:v} : null; }catch(e){ return null; }
+}
+async function storageList(prefix){
+  if(hasCloudStorage) return window.storage.list(prefix, false);
+  try{
+    const keys = [];
+    for(let i=0;i<localStorage.length;i++){ const k = localStorage.key(i); if(k && k.indexOf(prefix)===0) keys.push(k); }
+    return {keys};
+  }catch(e){ return {keys:[]}; }
+}
+async function storageDelete(key){
+  if(hasCloudStorage) return window.storage.delete(key, false);
+  try{ localStorage.removeItem(key); return {key, deleted:true}; }catch(e){ return null; }
+}
+
+function parseCodesConfig(raw){
+  const entries = raw.split(/[\n,]/).map(s=>s.trim()).filter(Boolean);
+  const list = [];
+  for(const e of entries){
+    const parts = e.split(':');
+    const codeRaw = parts[0].trim();
+    const qty = parts.length>1 ? parseInt(parts[1].replace(/[^0-9]/g,''),10) : null;
+    if(!codeRaw) continue;
+    const m = codeRaw.match(/^(.*?)-([A-Za-z0-9ก-๙]{1,6})$/);
+    const base = m ? m[1] : codeRaw;
+    const suffix = m ? m[2] : null;
+    list.push({raw: codeRaw, base, suffix, qty: (isNaN(qty)?null:qty)});
+  }
+  return list;
+}
+
+function escapeRegex(s){ return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'); }
+
+function analyze(codesRaw, commentsRaw, keywordsRaw){
+  const tracked = parseCodesConfig(codesRaw);
+  if(tracked.length===0) return null;
+
+  const keywords = keywordsRaw.split(',').map(s=>s.trim().toLowerCase()).filter(Boolean);
+  const lines = commentsRaw.split('\n').map(s=>s.trim()).filter(Boolean);
+
+  // Build regex per tracked entry: entries without an explicit suffix should also
+  // catch any size/color variant typed by a customer (e.g. tracked "T905" catches "T905-M").
+  const patterns = tracked.map(t=>{
+    const escBase = escapeRegex(t.base);
+    if(t.suffix){
+      return {t, re: new RegExp('\\b'+escBase+'-'+escapeRegex(t.suffix)+'\\b','i')};
+    }
+    return {t, re: new RegExp('\\b'+escBase+'(-[A-Za-z0-9ก-๙]{1,6})?\\b','i')};
+  });
+
+  // variantKey -> {base, suffix, count, hotCount, qty}
+  const variants = {};
+  function ensureVariant(base, suffix, qty){
+    const key = suffix ? (base+'-'+suffix) : base;
+    if(!variants[key]) variants[key] = {base, suffix, key, count:0, hotCount:0, qty: (qty!=null?qty:null)};
+    if(qty!=null && variants[key].qty==null) variants[key].qty = qty;
+    return variants[key];
+  }
+  // seed known variants so zero-mention ones still show up
+  tracked.forEach(t=> ensureVariant(t.base, t.suffix, t.qty));
+
+  let totalComments = lines.length;
+  let matchedComments = 0;
+
+  for(const line of lines){
+    const lower = line.toLowerCase();
+    const hasKeyword = keywords.some(k=>k && lower.includes(k));
+    let lineMatched = false;
+    const seenThisLine = new Set();
+    for(const {t, re} of patterns){
+      const m = line.match(re);
+      if(m){
+        const foundSuffix = t.suffix ? t.suffix : (m[1] ? m[1].replace(/^-/,'') : null);
+        const key = foundSuffix ? (t.base+'-'+foundSuffix) : t.base;
+        if(seenThisLine.has(key)) continue; // avoid double count same code same comment
+        seenThisLine.add(key);
+        const v = ensureVariant(t.base, foundSuffix, null);
+        v.count += 1;
+        if(hasKeyword) v.hotCount += 1;
+        lineMatched = true;
+      }
+    }
+    if(lineMatched) matchedComments++;
+  }
+
+  // aggregate by base
+  const bases = {};
+  Object.values(variants).forEach(v=>{
+    if(!bases[v.base]) bases[v.base] = {base:v.base, count:0, qty:0, qtyKnown:false, variants:[]};
+    const b = bases[v.base];
+    b.count += v.count;
+    if(v.qty!=null){ b.qty += v.qty; b.qtyKnown = true; }
+    b.variants.push(v);
+  });
+
+  const baseList = Object.values(bases).sort((a,b)=> b.count - a.count);
+
+  return {totalComments, matchedComments, baseList};
+}
+
+function renderResults(result){
+  const el = document.getElementById('results');
+  if(!result){
+    el.innerHTML = '<div class="panel"><div class="empty">ใส่รหัสสินค้าอย่างน้อย 1 รายการก่อนวิเคราะห์</div></div>';
+    return;
+  }
+  const {totalComments, matchedComments, baseList} = result;
+
+  let html = '';
+  html += '<div class="summary-strip">'
+    + '<div class="stat"><div class="num">'+totalComments+'</div><div class="lbl">คอมเมนต์ทั้งหมด</div></div>'
+    + '<div class="stat"><div class="num">'+matchedComments+'</div><div class="lbl">มีรหัสสินค้า</div></div>'
+    + '<div class="stat"><div class="num">'+baseList.length+'</div><div class="lbl">รุ่นที่ถูกพูดถึง</div></div>'
+    + '</div>';
+
+  if(baseList.every(b=>b.count===0)){
+    html += '<div class="panel"><div class="empty">ไม่พบรหัสสินค้าที่ตรงกันในคอมเมนต์ — ลองตรวจสอบว่ารหัสที่ใส่ตรงกับที่ลูกค้าพิมพ์จริงไหม</div></div>';
+  } else {
+    baseList.forEach((b,i)=>{
+      const gap = b.qtyKnown ? (b.count - b.qty) : null;
+      const rawPct = b.qtyKnown && b.qty>0 ? Math.round((b.count/b.qty)*100) : null;
+      const pct = b.qtyKnown && b.qty>0 ? Math.min(100, rawPct) : (b.count>0? 100 : 0);
+      const isOver = gap!=null && gap>0;
+      const barClass = isOver ? 'over' : (b.qtyKnown && pct>=70 ? 'warn' : '');
+      html += '<div class="card '+(isOver?'hot':'')+'">';
+      html += '<div class="card-top">';
+      html += '<div class="rank">#'+(i+1)+'</div>';
+      html += '<div class="code">'+b.base+'</div>';
+      html += '<div style="text-align:right;"><div class="count">'+b.count+'</div><div class="count-lbl">คนสนใจ'+(rawPct!=null? ' · '+rawPct+'%' : '')+'</div></div>';
+      html += '</div>';
+      if(b.qtyKnown){
+        html += '<div class="bar-track"><div class="bar-fill '+barClass+'" style="width:'+pct+'%"></div></div>';
+        html += '<div class="hint" style="margin:6px 0 0;">สต๊อก '+b.qty+' ชิ้น'+(isOver? (' · ต้องการเกิน '+gap+' ชิ้น ('+rawPct+'% ของสต๊อก)') : (' · ความต้องการ '+rawPct+'% ของสต๊อก'))+'</div>';
+        if(isOver) html += '<span class="badge">🔥 ต้องการ '+rawPct+'% ของสต๊อก · ควรสั่งเพิ่มรอบหน้า</span>';
+      } else {
+        html += '<div class="hint" style="margin:6px 0 0;">ยังไม่ได้ใส่จำนวนสต๊อกของรุ่นนี้</div>';
+      }
+      if(b.variants.length>1 || (b.variants.length===1 && b.variants[0].suffix)){
+        html += '<div class="variants">';
+        b.variants.sort((x,y)=>y.count-x.count).forEach(v=>{
+          const label = v.suffix ? (v.base+'-'+v.suffix) : v.base;
+          html += '<span>'+label+': '+v.count+(v.qty!=null?('/'+v.qty):'')+'</span>';
+        });
+        html += '</div>';
+      }
+      html += '</div>';
+    });
+  }
+
+  html += '<div class="save-row">'
+    + '<input type="text" id="saveLabel" placeholder="ตั้งชื่อรอบนี้ เช่น ไลฟ์ 29 ส.ค.">'
+    + '<button onclick="saveSession()">บันทึก</button>'
+    + '</div>';
+
+  el.innerHTML = html;
+  window.__lastResult = result;
+}
+
+function runAnalysis(){
+  const codesRaw = document.getElementById('codesInput').value;
+  const commentsRaw = document.getElementById('commentsInput').value;
+  const keywordsRaw = document.getElementById('keywordsInput').value;
+  const result = analyze(codesRaw, commentsRaw, keywordsRaw);
+  renderResults(result);
+}
+
+async function saveSession(){
+  if(!window.__lastResult){ return; }
+  const labelInput = document.getElementById('saveLabel');
+  const label = (labelInput && labelInput.value.trim()) || new Date().toLocaleString('th-TH');
+  const id = Date.now().toString();
+  const payload = {
+    id, label,
+    savedAt: new Date().toISOString(),
+    totalComments: window.__lastResult.totalComments,
+    matchedComments: window.__lastResult.matchedComments,
+    baseList: window.__lastResult.baseList
+  };
+  try{
+    const res = await storageSet(STORAGE_PREFIX+id, JSON.stringify(payload));
+    if(!res){ throw new Error('save failed'); }
+    if(labelInput) labelInput.value = '';
+    loadHistory();
+  }catch(err){
+    console.error('save error', err);
+    alert('บันทึกไม่สำเร็จ ลองใหม่อีกครั้ง');
+  }
+}
+
+async function loadHistory(){
+  const panel = document.getElementById('historyPanel');
+  panel.innerHTML = '<div class="empty">กำลังโหลด…</div>';
+  try{
+    const listRes = await storageList(STORAGE_PREFIX);
+    const keys = (listRes && listRes.keys) || [];
+    if(keys.length===0){
+      panel.innerHTML = '<div class="empty">ยังไม่มีประวัติ กดวิเคราะห์แล้วบันทึกไว้ดูย้อนหลังได้</div>';
+      return;
+    }
+    const sessions = [];
+    for(const k of keys){
+      try{
+        const r = await storageGet(k);
+        if(r && r.value) sessions.push(JSON.parse(r.value));
+      }catch(e){ /* skip missing/corrupt */ }
+    }
+    sessions.sort((a,b)=> new Date(b.savedAt) - new Date(a.savedAt));
+    if(sessions.length===0){
+      panel.innerHTML = '<div class="empty">ยังไม่มีประวัติ</div>';
+      return;
+    }
+
+    // group sessions by ISO week
+    const groups = {};
+    sessions.forEach(s=>{
+      const wk = getISOWeek(new Date(s.savedAt));
+      const key = wk.year+'-W'+String(wk.week).padStart(2,'0');
+      if(!groups[key]) groups[key] = [];
+      groups[key].push(s);
+    });
+    window.__historyGroups = groups;
+    const weekKeys = Object.keys(groups).sort().reverse();
+
+    let html = '';
+    weekKeys.forEach(wk=>{
+      const list = groups[wk];
+      html += '<div class="week-group">';
+      html += '<div class="week-head"><span>สัปดาห์ '+wk+' · '+list.length+' รอบไลฟ์</span>'
+        + '<button class="icon-btn" onclick="downloadWeek(\''+wk+'\')">⬇ ดาวน์โหลดสรุปสัปดาห์นี้</button></div>';
+      html += list.map(s=>{
+        const top3 = (s.baseList||[]).slice(0,3).map(b=>b.base+' ('+b.count+')').join(', ');
+        return '<div class="hist-item">'
+          + '<div><div>'+s.label+'</div><div class="hist-meta">'+top3+'</div></div>'
+          + '<button class="icon-btn danger" onclick="deleteSession(\''+s.id+'\')">ลบ</button>'
+          + '</div>';
+      }).join('');
+      html += '</div>';
+    });
+    panel.innerHTML = html;
+  }catch(err){
+    console.error('history load error', err);
+    panel.innerHTML = '<div class="empty">โหลดประวัติไม่สำเร็จ</div>';
+  }
+}
+
+function getISOWeek(d){
+  const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  date.setUTCDate(date.getUTCDate() + 4 - (date.getUTCDay()||7));
+  const yearStart = new Date(Date.UTC(date.getUTCFullYear(),0,1));
+  const week = Math.ceil((((date - yearStart) / 86400000) + 1)/7);
+  return {year: date.getUTCFullYear(), week};
+}
+
+function aggregateSessions(sessions){
+  const map = {};
+  sessions.forEach(s=>{
+    (s.baseList||[]).forEach(b=>{
+      if(!map[b.base]) map[b.base] = {base:b.base, count:0, qty:0, qtyKnown:false, roundsSeen:0};
+      const m = map[b.base];
+      m.count += (b.count||0);
+      if(b.qtyKnown){ m.qty += (b.qty||0); m.qtyKnown = true; }
+      if((b.count||0) > 0) m.roundsSeen += 1;
+    });
+  });
+  return Object.values(map).sort((a,b)=> b.count - a.count);
+}
+
+function toCSV(rows){
+  const header = ['รหัสสินค้า','จำนวนคนสนใจรวม','สต๊อกรวม','เปอร์เซ็นต์ความต้องการ','เกินสต๊อก(ชิ้น)','จำนวนรอบไลฟ์ที่พบ'];
+  const lines = [header.join(',')];
+  rows.forEach(r=>{
+    const pct = (r.qtyKnown && r.qty>0) ? Math.round((r.count/r.qty)*100) : '';
+    const gap = r.qtyKnown ? Math.max(0, r.count - r.qty) : '';
+    lines.push([r.base, r.count, (r.qtyKnown? r.qty:''), (pct!==''? pct+'%':''), gap, r.roundsSeen].join(','));
+  });
+  return lines.join('\n');
+}
+
+function downloadCSV(content, filename){
+  const blob = new Blob(['\uFEFF'+content], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url), 2000);
+}
+
+function downloadWeek(weekKey){
+  const groups = window.__historyGroups || {};
+  const sessions = groups[weekKey] || [];
+  if(sessions.length===0) return;
+  const rows = aggregateSessions(sessions);
+  const csv = toCSV(rows);
+  downloadCSV(csv, 'chiccoco-demand-'+weekKey+'.csv');
+}
+
+async function deleteSession(id){
+  try{
+    await storageDelete(STORAGE_PREFIX+id);
+    loadHistory();
+  }catch(err){
+    console.error('delete error', err);
+  }
+}
+
+loadHistory();
+</script>
+</body>
+</html>
