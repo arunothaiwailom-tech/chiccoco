@@ -53,8 +53,10 @@
   .card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:13px 14px;margin-bottom:10px;}
   .card.hot{border-color:var(--hot);box-shadow:0 0 0 1px var(--hot) inset, 0 6px 20px var(--hot-glow);}
   .card-top{display:flex;align-items:center;gap:10px;}
+  .code-wrap{flex:1;min-width:0;}
+  .desc{font-size:11px;color:var(--muted);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .rank{font-family:var(--mono);color:var(--muted);font-size:12px;width:20px;flex-shrink:0;}
-  .code{font-family:var(--mono);font-weight:700;font-size:15px;flex:1;}
+  .code{font-family:var(--mono);font-weight:700;font-size:15px;}
   .count{font-family:var(--mono);font-weight:700;font-size:17px;}
   .count-lbl{font-size:10px;color:var(--muted);text-align:right;}
   .bar-track{height:8px;border-radius:5px;background:var(--panel-2);margin-top:9px;overflow:hidden;position:relative;}
@@ -67,7 +69,9 @@
   .week-group{margin-bottom:16px;}
   .week-group:last-child{margin-bottom:0;}
   .week-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px;}
-  .week-head span{font-family:var(--mono);font-size:12px;color:var(--calm);font-weight:600;}
+  .week-head span.week-actions{display:flex;gap:6px;color:inherit;}
+  .week-head > span:first-child{font-family:var(--mono);font-size:12px;color:var(--calm);font-weight:600;}
+  .icon-btn.primary-mini{color:var(--hot);border-color:var(--hot);font-weight:700;}
   .hist-item{display:flex;justify-content:space-between;align-items:center;padding:10px 4px;border-bottom:1px solid var(--border);font-size:13px;}
   .hist-item:last-child{border-bottom:none;}
   .hist-meta{color:var(--muted);font-size:11.5px;}
@@ -96,7 +100,7 @@
     <p class="hint">ก็อปคำสั่งนี้ไปวางสั่ง Claude in Chrome ได้เลยหลังไลฟ์จบทุกรอบ</p>
     <textarea id="chromeCmd" class="cmd-box" readonly rows="13">เปิดหน้า https://chiccocoshop.vrich619.com/sale
 1. คลิกแท็บ "Post" (ไม่ใช่ Live Video เพราะหลังไลฟ์จบคอมเมนต์จะย้ายมาที่นี่) หาโพสต์ที่อยู่บนสุดของลิสต์ที่มีจำนวนคอมเมนต์เยอะที่สุดหรือแคปชั่น/เวลาตรงกับไลฟ์ที่เพิ่งจบ แล้วคลิกเข้าไปเปิดโพสต์นั้นเพื่อดูคอมเมนต์ทั้งหมด
-2. อ่านตารางสินค้าฝั่งซ้าย ดึงเฉพาะรหัสสินค้าและจำนวนคงเหลือ (คอลัมน์ "ขายไป/เหลือ" เอาตัวเลขหลัง "/") ของทุกแถว จัดเป็นรูปแบบ "รหัส:จำนวนเหลือ" บรรทัดละ 1 รายการ
+2. อ่านตารางสินค้าฝั่งซ้าย ดึงรหัสสินค้า, จำนวนคงเหลือ (คอลัมน์ "ขายไป/เหลือ" เอาตัวเลขหลัง "/"), และชื่อ/รายละเอียดสินค้าในคอลัมน์ "สินค้า" ของทุกแถว จัดเป็นรูปแบบ "รหัส:จำนวนเหลือ:รายละเอียดสินค้า" บรรทัดละ 1 รายการ (รายละเอียดเอาแค่สั้นๆพอรู้ว่าเป็นอะไร ไม่ต้องยาวทั้งประโยค)
 3. ในโพสต์ที่เปิดไว้ อ่านคอมเมนต์ลูกค้าทั้งหมด (เลื่อนโหลดเพิ่มถ้ามี) คัดลอกข้อความคอมเมนต์ล้วนๆ บรรทัดละ 1 คอมเมนต์
 4. เปิดแท็บใหม่ไปที่ https://arunothaiwailom-tech.github.io/chiccoco/demand-radar.html
 5. วางผลจากข้อ 2 ลงในช่อง "รหัสสินค้ารอบนี้" และวางผลจากข้อ 3 ลงในช่อง "คอมเมนต์จากไลฟ์"
@@ -109,14 +113,14 @@
   </details>
 
   <div class="panel">
-    <label for="codesInput">1) รหัสสินค้ารอบนี้ (+ จำนวนสต๊อก ถ้ามี)</label>
-    <p class="hint">1 บรรทัดต่อ 1 รหัส หรือคั่นด้วย , &nbsp;·&nbsp; ใส่จำนวนได้แบบ <b>รหัส:จำนวน</b><br>เช่น <code>T905-M:5</code>, <code>T905-L:5</code> หรือถ้าไม่รู้จำนวนแยกไซซ์ ใส่แค่ <code>T905:15</code> ก็นับรวมได้</p>
-    <textarea id="codesInput" placeholder="T905-S:5
-T905-M:8
-T905-L:5
-B203:20
-C110-ขาว:10
-C110-ดำ:10"></textarea>
+    <label for="codesInput">1) รหัสสินค้ารอบนี้ (+ จำนวนสต๊อก + รายละเอียด)</label>
+    <p class="hint">1 บรรทัดต่อ 1 รหัส รูปแบบ <b>รหัส:จำนวนสต๊อก:รายละเอียดสินค้า</b> (ใส่รายละเอียดไว้จะได้ไม่ต้องมานึกว่ารหัสไหนคืออะไร ไม่ใส่ก็ได้)<br>ถ้าไม่รู้จำนวนแยกไซซ์ ใส่รวมที่ตัว base เช่น <code>T905:15:...</code> ก็นับรวมได้</p>
+    <textarea id="codesInput" placeholder="T905-S:5:กางเกงยีนส์ขาบานเอวสูง
+T905-M:8:กางเกงยีนส์ขาบานเอวสูง
+T905-L:5:กางเกงยีนส์ขาบานเอวสูง
+B203:20:เสื้อยืดโปโลลายสก็อต
+C110-ขาว:10:เสื้อคลุมกันหนาวมีฮู้ด สีขาว
+C110-ดำ:10:เสื้อคลุมกันหนาวมีฮู้ด สีดำ"></textarea>
 
     <div style="margin-top:14px;">
       <label for="commentsInput">2) คอมเมนต์จากไลฟ์ (วางทั้งก้อนได้เลย)</label>
@@ -178,22 +182,28 @@ async function storageDelete(key){
 }
 
 function parseCodesConfig(raw){
-  const entries = raw.split(/[\n,]/).map(s=>s.trim()).filter(Boolean);
+  // one entry per line: รหัส:จำนวนสต๊อก:รายละเอียด (qty and description are optional)
+  const lines = raw.split('\n').map(s=>s.trim()).filter(Boolean);
   const list = [];
-  for(const e of entries){
-    const parts = e.split(':');
-    const codeRaw = parts[0].trim();
-    const qty = parts.length>1 ? parseInt(parts[1].replace(/[^0-9]/g,''),10) : null;
+  for(const line of lines){
+    const parts = line.split(':');
+    const codeRaw = (parts[0]||'').trim();
     if(!codeRaw) continue;
+    const qtyStr = parts.length>1 ? parts[1].trim() : '';
+    const qty = qtyStr ? parseInt(qtyStr.replace(/[^0-9]/g,''),10) : null;
+    const description = parts.length>2 ? parts.slice(2).join(':').trim() : '';
     const m = codeRaw.match(/^(.*?)-([A-Za-z0-9ก-๙]{1,6})$/);
     const base = m ? m[1] : codeRaw;
     const suffix = m ? m[2] : null;
-    list.push({raw: codeRaw, base, suffix, qty: (isNaN(qty)?null:qty)});
+    list.push({raw: codeRaw, base, suffix, qty: (isNaN(qty)?null:qty), description});
   }
   return list;
 }
 
 function escapeRegex(s){ return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'); }
+function escapeHtml(s){
+  return String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
 
 function analyze(codesRaw, commentsRaw, keywordsRaw){
   const tracked = parseCodesConfig(codesRaw);
@@ -212,16 +222,17 @@ function analyze(codesRaw, commentsRaw, keywordsRaw){
     return {t, re: new RegExp('\\b'+escBase+'(-[A-Za-z0-9ก-๙]{1,6})?\\b','i')};
   });
 
-  // variantKey -> {base, suffix, count, hotCount, qty}
+  // variantKey -> {base, suffix, count, hotCount, qty, description}
   const variants = {};
-  function ensureVariant(base, suffix, qty){
+  function ensureVariant(base, suffix, qty, description){
     const key = suffix ? (base+'-'+suffix) : base;
-    if(!variants[key]) variants[key] = {base, suffix, key, count:0, hotCount:0, qty: (qty!=null?qty:null)};
+    if(!variants[key]) variants[key] = {base, suffix, key, count:0, hotCount:0, qty: (qty!=null?qty:null), description: description||''};
     if(qty!=null && variants[key].qty==null) variants[key].qty = qty;
+    if(description && !variants[key].description) variants[key].description = description;
     return variants[key];
   }
   // seed known variants so zero-mention ones still show up
-  tracked.forEach(t=> ensureVariant(t.base, t.suffix, t.qty));
+  tracked.forEach(t=> ensureVariant(t.base, t.suffix, t.qty, t.description));
 
   let totalComments = lines.length;
   let matchedComments = 0;
@@ -238,7 +249,7 @@ function analyze(codesRaw, commentsRaw, keywordsRaw){
         const key = foundSuffix ? (t.base+'-'+foundSuffix) : t.base;
         if(seenThisLine.has(key)) continue; // avoid double count same code same comment
         seenThisLine.add(key);
-        const v = ensureVariant(t.base, foundSuffix, null);
+        const v = ensureVariant(t.base, foundSuffix, null, t.description);
         v.count += 1;
         if(hasKeyword) v.hotCount += 1;
         lineMatched = true;
@@ -250,10 +261,11 @@ function analyze(codesRaw, commentsRaw, keywordsRaw){
   // aggregate by base
   const bases = {};
   Object.values(variants).forEach(v=>{
-    if(!bases[v.base]) bases[v.base] = {base:v.base, count:0, qty:0, qtyKnown:false, variants:[]};
+    if(!bases[v.base]) bases[v.base] = {base:v.base, count:0, qty:0, qtyKnown:false, variants:[], description:''};
     const b = bases[v.base];
     b.count += v.count;
     if(v.qty!=null){ b.qty += v.qty; b.qtyKnown = true; }
+    if(v.description && !b.description) b.description = v.description;
     b.variants.push(v);
   });
 
@@ -289,7 +301,7 @@ function renderResults(result){
       html += '<div class="card '+(isOver?'hot':'')+'">';
       html += '<div class="card-top">';
       html += '<div class="rank">#'+(i+1)+'</div>';
-      html += '<div class="code">'+b.base+'</div>';
+      html += '<div class="code-wrap"><div class="code">'+escapeHtml(b.base)+'</div>'+(b.description? '<div class="desc">'+escapeHtml(b.description)+'</div>' : '')+'</div>';
       html += '<div style="text-align:right;"><div class="count">'+b.count+'</div><div class="count-lbl">คนสนใจ'+(rawPct!=null? ' · '+rawPct+'%' : '')+'</div></div>';
       html += '</div>';
       if(b.qtyKnown){
@@ -414,11 +426,14 @@ async function loadHistory(){
       const list = groups[wk];
       html += '<div class="week-group">';
       html += '<div class="week-head"><span>สัปดาห์ '+wk+' · '+list.length+' รอบไลฟ์</span>'
-        + '<button class="icon-btn" onclick="downloadWeek(\''+wk+'\')">⬇ ดาวน์โหลดสรุปสัปดาห์นี้</button></div>';
+        + '<span class="week-actions">'
+        + '<button class="icon-btn primary-mini" onclick="openWeekReport(\''+wk+'\')">📊 ดูสรุป</button>'
+        + '<button class="icon-btn" onclick="downloadWeekCSV(\''+wk+'\')">CSV</button>'
+        + '</span></div>';
       html += list.map(s=>{
-        const top3 = (s.baseList||[]).slice(0,3).map(b=>b.base+' ('+b.count+')').join(', ');
+        const top3 = (s.baseList||[]).filter(b=>b.count>0).slice(0,3).map(b=>b.base+(b.description?(' ('+b.description.slice(0,14)+')'):'')+' · '+b.count).join('  ·  ');
         return '<div class="hist-item">'
-          + '<div><div>'+s.label+'</div><div class="hist-meta">'+top3+'</div></div>'
+          + '<div><div>'+escapeHtml(s.label)+'</div><div class="hist-meta">'+(top3? escapeHtml(top3) : 'ยังไม่มีคนสนใจ')+'</div></div>'
           + '<button class="icon-btn danger" onclick="deleteSession(\''+s.id+'\')">ลบ</button>'
           + '</div>';
       }).join('');
@@ -443,23 +458,25 @@ function aggregateSessions(sessions){
   const map = {};
   sessions.forEach(s=>{
     (s.baseList||[]).forEach(b=>{
-      if(!map[b.base]) map[b.base] = {base:b.base, count:0, qty:0, qtyKnown:false, roundsSeen:0};
+      if(!map[b.base]) map[b.base] = {base:b.base, count:0, qty:0, qtyKnown:false, roundsSeen:0, description:''};
       const m = map[b.base];
       m.count += (b.count||0);
       if(b.qtyKnown){ m.qty += (b.qty||0); m.qtyKnown = true; }
       if((b.count||0) > 0) m.roundsSeen += 1;
+      if(b.description && !m.description) m.description = b.description;
     });
   });
   return Object.values(map).sort((a,b)=> b.count - a.count);
 }
 
 function toCSV(rows){
-  const header = ['รหัสสินค้า','จำนวนคนสนใจรวม','สต๊อกรวม','เปอร์เซ็นต์ความต้องการ','เกินสต๊อก(ชิ้น)','จำนวนรอบไลฟ์ที่พบ'];
+  const header = ['รหัสสินค้า','รายละเอียด','จำนวนคนสนใจรวม','สต๊อกรวม','เปอร์เซ็นต์ความต้องการ','เกินสต๊อก(ชิ้น)','จำนวนรอบไลฟ์ที่พบ'];
   const lines = [header.join(',')];
   rows.forEach(r=>{
     const pct = (r.qtyKnown && r.qty>0) ? Math.round((r.count/r.qty)*100) : '';
     const gap = r.qtyKnown ? Math.max(0, r.count - r.qty) : '';
-    lines.push([r.base, r.count, (r.qtyKnown? r.qty:''), (pct!==''? pct+'%':''), gap, r.roundsSeen].join(','));
+    const desc = '"'+String(r.description||'').replace(/"/g,'""')+'"';
+    lines.push([r.base, desc, r.count, (r.qtyKnown? r.qty:''), (pct!==''? pct+'%':''), gap, r.roundsSeen].join(','));
   });
   return lines.join('\n');
 }
@@ -473,13 +490,119 @@ function downloadCSV(content, filename){
   setTimeout(()=>URL.revokeObjectURL(url), 2000);
 }
 
-function downloadWeek(weekKey){
+function downloadWeekCSV(weekKey){
   const groups = window.__historyGroups || {};
   const sessions = groups[weekKey] || [];
   if(sessions.length===0) return;
   const rows = aggregateSessions(sessions);
   const csv = toCSV(rows);
   downloadCSV(csv, 'chiccoco-demand-'+weekKey+'.csv');
+}
+
+function buildWeekReportHTML(weekKey, rows, roundsCount){
+  const interested = rows.filter(r=>r.count>0).sort((a,b)=> b.count - a.count);
+  const quiet = rows.filter(r=>r.count===0);
+  const overCount = interested.filter(r=> r.qtyKnown && (r.count-r.qty)>0).length;
+  const top = interested.slice(0,10);
+  const maxCount = top.length ? top[0].count : 1;
+
+  const chartRows = top.map(r=>{
+    const w = Math.max(4, Math.round((r.count/maxCount)*100));
+    const label = r.base + (r.description ? ' — '+r.description : '');
+    return '<div class="chart-row">'
+      + '<div class="chart-label" title="'+escapeHtml(label)+'">'+escapeHtml(label)+'</div>'
+      + '<div class="chart-track"><div class="chart-fill" style="width:'+w+'%"></div></div>'
+      + '<div class="chart-value">'+r.count+'</div>'
+      + '</div>';
+  }).join('');
+
+  const tableRows = interested.map((r,i)=>{
+    const pct = (r.qtyKnown && r.qty>0) ? Math.round((r.count/r.qty)*100) : null;
+    const gap = r.qtyKnown ? Math.max(0, r.count-r.qty) : null;
+    const over = gap!=null && gap>0;
+    return '<tr class="'+(over?'over':'')+'">'
+      + '<td class="mono muted">'+(i+1)+'</td>'
+      + '<td class="mono bold">'+escapeHtml(r.base)+'</td>'
+      + '<td>'+escapeHtml(r.description||'—')+'</td>'
+      + '<td class="mono">'+r.count+'</td>'
+      + '<td class="mono">'+(r.qtyKnown? r.qty : '—')+'</td>'
+      + '<td class="mono">'+(pct!=null? pct+'%' : '—')+'</td>'
+      + '<td class="mono">'+(over? ('+'+gap) : '—')+'</td>'
+      + '</tr>';
+  }).join('');
+
+  const quietBlock = quiet.length ? (
+    '<details class="quiet"><summary>รหัสที่ยังไม่มีคนทักถึงในสัปดาห์นี้ ('+quiet.length+' รายการ)</summary>'
+    + '<div class="quiet-list">'+quiet.map(r=> escapeHtml(r.base)+(r.description? (' – '+escapeHtml(r.description)) : '')).join(' &nbsp;·&nbsp; ')+'</div>'
+    + '</details>'
+  ) : '';
+
+  return '<!DOCTYPE html><html lang="th"><head><meta charset="UTF-8">'
+  + '<meta name="viewport" content="width=device-width, initial-scale=1.0">'
+  + '<title>สรุปสัปดาห์ '+weekKey+' — CHICCOCO</title>'
+  + '<link rel="preconnect" href="https://fonts.googleapis.com">'
+  + '<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">'
+  + '<style>'
+  + ':root{--bg:#11131b;--panel:#181b27;--panel-2:#1f2333;--border:#2a2f45;--text:#f1efe9;--muted:#8d92ab;--hot:#ff3f72;--hot-glow:rgba(255,63,114,.35);--calm:#31d6a3;--warn:#ffb02e;--mono:\'IBM Plex Mono\',monospace;--sans:\'Noto Sans Thai\',\'Noto Sans\',sans-serif;}'
+  + '*{box-sizing:border-box;}html,body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);}'
+  + 'body{padding:24px 16px 60px;max-width:760px;margin:0 auto;}'
+  + '.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--hot);margin:0 0 6px;}'
+  + 'h1{font-size:22px;margin:0 0 4px;font-weight:800;}'
+  + '.sub{color:var(--muted);font-size:13px;margin:0 0 20px;}'
+  + '.summary-strip{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;}'
+  + '.stat{flex:1;min-width:100px;background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:12px;text-align:center;}'
+  + '.stat .num{font-family:var(--mono);font-size:20px;font-weight:700;}'
+  + '.stat.hotstat .num{color:var(--hot);}'
+  + '.stat .lbl{font-size:10.5px;color:var(--muted);margin-top:2px;}'
+  + 'h2{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin:26px 0 12px;}'
+  + '.chart-panel{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:16px;}'
+  + '.chart-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}'
+  + '.chart-row:last-child{margin-bottom:0;}'
+  + '.chart-label{width:34%;font-size:12px;font-family:var(--mono);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex-shrink:0;}'
+  + '.chart-track{flex:1;background:var(--panel-2);border-radius:5px;height:14px;overflow:hidden;}'
+  + '.chart-fill{height:100%;background:linear-gradient(90deg,var(--calm),var(--hot));border-radius:5px;}'
+  + '.chart-value{width:26px;text-align:right;font-family:var(--mono);font-weight:700;font-size:12.5px;flex-shrink:0;}'
+  + 'table{width:100%;border-collapse:collapse;background:var(--panel);border:1px solid var(--border);border-radius:14px;overflow:hidden;font-size:12.5px;}'
+  + 'th,td{padding:9px 10px;text-align:left;border-bottom:1px solid var(--border);}'
+  + 'th{background:var(--panel-2);color:var(--muted);font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;font-weight:700;}'
+  + 'tr:last-child td{border-bottom:none;}'
+  + 'tr.over{background:rgba(255,63,114,.10);}'
+  + '.mono{font-family:var(--mono);}'
+  + '.bold{font-weight:700;}'
+  + '.muted{color:var(--muted);}'
+  + '.quiet{margin-top:16px;font-size:12px;color:var(--muted);}'
+  + '.quiet summary{cursor:pointer;font-weight:600;}'
+  + '.quiet-list{margin-top:8px;line-height:1.8;font-family:var(--mono);font-size:11.5px;}'
+  + '.foot{margin-top:26px;font-size:11.5px;color:var(--muted);text-align:center;}'
+  + '</style></head><body>'
+  + '<div class="eyebrow">CHICCOCO · Live Demand Radar</div>'
+  + '<h1>สรุปความต้องการลูกค้า — สัปดาห์ '+weekKey+'</h1>'
+  + '<p class="sub">รวมข้อมูลจาก '+roundsCount+' รอบไลฟ์ในสัปดาห์นี้ · เรียงจากคนสนใจมากไปน้อย</p>'
+  + '<div class="summary-strip">'
+  + '<div class="stat"><div class="num">'+roundsCount+'</div><div class="lbl">รอบไลฟ์</div></div>'
+  + '<div class="stat"><div class="num">'+interested.length+'</div><div class="lbl">รุ่นที่มีคนสนใจ</div></div>'
+  + '<div class="stat hotstat"><div class="num">'+overCount+'</div><div class="lbl">รุ่นที่ควรสั่งเพิ่ม</div></div>'
+  + '</div>'
+  + (top.length ? ('<h2>Top '+top.length+' รุ่นที่คนสนใจมากที่สุด</h2><div class="chart-panel">'+chartRows+'</div>') : '')
+  + '<h2>รายละเอียดทั้งหมด</h2>'
+  + (interested.length ? (
+    '<table><thead><tr><th>#</th><th>รหัส</th><th>รายละเอียด</th><th>คนสนใจ</th><th>สต๊อก</th><th>%</th><th>เกิน</th></tr></thead><tbody>'
+    + tableRows + '</tbody></table>'
+  ) : '<p class="sub">ไม่มีรหัสที่มีคนสนใจในสัปดาห์นี้</p>')
+  + quietBlock
+  + '<div class="foot">สร้างโดยเครื่องมือ demand-radar ของ CHICCOCO</div>'
+  + '</body></html>';
+}
+
+function openWeekReport(weekKey){
+  const groups = window.__historyGroups || {};
+  const sessions = groups[weekKey] || [];
+  if(sessions.length===0) return;
+  const rows = aggregateSessions(sessions);
+  const htmlDoc = buildWeekReportHTML(weekKey, rows, sessions.length);
+  const blob = new Blob([htmlDoc], {type:'text/html'});
+  const url = URL.createObjectURL(blob);
+  window.open(url, '_blank');
 }
 
 async function deleteSession(id){
