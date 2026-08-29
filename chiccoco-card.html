@@ -134,6 +134,7 @@ body{font-family:'Sarabun',sans-serif;background:#ede9e4;min-height:100vh;paddin
   <button class="btn btn-green" id="btnImportVrich" onclick="document.getElementById('vrichFileInput').click()" disabled style="font-size:12px;">📤 Import ข้อมูลจาก VRich</button>
   <input type="file" id="vrichFileInput" accept=".json" style="display:none;" onchange="importVrichData(this.files[0])">
   <button class="btn btn-gray" id="btnCopyVrichCmd" onclick="copyVrichCommand()" style="font-size:12px;">📋 คัดลอกคำสั่ง Claude in Chrome</button>
+  <button class="btn btn-gray" id="btnHideSoldOut" onclick="toggleHideSoldOut()" disabled style="font-size:12px;">🙈 ซ่อนสินค้าหมดสต๊อก</button>
   <button class="btn btn-dk" id="btnImportCaption" onclick="document.getElementById('captionFileInput').click()" disabled style="font-size:12px;">🏷️ Import คำโปรย</button>
   <input type="file" id="captionFileInput" accept=".json" style="display:none;" onchange="importCaptionData(this.files[0])">
   <span id="syncStatus" style="font-size:11px;color:#888;"></span>
@@ -229,6 +230,12 @@ const auth=firebase.auth(), db=firebase.database(), storage=firebase.storage();
 let allProducts=[], productImages={}, filtered=[], selected=new Set(), shopPath='';
 let photoMap={}; // code.toLowerCase() → dataURL
 let productCaptions={}; // code (base, uppercase) → คำโปรยสั้นๆ
+let hideSoldOut=false; // true = ซ่อนสินค้าที่หมดสต๊อกทั้งหมด (ทุกไซซ์) ออกจากกริด
+let currentDisplayList=[]; // รายการที่กำลังโชว์อยู่จริงบนหน้าจอ (หลังกรอง hideSoldOut แล้ว)
+
+function isFullySoldOut(p){
+  return !!(p._updated && p._updated.outOfStock);
+}
 
 function setStatus(msg,ok){const el=document.getElementById('fbStatus');el.textContent=msg;el.className='topbar-status'+(ok?' ok':' err');}
 function fmt(v){const n=Number(v);return isNaN(n)?v:n.toLocaleString();}
@@ -254,6 +261,7 @@ auth.onAuthStateChanged(user=>{
     document.getElementById('btnLoadStorageImages').disabled=false;
     document.getElementById('btnLoadDriveImages').disabled=false;
     document.getElementById('btnImportVrich').disabled=false;
+    document.getElementById('btnHideSoldOut').disabled=false;
     document.getElementById('btnImportCaption').disabled=false;
     document.getElementById('photoSection').style.display='block';
     renderGrid(allProducts);
@@ -419,29 +427,46 @@ async function importVrichData(file){
   try{
     const text=await file.text();
     const data=JSON.parse(text);
-    let matched=0;
+    let matched=0, outOfStockCount=0;
     allProducts.forEach(p=>{
       const code=p.code||'';
       const sizes=p.sizes||[];
-      let foundAny=false, soldSizes=[], priceFromVrich=null;
-      sizes.forEach(s=>{
-        const key=code+'-'+s.size;
-        const entry=data[key];
+      let foundAny=false, soldSizes=[], matchedCount=0, priceFromVrich=null;
+      if(sizes.length){
+        sizes.forEach(s=>{
+          // ลองหาแบบ "รหัส-ไซซ์" ก่อน ถ้าไม่เจอลอง "รหัส" เฉยๆ (สินค้าไซซ์เดียวบางตัว VRich ไม่ต่อท้ายไซซ์)
+          let entry=data[code+'-'+s.size] || data[code];
+          if(entry){
+            foundAny=true; matchedCount++;
+            if(Number(entry.qty)===0) soldSizes.push(s.size);
+            if(entry.price!=null) priceFromVrich=entry.price;
+          }
+        });
+      } else {
+        // ไม่มีข้อมูลไซซ์เลย เช็คแบบรหัสเปล่าๆ
+        const entry=data[code];
         if(entry){
-          foundAny=true;
-          if(Number(entry.qty)===0) soldSizes.push(s.size);
+          foundAny=true; matchedCount=1;
+          if(Number(entry.qty)===0) soldSizes.push('__ALL__');
           if(entry.price!=null) priceFromVrich=entry.price;
         }
-      });
+      }
       if(foundAny){
         matched++;
         if(!p._updated) p._updated={...p};
         p._updated.soldSizes=soldSizes;
         if(priceFromVrich!=null) p._updated.price=priceFromVrich;
+        // หมดสต๊อกทั้งหมด = มีข้อมูลครบทุกไซซ์ และทุกไซซ์ที่มีข้อมูล จำนวน=0
+        const totalSizeCount=sizes.length||1;
+        const outOfStock = matchedCount===totalSizeCount && soldSizes.length===totalSizeCount;
+        p._updated.outOfStock=outOfStock;
+        if(outOfStock) outOfStockCount++;
       }
     });
+    hideSoldOut=true; // ซ่อนสินค้าหมดสต๊อกอัตโนมัติหลัง import — กดปุ่ม 👁️ เพื่อดูทั้งหมดได้
+    updateHideSoldOutBtn();
     renderGrid(filtered.length?filtered:allProducts);
-    if(stat){ stat.textContent='✅ Import จาก VRich แล้ว · จับคู่ได้ '+matched+'/'+allProducts.length+' รหัส'; stat.style.color='#5c7a6b'; }
+    if(stat){ stat.textContent='✅ Import จาก VRich แล้ว · จับคู่ได้ '+matched+'/'+allProducts.length+' รหัส · ซ่อนสินค้าหมดสต๊อก '+outOfStockCount+' รหัส'; stat.style.color='#5c7a6b'; }
   }catch(e){
     if(stat){ stat.textContent='❌ Import ไม่สำเร็จ: '+e.message; stat.style.color='#cc0000'; }
   }
@@ -516,19 +541,38 @@ function applyFilter(){
   renderGrid(allProducts.filter(p=>{const c=(p.code||'').toUpperCase();if(from&&to)return c>=from&&c<=to;if(from)return c>=from;if(to)return c<=to;return true;}));
 }
 function clearFilter(){document.getElementById('codeFrom').value='';document.getElementById('codeTo').value='';renderGrid(allProducts);}
-function selectAll(){filtered.forEach(p=>selected.add(p.code));updateAllCheckboxes(true);updateCount();}
-function deselectAll(){filtered.forEach(p=>selected.delete(p.code));updateAllCheckboxes(false);updateCount();}
-function updateAllCheckboxes(val){filtered.forEach(p=>{const el=document.getElementById('chk-'+p.code);if(el)el.checked=val;const ui=document.getElementById('ui-'+p.code);if(ui)ui.style.borderColor=val?'#5c7a6b':'transparent';});}
+function selectAll(){currentDisplayList.forEach(p=>selected.add(p.code));updateAllCheckboxes(true);updateCount();}
+function deselectAll(){currentDisplayList.forEach(p=>selected.delete(p.code));updateAllCheckboxes(false);updateCount();}
+function updateAllCheckboxes(val){currentDisplayList.forEach(p=>{const el=document.getElementById('chk-'+p.code);if(el)el.checked=val;const ui=document.getElementById('ui-'+p.code);if(ui)ui.style.borderColor=val?'#5c7a6b':'transparent';});}
 function updateCount(){const n=selected.size;document.getElementById('selCount').textContent=n?n+' รายการที่เลือก':'';document.getElementById('btnDlSel').disabled=n===0;}
+
+function toggleHideSoldOut(){
+  hideSoldOut=!hideSoldOut;
+  updateHideSoldOutBtn();
+  renderGrid(filtered.length?filtered:allProducts);
+}
+function updateHideSoldOutBtn(){
+  const btn=document.getElementById('btnHideSoldOut');
+  if(!btn) return;
+  btn.textContent = hideSoldOut ? '👁️ แสดงสินค้าหมดสต๊อกด้วย' : '🙈 ซ่อนสินค้าหมดสต๊อก';
+}
 
 // ── Render Grid with full v6-style UI ──
 function renderGrid(prods){
   filtered=prods;
+  currentDisplayList = hideSoldOut ? prods.filter(p=>!isFullySoldOut(p)) : prods;
+  const hiddenCount = prods.length - currentDisplayList.length;
   const grid=document.getElementById('GRID');
   grid.innerHTML='';
-  if(!prods.length){grid.innerHTML='<div style="text-align:center;color:#bbb;padding:24px;font-size:13px;">ไม่พบสินค้าค่ะ</div>';updateCount();return;}
+  if(!currentDisplayList.length){
+    grid.innerHTML='<div style="text-align:center;color:#bbb;padding:24px;font-size:13px;">'+
+      (hiddenCount ? 'สินค้าในช่วงนี้หมดสต๊อกทั้งหมด ('+hiddenCount+' รหัส) — กด "👁️ แสดงสินค้าหมดสต๊อกด้วย" เพื่อดู' : 'ไม่พบสินค้าค่ะ')+
+      '</div>';
+    updateCount();return;
+  }
+  const prods_for_render = currentDisplayList;
 
-  prods.forEach((p,pi)=>{
+  prods_for_render.forEach((p,pi)=>{
     const wrap=document.createElement('div');
     wrap.className='card-ui'; wrap.id='ui-'+p.code;
     wrap.style.borderLeft='4px solid '+(selected.has(p.code)?'#5c7a6b':'transparent');
@@ -774,7 +818,7 @@ async function dlSelected(){
   await runDl(prods);
 }
 async function dlAll(){
-  let list=filtered.length?filtered:allProducts;
+  let list=currentDisplayList.length?currentDisplayList:(filtered.length?filtered:allProducts);
   if(!confirm('Download '+list.length+' รายการ?'))return;
   list=confirmMissingImages(list);
   if(list===null||!list.length)return;
