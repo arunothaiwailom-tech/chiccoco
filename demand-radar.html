@@ -77,6 +77,12 @@
   .save-row input{flex:1;background:var(--panel-2);border:1px solid var(--border);border-radius:10px;color:var(--text);padding:9px 10px;font-family:var(--sans);font-size:13px;}
   .save-row button{background:var(--panel-2);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:0 14px;font-weight:600;font-size:13px;cursor:pointer;}
   h2{font-size:14px;margin:22px 0 10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:700;}
+  .cmd-panel{padding:14px 16px;}
+  .cmd-summary{font-size:14px;font-weight:700;color:var(--text);list-style:none;}
+  .cmd-summary::-webkit-details-marker{display:none;}
+  .cmd-box{width:100%;background:var(--panel-2);border:1px solid var(--border);border-radius:10px;color:var(--muted);font-family:var(--mono);font-size:11.5px;padding:10px 12px;line-height:1.6;margin:8px 0 10px;resize:vertical;}
+  .copy-btn{width:100%;text-align:center;padding:10px;font-weight:700;color:var(--text);}
+  .copy-btn.copied{color:var(--calm);border-color:var(--calm);}
 </style>
 </head>
 <body>
@@ -84,6 +90,23 @@
   <div class="eyebrow">CHICCOCO · Live Demand Radar</div>
   <h1>เรดาร์ความต้องการลูกค้า</h1>
   <p class="sub">แปะคอมเมนต์จากไลฟ์ + ใส่รหัสสินค้าที่ขายรอบนี้ ระบบจะนับว่ารหัสไหนมีคนพิมพ์ทักถึงมากที่สุด และรหัสไหนมีคนสนใจเกินจำนวนสต๊อกที่มี ไว้ใช้วางแผนสั่งของรอบถัดไป</p>
+
+  <details class="panel cmd-panel">
+    <summary class="cmd-summary">📋 คำสั่งสำเร็จรูปสำหรับ Claude in Chrome</summary>
+    <p class="hint">ก็อปคำสั่งนี้ไปวางสั่ง Claude in Chrome ได้เลยหลังไลฟ์จบทุกรอบ</p>
+    <textarea id="chromeCmd" class="cmd-box" readonly rows="12">เปิดหน้า https://chiccocoshop.vrich619.com/sale
+1. เลือกไลฟ์รอบล่าสุดจาก dropdown เหนือปุ่มรีเฟรชสีเขียว แล้วกดปุ่มรีเฟรชนั้น เพื่อโหลดคอมเมนต์ของรอบนี้
+2. อ่านตารางสินค้าฝั่งซ้าย ดึงเฉพาะรหัสสินค้าและจำนวนคงเหลือ (คอลัมน์ "ขายไป/เหลือ" เอาตัวเลขหลัง "/") ของทุกแถว จัดเป็นรูปแบบ "รหัส:จำนวนเหลือ" บรรทัดละ 1 รายการ
+3. อ่านแผงคอมเมนต์ลูกค้าฝั่งขวาทั้งหมด คัดลอกข้อความคอมเมนต์ล้วนๆ บรรทัดละ 1 คอมเมนต์
+4. เปิดแท็บใหม่ไปที่ https://arunothaiwailom-tech.github.io/chiccoco/demand-radar.html
+5. วางผลจากข้อ 2 ลงในช่อง "รหัสสินค้ารอบนี้" และวางผลจากข้อ 3 ลงในช่อง "คอมเมนต์จากไลฟ์"
+6. กดปุ่ม "วิเคราะห์คอมเมนต์"
+7. กดปุ่ม "บันทึก" เพื่อเก็บผลรอบนี้ไว้ในประวัติ (ตั้งชื่อรอบเป็นวันที่วันนี้)
+แล้วสรุปเป็นรายการให้ฟังทีละรุ่นที่ติดไฮไลต์ "คนสนใจเกินสต๊อก" ในรูปแบบ:
+"[รหัส] มีสต๊อก [จำนวน] ชิ้น มีคนสนใจ [จำนวน] คน คิดเป็น [เปอร์เซ็นต์]% ของสต๊อก เกินอยู่ [ส่วนต่าง] ชิ้น"
+เรียงจากเปอร์เซ็นต์สูงไปต่ำ</textarea>
+    <button class="icon-btn copy-btn" id="copyCmdBtn" onclick="copyCommand()">คัดลอกคำสั่ง</button>
+  </details>
 
   <div class="panel">
     <label for="codesInput">1) รหัสสินค้ารอบนี้ (+ จำนวนสต๊อก ถ้ามี)</label>
@@ -295,6 +318,30 @@ function renderResults(result){
 
   el.innerHTML = html;
   window.__lastResult = result;
+}
+
+async function copyCommand(){
+  const box = document.getElementById('chromeCmd');
+  const btn = document.getElementById('copyCmdBtn');
+  const text = box.value;
+  let ok = false;
+  try{
+    await navigator.clipboard.writeText(text);
+    ok = true;
+  }catch(e){
+    try{
+      box.removeAttribute('readonly');
+      box.focus();
+      box.select();
+      ok = document.execCommand('copy');
+      box.setAttribute('readonly','readonly');
+    }catch(e2){ ok = false; }
+  }
+  if(btn){
+    btn.textContent = ok ? '✓ คัดลอกแล้ว' : 'คัดลอกไม่สำเร็จ ลองกดค้างแล้วเลือกคัดลอกเอง';
+    btn.classList.toggle('copied', ok);
+    setTimeout(()=>{ btn.textContent = 'คัดลอกคำสั่ง'; btn.classList.remove('copied'); }, 2200);
+  }
 }
 
 function runAnalysis(){
