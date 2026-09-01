@@ -146,9 +146,10 @@
   let saleEvents = []; // {code, ts, qty}
   let totalSoldDelta = 0;
   let totalRevenueDelta = 0;
+  let celebratedCodes = new Set(); // guards against re-celebrating the same code if remaining flaps
 
   function resetCounters(){
-    state = {}; saleEvents = []; totalSoldDelta = 0; totalRevenueDelta = 0;
+    state = {}; saleEvents = []; totalSoldDelta = 0; totalRevenueDelta = 0; celebratedCodes = new Set();
     document.getElementById('chiccoco-hype-feed').innerHTML = '';
     updateStatsUI();
   }
@@ -245,12 +246,28 @@
     return rows;
   }
 
+  // If the same product code appears more than once in the DOM at the same moment
+  // (VRich re-rendering, a stale detached node not yet cleaned up, etc.), keep only
+  // the entry with the HIGHER sold count — sold count only goes up during a live,
+  // so the higher value is the accurate one and the lower one is stale. Without this,
+  // a stale low-value duplicate can get processed after the real one and corrupt the
+  // running total, making the next poll look like a huge burst of fake sales.
+  function dedupeByCode(rows){
+    const map = new Map();
+    rows.forEach(r=>{
+      const existing = map.get(r.code);
+      if(!existing || r.sold > existing.sold){ map.set(r.code, r); }
+    });
+    return Array.from(map.values());
+  }
+
   function extractRows(){
     let rows = [];
     try{ rows = extractRowsByDataAttr(); }catch(e){ console.error('chiccoco hype: data-attr extract error', e); }
-    if(rows.length > 0) return rows;
-    try{ rows = extractRowsByCheckboxFallback(); }catch(e){ console.error('chiccoco hype: fallback extract error', e); }
-    return rows;
+    if(rows.length === 0){
+      try{ rows = extractRowsByCheckboxFallback(); }catch(e){ console.error('chiccoco hype: fallback extract error', e); }
+    }
+    return dedupeByCode(rows);
   }
 
   function poll(){
@@ -274,11 +291,11 @@
           saleEvents.push({code:r.code, ts:Date.now(), qty:soldDelta});
           popNumber('chiccoco-stat-sold');
           if(r.price) popNumber('chiccoco-stat-revenue');
-          const justSoldOut = (r.remaining===0 && prev.remaining>0);
+          const justSoldOut = (r.remaining===0 && prev.remaining>0 && !celebratedCodes.has(r.code));
           const shortDesc = r.description ? (' ' + r.description.slice(0,22)) : '';
           addFeedItem((justSoldOut?'🎉 ':'🛒 ') + r.code + shortDesc + ' ขายเพิ่ม +' + soldDelta + ' (รวม ' + r.sold + ')' + (justSoldOut? ' — ขายหมดแล้ว!':''), justSoldOut);
           saleSound();
-          if(justSoldOut){ celebrate('🎉 ' + r.code + ' ขายหมด!'); soldOutSound(); }
+          if(justSoldOut){ celebrate('🎉 ' + r.code + ' ขายหมด!'); soldOutSound(); celebratedCodes.add(r.code); }
         }
       }
       state[r.code] = {sold:r.sold, remaining:r.remaining, price:r.price};
