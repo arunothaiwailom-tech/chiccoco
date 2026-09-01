@@ -287,6 +287,54 @@
     updateStatsUI();
   }
 
-  poll();
-  setInterval(poll, POLL_MS);
+  // ---------- startup calibration ----------
+  // VRich loads the sold/remaining numbers asynchronously after the page appears.
+  // If we take our first snapshot too early we can catch stale/zero values, then the
+  // next poll sees the real (already-large) numbers and misreads that jump as a sale.
+  // So instead of trusting the very first read, we keep re-checking until two
+  // consecutive checks agree, and only THEN start counting from that as the baseline.
+  function snapshotKey(rows){
+    return rows.map(r=> r.code+':'+r.sold+'/'+r.remaining).sort().join('|');
+  }
+
+  let calibrationTries = 0;
+  const MAX_CALIBRATION_TRIES = 20; // ~16s worst case before giving up and starting anyway
+  const MAX_EMPTY_TRIES = 6; // ~4.8s — a page with zero rows the whole time is a dead end, don't make them wait 16s to find out
+  let emptyTries = 0;
+  let lastCalibrationSnapshot = null;
+
+  function calibrationStep(){
+    let rows = [];
+    try{ rows = extractRows(); }catch(e){ console.error('chiccoco hype: extract error', e); }
+    const statusEl = document.getElementById('chiccoco-hype-status');
+    calibrationTries++;
+
+    if(rows.length === 0){
+      emptyTries++;
+      if(emptyTries >= MAX_EMPTY_TRIES){
+        statusEl.textContent = '⚠️ หาแถวสินค้าไม่เจอ — ลองรีเฟรชหน้า หรือแจ้ง Claude พร้อมสกรีนช็อตหน้านี้';
+        return;
+      }
+      statusEl.textContent = 'กำลังรอข้อมูลโหลด…';
+      setTimeout(calibrationStep, 800);
+      return;
+    }
+    emptyTries = 0;
+
+    const key = snapshotKey(rows);
+    const stable = (lastCalibrationSnapshot === key);
+    lastCalibrationSnapshot = key;
+
+    if(stable || calibrationTries >= MAX_CALIBRATION_TRIES){
+      rows.forEach(r=>{ state[r.code] = {sold:r.sold, remaining:r.remaining, price:r.price}; });
+      statusEl.textContent = 'พร้อมแล้ว กำลังจับตา ' + rows.length + ' รายการสินค้า · อัปเดตทุก ' + (POLL_MS/1000) + ' วิ';
+      setInterval(poll, POLL_MS);
+      return;
+    }
+
+    statusEl.textContent = 'กำลังรอข้อมูลนิ่ง… (' + calibrationTries + ')';
+    setTimeout(calibrationStep, 800);
+  }
+
+  calibrationStep();
 })();
