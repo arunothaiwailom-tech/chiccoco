@@ -1,11 +1,17 @@
 (function(){
   'use strict';
 
-  // Avoid double-injection: toggle instead of re-creating
+  // Every click on the bookmarklet should always run the freshest version of this
+  // script (important for testing fixes live). So instead of just toggling an old
+  // instance's visibility, fully tear down any previous instance first, then
+  // reinitialize from scratch every time.
   if(window.__chiccocoHype){
-    const el = document.getElementById('chiccoco-hype-panel');
-    if(el){ el.style.display = (el.style.display === 'none') ? 'flex' : 'none'; }
-    return;
+    try{ if(window.__chiccocoHypeInterval) clearInterval(window.__chiccocoHypeInterval); }catch(e){}
+    try{ if(window.__chiccocoHypeTimeout) clearTimeout(window.__chiccocoHypeTimeout); }catch(e){}
+    ['chiccoco-hype-panel','chiccoco-hype-celebrate','chiccoco-hype-style'].forEach(id=>{
+      const el = document.getElementById(id);
+      if(el) el.remove();
+    });
   }
   window.__chiccocoHype = true;
 
@@ -14,6 +20,7 @@
 
   // ---------- styles ----------
   const style = document.createElement('style');
+  style.id = 'chiccoco-hype-style';
   style.textContent = `
     #chiccoco-hype-panel{position:fixed;top:16px;right:16px;width:300px;max-height:82vh;
       background:#12131c;color:#f1efe9;border:1px solid #2a2f45;border-radius:16px;
@@ -30,11 +37,14 @@
       padding:3px 8px;font-size:11px;cursor:pointer;font-family:inherit;}
     .chiccoco-hbtn:hover{border-color:#ff3f72;}
     #chiccoco-hype-status{color:#8d92ab;font-size:11px;margin-bottom:10px;line-height:1.5;}
+    .chiccoco-stat-row-wide{margin-bottom:8px;}
     .chiccoco-stat-row{display:flex;gap:8px;margin-bottom:10px;}
     .chiccoco-stat{flex:1;background:#181b27;border:1px solid #2a2f45;border-radius:10px;
       padding:9px;text-align:center;}
+    .chiccoco-stat.wide{padding:12px;background:linear-gradient(135deg,#1f2333,#181b27);border-color:#ff3f72;}
     .chiccoco-stat .n{font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:19px;
       transition:transform .15s;}
+    .chiccoco-stat .n.big{font-size:28px;color:#ff3f72;}
     .chiccoco-stat .n.pop{transform:scale(1.28);color:#ff3f72;}
     .chiccoco-stat .l{font-size:9.5px;color:#8d92ab;margin-top:2px;}
     #chiccoco-hype-lead{margin-bottom:10px;}
@@ -47,6 +57,7 @@
     .chiccoco-feed-item{background:#181b27;border:1px solid #2a2f45;border-radius:8px;padding:6px 8px;
       font-size:11.5px;animation:chiccoco-slidein .25s ease-out;}
     .chiccoco-feed-item.soldout{border-color:#ff3f72;background:rgba(255,63,114,.12);font-weight:700;}
+    .chiccoco-feed-item.cancel{border-color:#8d92ab;color:#c3c6d4;font-style:italic;}
     @keyframes chiccoco-slidein{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
     #chiccoco-hype-celebrate{position:fixed;inset:0;pointer-events:none;z-index:2147483646;
       display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .25s;}
@@ -71,9 +82,11 @@
     </div>
     <div id="chiccoco-hype-body">
       <div id="chiccoco-hype-status">กำลังค้นหาแถวสินค้า…</div>
+      <div class="chiccoco-stat-row-wide">
+        <div class="chiccoco-stat wide"><div class="n big" id="chiccoco-stat-revenue">฿0</div><div class="l">ยอดขายประมาณ</div></div>
+      </div>
       <div class="chiccoco-stat-row">
         <div class="chiccoco-stat"><div class="n" id="chiccoco-stat-sold">0</div><div class="l">ขายไปแล้ว (ชิ้น)</div></div>
-        <div class="chiccoco-stat"><div class="n" id="chiccoco-stat-revenue">฿0</div><div class="l">ยอดขายประมาณ</div></div>
         <div class="chiccoco-stat"><div class="n" id="chiccoco-stat-velocity">0</div><div class="l">ชิ้น/นาที</div></div>
       </div>
       <div id="chiccoco-hype-lead">
@@ -160,10 +173,11 @@
     setTimeout(()=> el.classList.remove('pop'), 220);
   }
 
-  function addFeedItem(text, isSoldOut){
+  function addFeedItem(text, kind){
+    // kind: 'soldout' | 'cancel' | undefined (normal sale)
     const feed = document.getElementById('chiccoco-hype-feed');
     const item = document.createElement('div');
-    item.className = 'chiccoco-feed-item' + (isSoldOut ? ' soldout' : '');
+    item.className = 'chiccoco-feed-item' + (kind ? ' ' + kind : '');
     item.textContent = text;
     feed.appendChild(item);
     while(feed.children.length > 12) feed.removeChild(feed.firstChild);
@@ -285,20 +299,40 @@
       const prev = state[r.code];
       if(prev){
         const soldDelta = r.sold - prev.sold;
+        const shortDesc = r.description ? (' ' + r.description.slice(0,22)) : '';
+        // Checked independently of soldDelta this cycle: VRich can update "sold" and
+        // "remaining" a beat apart across two separate poll ticks, so remaining can
+        // reach 0 in a poll where soldDelta reads as 0 — the celebration must not
+        // depend on both happening in the exact same cycle.
+        const justSoldOut = (r.remaining===0 && prev.remaining>0 && !celebratedCodes.has(r.code));
+
         if(soldDelta > 0){
           totalSoldDelta += soldDelta;
           if(r.price) totalRevenueDelta += soldDelta * r.price;
           saleEvents.push({code:r.code, ts:Date.now(), qty:soldDelta});
           popNumber('chiccoco-stat-sold');
           if(r.price) popNumber('chiccoco-stat-revenue');
-          const justSoldOut = (r.remaining===0 && prev.remaining>0 && !celebratedCodes.has(r.code));
-          const shortDesc = r.description ? (' ' + r.description.slice(0,22)) : '';
-          addFeedItem((justSoldOut?'🎉 ':'🛒 ') + r.code + shortDesc + ' ขายเพิ่ม +' + soldDelta + ' (รวม ' + r.sold + ')' + (justSoldOut? ' — ขายหมดแล้ว!':''), justSoldOut);
+          addFeedItem((justSoldOut?'🎉 ':'🛒 ') + r.code + shortDesc + ' ขายเพิ่ม +' + soldDelta + ' (รวม ' + r.sold + ')' + (justSoldOut? ' — ขายหมดแล้ว!':''), justSoldOut ? 'soldout' : undefined);
           saleSound();
-          if(justSoldOut){ celebrate('🎉 ' + r.code + ' ขายหมด!'); soldOutSound(); celebratedCodes.add(r.code); }
+        } else if(soldDelta < 0){
+          // an order was cancelled / reduced — this is real, keep the totals accurate
+          // rather than just a one-way "gross" counter
+          const cancelQty = -soldDelta;
+          totalSoldDelta = Math.max(0, totalSoldDelta + soldDelta);
+          if(r.price) totalRevenueDelta = Math.max(0, totalRevenueDelta + soldDelta * r.price);
+          saleEvents.push({code:r.code, ts:Date.now(), qty:soldDelta}); // negative, nets out in velocity/leaderboard
+          popNumber('chiccoco-stat-sold');
+          if(r.price) popNumber('chiccoco-stat-revenue');
+          addFeedItem('↩️ ' + r.code + shortDesc + ' ถูกยกเลิก -' + cancelQty + ' (เหลือขายจริง ' + r.sold + ')', 'cancel');
+        } else if(justSoldOut){
+          // remaining caught up to 0 this cycle even though "sold" didn't move this
+          // exact tick — still a genuine sell-out, still deserves the celebration
+          addFeedItem('🎉 ' + r.code + shortDesc + ' ขายหมดแล้ว!', 'soldout');
         }
+
+        if(justSoldOut){ celebrate('🎉 ' + r.code + ' ขายหมด!'); soldOutSound(); celebratedCodes.add(r.code); }
       }
-      state[r.code] = {sold:r.sold, remaining:r.remaining, price:r.price};
+      state[r.code] = {sold:r.sold, remaining:r.remaining, price:r.price, description:r.description};
     });
 
     updateStatsUI();
@@ -333,7 +367,7 @@
         return;
       }
       statusEl.textContent = 'กำลังรอข้อมูลโหลด…';
-      setTimeout(calibrationStep, 800);
+      window.__chiccocoHypeTimeout = setTimeout(calibrationStep, 800);
       return;
     }
     emptyTries = 0;
@@ -343,14 +377,14 @@
     lastCalibrationSnapshot = key;
 
     if(stable || calibrationTries >= MAX_CALIBRATION_TRIES){
-      rows.forEach(r=>{ state[r.code] = {sold:r.sold, remaining:r.remaining, price:r.price}; });
+      rows.forEach(r=>{ state[r.code] = {sold:r.sold, remaining:r.remaining, price:r.price, description:r.description}; });
       statusEl.textContent = 'พร้อมแล้ว กำลังจับตา ' + rows.length + ' รายการสินค้า · อัปเดตทุก ' + (POLL_MS/1000) + ' วิ';
-      setInterval(poll, POLL_MS);
+      window.__chiccocoHypeInterval = setInterval(poll, POLL_MS);
       return;
     }
 
     statusEl.textContent = 'กำลังรอข้อมูลนิ่ง… (' + calibrationTries + ')';
-    setTimeout(calibrationStep, 800);
+    window.__chiccocoHypeTimeout = setTimeout(calibrationStep, 800);
   }
 
   calibrationStep();
