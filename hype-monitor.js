@@ -58,6 +58,21 @@
       font-size:11.5px;animation:chiccoco-slidein .25s ease-out;}
     .chiccoco-feed-item.soldout{border-color:#ff3f72;background:rgba(255,63,114,.12);font-weight:700;}
     .chiccoco-feed-item.cancel{border-color:#8d92ab;color:#c3c6d4;font-style:italic;}
+    .chiccoco-rounds{margin-top:14px;border-top:1px solid #2a2f45;padding-top:10px;}
+    .chiccoco-rounds summary{cursor:pointer;font-size:11.5px;color:#8d92ab;font-weight:700;list-style:none;}
+    .chiccoco-rounds summary::-webkit-details-marker{display:none;}
+    .chiccoco-rounds-hint{font-size:10.5px;color:#8d92ab;line-height:1.5;margin:6px 0;}
+    .chiccoco-save-row{display:flex;gap:6px;margin-bottom:8px;}
+    .chiccoco-save-row input{flex:1;min-width:0;background:#1f2333;border:1px solid #2a2f45;border-radius:8px;
+      color:#f1efe9;padding:6px 8px;font-size:11.5px;font-family:'Noto Sans Thai',sans-serif;}
+    .chiccoco-hbtn.primary-mini{background:#ff3f72;border-color:#ff3f72;color:#fff;white-space:nowrap;}
+    .chiccoco-rounds-empty{color:#8d92ab;font-size:11px;text-align:center;padding:8px 0;}
+    .chiccoco-round-item{background:#181b27;border:1px solid #2a2f45;border-radius:8px;padding:8px 10px;margin-bottom:6px;}
+    .chiccoco-round-top{display:flex;justify-content:space-between;align-items:center;}
+    .chiccoco-round-label{font-size:11.5px;font-weight:700;}
+    .chiccoco-round-del{background:none;border:none;color:#8d92ab;cursor:pointer;font-size:11px;}
+    .chiccoco-round-nums{font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:700;color:#ff3f72;margin-top:4px;}
+    .chiccoco-round-sub{font-size:10px;color:#8d92ab;margin-top:2px;}
     @keyframes chiccoco-slidein{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
     #chiccoco-hype-celebrate{position:fixed;inset:0;pointer-events:none;z-index:2147483646;
       display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .25s;}
@@ -95,6 +110,16 @@
       </div>
       <h4 style="font-size:10.5px;color:#8d92ab;text-transform:uppercase;letter-spacing:.05em;margin:0 0 6px;font-weight:700;">รายการล่าสุด</h4>
       <div id="chiccoco-hype-feed"></div>
+
+      <details class="chiccoco-rounds" id="chiccoco-hype-rounds-details">
+        <summary>📅 ยอดขายแต่ละรอบไลฟ์</summary>
+        <p class="chiccoco-rounds-hint">กดปุ่มนี้หลังไลฟ์จบ — ระบบจะคำนวณยอดของรอบนี้ให้เอง (รวมพรีออเดอร์ก่อนไลฟ์ด้วย) โดยหักลบจากยอดสะสมที่บันทึกไว้ครั้งก่อน ไม่ต้องกังวลเรื่องวันที่ใน VRich</p>
+        <div class="chiccoco-save-row">
+          <input type="text" id="chiccoco-round-label" placeholder="ชื่อรอบ เช่น ไลฟ์ศุกร์ 4/9">
+          <button class="chiccoco-hbtn primary-mini" id="chiccoco-round-save">บันทึกยอดรอบนี้</button>
+        </div>
+        <div id="chiccoco-rounds-list"><div class="chiccoco-rounds-empty">กำลังโหลด…</div></div>
+      </details>
     </div>
   `;
   document.body.appendChild(panel);
@@ -123,6 +148,91 @@
 
   document.getElementById('chiccoco-hype-close').onclick = ()=>{ panel.style.display = 'none'; };
   document.getElementById('chiccoco-hype-reset').onclick = ()=> resetCounters();
+
+  // ---------- round-history storage (works standalone via localStorage, or via
+  // window.storage if this script is ever run inside a Claude.ai artifact context) ----------
+  const ROUND_PREFIX = 'hyperound:';
+  const hasCloudStorage = (typeof window.storage !== 'undefined');
+  async function storageSet(key, value){
+    if(hasCloudStorage) return window.storage.set(key, value, false);
+    try{ localStorage.setItem(key, value); return {key, value}; }catch(e){ return null; }
+  }
+  async function storageGet(key){
+    if(hasCloudStorage) return window.storage.get(key, false);
+    try{ const v = localStorage.getItem(key); return v!=null ? {key, value:v} : null; }catch(e){ return null; }
+  }
+  async function storageList(prefix){
+    if(hasCloudStorage) return window.storage.list(prefix, false);
+    try{
+      const keys = [];
+      for(let i=0;i<localStorage.length;i++){ const k = localStorage.key(i); if(k && k.indexOf(prefix)===0) keys.push(k); }
+      return {keys};
+    }catch(e){ return {keys:[]}; }
+  }
+  async function storageDelete(key){
+    if(hasCloudStorage) return window.storage.delete(key, false);
+    try{ localStorage.removeItem(key); return {key, deleted:true}; }catch(e){ return null; }
+  }
+
+  function computeAbsoluteTotals(){
+    let sold = 0, revenue = 0;
+    Object.values(state).forEach(v=>{
+      sold += (v.sold||0);
+      if(v.price) revenue += (v.sold||0) * v.price;
+    });
+    return {sold, revenue};
+  }
+
+  async function getAllRounds(){
+    const listRes = await storageList(ROUND_PREFIX);
+    const keys = (listRes && listRes.keys) || [];
+    const rounds = [];
+    for(const k of keys){
+      try{ const r = await storageGet(k); if(r && r.value) rounds.push(JSON.parse(r.value)); }catch(e){}
+    }
+    rounds.sort((a,b)=> new Date(a.savedAt) - new Date(b.savedAt));
+    return rounds;
+  }
+
+  async function renderRounds(){
+    const listEl = document.getElementById('chiccoco-rounds-list');
+    const rounds = await getAllRounds();
+    if(rounds.length === 0){
+      listEl.innerHTML = '<div class="chiccoco-rounds-empty">ยังไม่มีรอบที่บันทึกไว้</div>';
+      return;
+    }
+    listEl.innerHTML = rounds.slice().reverse().map(r=>{
+      return '<div class="chiccoco-round-item">'
+        + '<div class="chiccoco-round-top"><span class="chiccoco-round-label">'+ (r.label||'').replace(/</g,'&lt;') +'</span>'
+        + '<button class="chiccoco-round-del" data-id="'+r.id+'">ลบ</button></div>'
+        + '<div class="chiccoco-round-nums">'+r.roundSold+' ชิ้น · ฿'+r.roundRevenue.toLocaleString('th-TH')+'</div>'
+        + '<div class="chiccoco-round-sub">ยอดสะสมรวม ณ ตอนนั้น: '+r.absoluteSold+' ชิ้น · ฿'+r.absoluteRevenue.toLocaleString('th-TH')+'</div>'
+        + '</div>';
+    }).join('');
+    listEl.querySelectorAll('.chiccoco-round-del').forEach(btn=>{
+      btn.onclick = async ()=>{ await storageDelete(ROUND_PREFIX + btn.getAttribute('data-id')); renderRounds(); };
+    });
+  }
+
+  async function saveRound(){
+    const rounds = await getAllRounds();
+    const prev = rounds.length ? rounds[rounds.length-1] : null;
+    const {sold, revenue} = computeAbsoluteTotals();
+    const roundSold = sold - (prev ? prev.absoluteSold : 0);
+    const roundRevenue = revenue - (prev ? prev.absoluteRevenue : 0);
+    const labelInput = document.getElementById('chiccoco-round-label');
+    const label = (labelInput && labelInput.value.trim()) || new Date().toLocaleString('th-TH');
+    const id = Date.now().toString();
+    const payload = { id, label, savedAt: new Date().toISOString(), absoluteSold: sold, absoluteRevenue: revenue, roundSold, roundRevenue };
+    try{
+      await storageSet(ROUND_PREFIX + id, JSON.stringify(payload));
+      if(labelInput) labelInput.value = '';
+      renderRounds();
+    }catch(e){ console.error('chiccoco hype: save round failed', e); }
+  }
+
+  document.getElementById('chiccoco-round-save').onclick = saveRound;
+  renderRounds();
 
   // ---------- audio (WebAudio synth, no external files) ----------
   let audioCtx = null;
