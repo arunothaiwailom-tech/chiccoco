@@ -1887,8 +1887,7 @@ async function deleteRangeImages(){
   });
 
   if(!inRange.length){ showToast('❌ ไม่พบรูปในช่วง '+from+' - '+to+' ค่ะ'); return; }
-  if(!confirm('ลบรูป '+inRange.length+' รายการ ในช่วง '+from+' - '+to+' ไหมคะ?
-('+inRange.slice(0,5).join(', ')+(inRange.length>5?'...':'')+')')) return;
+  if(!confirm('ลบรูป '+inRange.length+' รายการ ในช่วง '+from+' - '+to+' ไหมคะ? ('+inRange.slice(0,5).join(', ')+(inRange.length>5?'...':'')+')')) return;
 
   const shopId=sessionStorage.getItem('shopId')||'default';
   showToast('⏳ กำลังลบ '+inRange.length+' รูปค่ะ...');
