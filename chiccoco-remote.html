@@ -566,12 +566,17 @@ async function loadProductImages(){
       const url=await item.getDownloadURL();
       return {code, url};
     }));
-    urls.forEach(({code,url})=>{ productImages[code]=url; productImages[code.toLowerCase()]=url; });
-    console.log('รูปสินค้า:', Object.keys(productImages).length, 'รูป');
-    if(db&&fbConnected&&Object.keys(productImages).length){
-      const imgToSave={};
-      Object.keys(productImages).forEach(k=>{ imgToSave[k]=productImages[k]; imgToSave[k.toLowerCase()]=productImages[k]; });
-      db.ref(shopPath+'/productImages').update(imgToSave).catch(()=>{});
+    // ✅ เก็บทั้ง uppercase + lowercase ใน productImages object (เพื่อ match รหัสใน Excel)
+    // แต่บันทึก DB เฉพาะ uppercase เท่านั้น (ป้องกันรูปซ้ำ)
+    const dbSave={};
+    urls.forEach(({code,url})=>{
+      productImages[code]=url;           // uppercase (ตามชื่อไฟล์)
+      productImages[code.toLowerCase()]=url; // lowercase (เพื่อ match)
+      dbSave[code]=url;                  // บันทึก DB เฉพาะ uppercase
+    });
+    console.log('รูปสินค้า:', urls.length, 'รูป');
+    if(db&&fbConnected&&urls.length){
+      db.ref(shopPath+'/productImages').update(dbSave).catch(()=>{});
     }
     const cnt=Object.keys(productImages).length;
     if(cnt) document.getElementById('imgInfo').textContent=cnt+' รูป ✅';
@@ -1869,6 +1874,67 @@ function filterImgList(q){
   });
 }
 
+async function deleteRangeImages(){
+  const from=(document.getElementById('delRangeFrom').value.trim()).toUpperCase();
+  const to=(document.getElementById('delRangeTo').value.trim()).toUpperCase();
+  if(!from||!to){ showToast('❌ กรุณากรอกรหัสเริ่มและสิ้นสุดค่ะ'); return; }
+  if(!storage||!shopPath){ showToast('❌ Storage ยังไม่พร้อมค่ะ'); return; }
+
+  // หา code ที่อยู่ในช่วง
+  const inRange=Object.keys(productImages).filter(code=>{
+    const c=code.toUpperCase();
+    return c>=from && c<=to;
+  });
+
+  if(!inRange.length){ showToast('❌ ไม่พบรูปในช่วง '+from+' - '+to+' ค่ะ'); return; }
+  if(!confirm('ลบรูป '+inRange.length+' รายการ ในช่วง '+from+' - '+to+' ไหมคะ?
+('+inRange.slice(0,5).join(', ')+(inRange.length>5?'...':'')+')')) return;
+
+  const shopId=sessionStorage.getItem('shopId')||'default';
+  showToast('⏳ กำลังลบ '+inRange.length+' รูปค่ะ...');
+  let done=0;
+  for(const code of inRange){
+    const url=productImages[code]||'';
+    const extM=url.match(/products%2F[^%]+%2F[^.?]+\.([^?&]+)/);
+    const ext=extM?extM[1]:'jpg';
+    try{
+      await storage.ref('products/'+shopId+'/'+code+'.'+ext).delete().catch(()=>{});
+      delete productImages[code];
+      delete productImages[code.toLowerCase()];
+      if(db&&fbConnected) db.ref(shopPath+'/productImages/'+code).remove();
+      done++;
+    }catch(e){ console.error(code,e); }
+  }
+  document.getElementById('delRangeFrom').value='';
+  document.getElementById('delRangeTo').value='';
+  document.getElementById('imgInfo').textContent=Object.keys(productImages).length?Object.keys(productImages).length+' รูป ✅':'ยังไม่มีรูป';
+  showToast('✅ ลบสำเร็จ '+done+' รูปค่ะ');
+  renderImgManagerList();
+}
+
+async function deleteDuplicateLowercase(){
+  if(!storage||!shopPath){ showToast('❌ Storage ยังไม่พร้อมค่ะ'); return; }
+  const shopId=sessionStorage.getItem('shopId')||'default';
+  if(!confirm('ลบไฟล์รูปที่เป็น lowercase ทั้งหมดใน Storage ออกไหมคะ? (เช่น a865.jpg จะถูกลบ แต่ A865.jpg จะยังอยู่)')) return;
+  showToast('⏳ กำลังลบรูปซ้ำ...');
+  try{
+    const list=await storage.ref('products/'+shopId).listAll();
+    let deleted=0;
+    for(const item of list.items){
+      const name=item.name.replace(/\.[^.]+$/,'');
+      // ลบเฉพาะไฟล์ที่ชื่อเป็น lowercase (มีตัวพิมพ์เล็ก)
+      if(name!==name.toUpperCase()){
+        await item.delete().catch(()=>{});
+        // ลบออกจาก productImages ด้วย
+        delete productImages[name];
+        deleted++;
+      }
+    }
+    showToast('✅ ลบรูปซ้ำสำเร็จ '+deleted+' ไฟล์ค่ะ');
+    renderImgManagerList();
+  }catch(e){ showToast('❌ '+e.message); }
+}
+
 function toggleImgSelect(code){
   if(imgManagerSelection[code])delete imgManagerSelection[code];else imgManagerSelection[code]=true;
   const row=document.getElementById('imgrow-'+code),chk=document.getElementById('chk-'+code),sel=!!imgManagerSelection[code];
@@ -1959,7 +2025,10 @@ async function deleteSelectedImages(){
       <div style="font-family:'Kanit',sans-serif;font-size:17px;font-weight:800;color:white;">🖼️ รูปสินค้าที่อัปโหลด</div>
       <button onclick="closeImgManagerModal()" style="background:#333;border:none;color:#ccc;border-radius:50%;width:32px;height:32px;font-size:16px;cursor:pointer;">✕</button>
     </div>
-    <div style="font-size:12px;color:#888;">ติ๊กเลือก → อัปโหลดทับ (1 รายการ) หรือ ลบ (หลายรายการ)</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;">
+      <div style="font-size:12px;color:#888;">ติ๊กเลือก → อัปโหลดทับ (1 รายการ) หรือ ลบ (หลายรายการ)</div>
+      <button onclick="deleteDuplicateLowercase()" style="padding:5px 12px;background:#6b1a1a;color:white;border:none;border-radius:8px;font-family:'Kanit',sans-serif;font-size:11px;font-weight:700;cursor:pointer;">🧹 ลบรูปซ้ำ (lowercase)</button>
+    </div>
     <input id="imgSearchInput" type="text" placeholder="🔍 ค้นหารหัสสินค้า เช่น A02" oninput="filterImgList(this.value)"
       style="padding:9px 14px;border:1.5px solid #444;border-radius:10px;background:#2a2a3e;color:white;font-family:'Sarabun',sans-serif;font-size:14px;outline:none;width:100%;">
     <div id="imgManagerList" style="overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:4px;min-height:60px;"></div>
@@ -1968,6 +2037,16 @@ async function deleteSelectedImages(){
       <div style="display:flex;gap:8px;">
         <button id="btnImgReplace" onclick="triggerReplaceImg()" disabled style="flex:1;padding:11px 8px;background:#3d4f47;color:white;border:none;border-radius:12px;font-family:'Kanit',sans-serif;font-size:13px;font-weight:700;cursor:pointer;opacity:.4;">📤 อัปโหลดทับ</button>
         <button id="btnImgDelete" onclick="deleteSelectedImages()" disabled style="flex:1;padding:11px 8px;background:#6b1a1a;color:white;border:none;border-radius:12px;font-family:'Kanit',sans-serif;font-size:13px;font-weight:700;cursor:pointer;opacity:.4;">🗑️ ลบที่เลือก</button>
+      </div>
+      <div style="border-top:1px solid #333;padding-top:10px;">
+        <div style="font-size:11px;color:#888;margin-bottom:6px;font-family:'Kanit',sans-serif;">🗑️ ลบเป็นช่วงรหัส</div>
+        <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+          <input id="delRangeFrom" type="text" placeholder="รหัสเริ่ม เช่น C01" style="flex:1;padding:7px 10px;border:1.5px solid #444;border-radius:8px;background:#2a2a3e;color:white;font-size:13px;font-family:'Sarabun',sans-serif;outline:none;min-width:80px;">
+          <input id="delRangeTo" type="text" placeholder="รหัสสิ้นสุด เช่น C100" style="flex:1;padding:7px 10px;border:1.5px solid #444;border-radius:8px;background:#2a2a3e;color:white;font-size:13px;font-family:'Sarabun',sans-serif;outline:none;min-width:80px;">
+          <button onclick="deleteRangeImages()" style="padding:7px 14px;background:#6b1a1a;color:white;border:none;border-radius:8px;font-family:'Kanit',sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;">🗑️ ลบช่วงนี้</button>
+        </div>
+      </div>
+      <div style="display:none;">
       </div>
     </div>
   </div>
