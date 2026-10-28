@@ -1913,23 +1913,33 @@ async function deleteRangeImages(){
 
 async function deleteDuplicateLowercase(){
   if(!storage||!shopPath){ showToast('❌ Storage ยังไม่พร้อมค่ะ'); return; }
+  // ✅ ตรวจ auth ก่อนลบ
+  let user=firebase.auth().currentUser;
+  if(!user){
+    const em=localStorage.getItem('chiccoco_email'),pw=localStorage.getItem('chiccoco_pw');
+    if(em&&pw){ try{ await firebase.auth().signInWithEmailAndPassword(em,pw); user=firebase.auth().currentUser; }catch(e){} }
+  }
+  if(!user){ showToast('❌ กรุณา login ก่อนลบรูปค่ะ'); return; }
   const shopId=sessionStorage.getItem('shopId')||'default';
   if(!confirm('ลบไฟล์รูปที่เป็น lowercase ทั้งหมดใน Storage ออกไหมคะ? (เช่น a865.jpg จะถูกลบ แต่ A865.jpg จะยังอยู่)')) return;
   showToast('⏳ กำลังลบรูปซ้ำ...');
   try{
     const list=await storage.ref('products/'+shopId).listAll();
-    let deleted=0;
+    let deleted=0, failed=0;
     for(const item of list.items){
-      const name=item.name.replace(/\.[^.]+$/,'');
-      // ลบเฉพาะไฟล์ที่ชื่อเป็น lowercase (มีตัวพิมพ์เล็ก)
+      const name=item.name.replace(/[.][^.]+$/,'');
       if(name!==name.toUpperCase()){
-        await item.delete().catch(()=>{});
-        // ลบออกจาก productImages ด้วย
-        delete productImages[name];
-        deleted++;
+        try{
+          await item.delete();
+          delete productImages[name];
+          deleted++;
+        }catch(e){
+          console.error('ลบไม่ได้:', item.name, e.code);
+          failed++;
+        }
       }
     }
-    showToast('✅ ลบรูปซ้ำสำเร็จ '+deleted+' ไฟล์ค่ะ');
+    showToast('✅ ลบรูปซ้ำสำเร็จ '+deleted+' ไฟล์'+(failed?' (ล้มเหลว '+failed+')':'')+'ค่ะ');
     renderImgManagerList();
   }catch(e){ showToast('❌ '+e.message); }
 }
