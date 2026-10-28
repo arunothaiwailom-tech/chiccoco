@@ -1895,7 +1895,7 @@ async function deleteRangeImages(){
   let done=0;
   for(const code of inRange){
     const url=productImages[code]||'';
-    const extM=url.match(/products%2F[^%]+%2F[^.?]+\.([^?&]+)/);
+    const extM=url.match(/products%2F[^%]+%2F[^.?]+[.]([^?&]+)/);
     const ext=extM?extM[1]:'jpg';
     try{
       await storage.ref('products/'+shopId+'/'+code+'.'+ext).delete().catch(()=>{});
