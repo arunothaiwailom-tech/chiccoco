@@ -1617,6 +1617,39 @@ function resetTimer(){ clearInterval(timerInterval); timerRunning=false; timerSe
 function updateTimerDisplay(){ const m=Math.floor(timerSeconds/60),s=timerSeconds%60; const el=document.getElementById('timerDisplay'); el.textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0'); el.classList.toggle('warning',timerSeconds>0&&timerSeconds<=30); }
 
 // ── LOAD STOCK ──
+// ── รหัสเดิมแต่สินค้าใหม่: ล้างข้อมูลที่จำไว้ (แก้ไข/ไซส์หมด/ราคาลด) ──
+function resetChangedCodeData(oldP,newP,clearSale){
+  const canon=v=>Array.isArray(v)?v.map(canon):(v&&typeof v==='object'?Object.keys(v).sort().reduce((a,k)=>{a[k]=canon(v[k]);return a;},{}):v);
+  const sig=p=>JSON.stringify(canon([String(p.name||''),String(p.price||''),String(p.color||''),String(p.material||''),String(p.size||''),p.sizes||[]]));
+  let n=0, curReset=false, m=0, curSale=false;
+  Object.keys(newP).forEach(code=>{
+    const o=oldP&&oldP[code];
+    const hasMem=!!(edits[code]||soldSizesMap[code]||salePriceMap[code]);
+    const changed=o?sig(o)!==sig(newP[code]):hasMem;
+    if(!changed&&clearSale&&salePriceMap[code]){ delete salePriceMap[code]; m++; if(code===currentCode) curSale=true; }
+    if(!changed||!hasMem) return;
+    n++;
+    delete edits[code]; delete soldSizesMap[code]; delete salePriceMap[code];
+    if(db&&fbConnected) db.ref(shopPath+'/edits/'+code).remove().catch(()=>{});
+    if(code===currentCode) curReset=true;
+  });
+  if(m&&!n){
+    saveMemory();
+    if(curSale){ salePrice=null; document.getElementById('priceInput').value=''; updateCurrentUI(); renderSizePills(); updatePreview(); pushState(); }
+    showToast('🏷️ ล้างราคาลดของ '+m+' รหัสแล้วค่ะ (ไซส์ที่ขายแล้วยังจำไว้)');
+  }
+  if(n){
+    saveMemory();
+    if(curReset){
+      soldSizes=[]; salePrice=null;
+      document.getElementById('priceInput').value='';
+      updateCurrentUI(); renderSizePills(); updatePreview(); pushState();
+    }
+    showToast('🔄 รีเซ็ตข้อมูลเก่าของ '+n+' รหัสที่เป็นสินค้าใหม่แล้วค่ะ');
+  }
+  return n;
+}
+
 function loadStock(input){
   const files=input.files; if(!files||!files.length) return;
   let allProducts={},total=0,done=0;
@@ -1634,7 +1667,7 @@ function loadStock(input){
       }
       done++;
       if(done===files.length){
-        products=allProducts;
+        const _oldProducts=products; products=allProducts; let _clr=false; try{ _clr=confirm('ล้างราคาลดของทุกรหัสในไฟล์นี้ไหมคะ?\n(ไซส์ที่ขายแล้วจะยังจำไว้ ยกเว้นสินค้าใหม่ที่ข้อมูลเปลี่ยน)\n\nตกลง = ล้างราคาลด / ยกเลิก = คงราคาลดเดิม'); }catch(e){} resetChangedCodeData(_oldProducts,allProducts,_clr);
         document.getElementById('stockInfo').textContent=total+' รายการ ✅ ('+files.length+' ไฟล์)';
         showToast('โหลดสำเร็จ '+total+' รายการค่ะ');
         if(db&&fbConnected){
