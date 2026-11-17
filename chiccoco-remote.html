@@ -561,8 +561,21 @@ async function loadProductImages(){
   try{
     const ref=storage.ref('products/'+shopId);
     const list=await ref.listAll();
-    const urls=await Promise.all(list.items.map(async item=>{
-      const code=item.name.replace(/\.[^.]+$/,'').toUpperCase();
+    // ✅ ถ้ามีไฟล์รหัสเดียวกันหลายไฟล์ (เช่น A100.jpg กับ A100.png) ให้เลือกไฟล์ที่ใหม่สุดเสมอ
+    const groups={};
+    list.items.forEach(item=>{
+      const c=item.name.replace(/\.[^.]+$/,'').toUpperCase();
+      (groups[c]=groups[c]||[]).push(item);
+    });
+    const urls=await Promise.all(Object.keys(groups).map(async code=>{
+      let item=groups[code][0];
+      if(groups[code].length>1){
+        try{
+          const metas=await Promise.all(groups[code].map(it=>it.getMetadata().then(m=>({it,t:new Date(m.updated||m.timeCreated||0).getTime()})).catch(()=>({it,t:0}))));
+          metas.sort((x,y)=>y.t-x.t);
+          item=metas[0].it;
+        }catch(e){}
+      }
       const url=await item.getDownloadURL();
       return {code, url};
     }));
@@ -1884,7 +1897,7 @@ function openImgManagerModal(){imgManagerSelection={};renderImgManagerList();con
 function closeImgManagerModal(){document.getElementById('imgManagerModal').style.display='none';imgManagerSelection={};}
 function renderImgManagerList(){
   const list=document.getElementById('imgManagerList');list.innerHTML='';
-  const codes=Object.keys(productImages).sort();
+  const codes=Object.keys(productImages).filter(c=>!(c!==c.toUpperCase()&&productImages[c.toUpperCase()])).sort();
   if(!codes.length){list.innerHTML='<div style="color:#888;font-size:13px;text-align:center;padding:24px;">ยังไม่มีรูปสินค้าค่ะ</div>';updateImgManagerActions();return;}
   codes.forEach(code=>{
     const url=productImages[code],sel=!!imgManagerSelection[code];
