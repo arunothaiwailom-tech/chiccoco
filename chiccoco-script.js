@@ -185,14 +185,32 @@
         });
         if(!n){ bar('ไม่พบคอลัมน์ "รหัส" ในไฟล์ <button class="ccs-btn" type="button" data-x="cancel">ปิด</button>'); return; }
         pending = obj;
-        bar('ไฟล์ ' + esc(f.name) + ' มี ' + n + ' รหัส จะแทนที่สคริปต์เดิม ' + order.length + ' รหัส ' +
-          '<button class="ccs-btn y" type="button" data-x="ok">ยืนยัน</button><button class="ccs-btn" type="button" data-x="cancel">ยกเลิก</button>');
+        var nNew = Object.keys(obj).filter(function(k){ return !scripts[k]; }).length;
+        bar('ไฟล์ ' + esc(f.name) + ' มี ' + n + ' รหัส (ใหม่ ' + nNew + ' / มีอยู่แล้ว ' + (n - nNew) + ') ตอนนี้มีสคริปต์ ' + order.length + ' รหัส ' +
+          '<button class="ccs-btn y" type="button" data-x="merge">เพิ่ม/อัปเดต</button>' +
+          '<button class="ccs-btn" type="button" data-x="ok">ล้างแล้วโหลดใหม่</button>' +
+          '<button class="ccs-btn" type="button" data-x="cancel">ยกเลิก</button>');
       }catch(err){ bar('อ่านไฟล์ไม่ได้: ' + esc(err.message) + ' <button class="ccs-btn" type="button" data-x="cancel">ปิด</button>'); }
     };
     rd.readAsArrayBuffer(f);
   });
   $('ccsBar').addEventListener('click', function(e){
     var b = e.target.closest('[data-x]'); if(!b) return;
+    if(b.getAttribute('data-x') === 'merge' && pending){
+      var dm = getDb(), pm = getPath();
+      if(!dm || !getConn() || !pm){ bar('ยังไม่ได้เชื่อมต่อ Firebase ลองใหม่อีกครั้ง <button class="ccs-btn" type="button" data-x="cancel">ปิด</button>'); return; }
+      /* รหัสเดิมคงลำดับเดิม รหัสใหม่ต่อท้าย */
+      var mx = -1; Object.keys(scripts).forEach(function(k){ mx = Math.max(mx, +scripts[k].i || 0); });
+      var upd = {}, add = 0, chg = 0;
+      Object.keys(pending).sort(function(a,b){ return pending[a].i - pending[b].i; }).forEach(function(k){
+        var v = pending[k];
+        if(scripts[k]){ v.i = +scripts[k].i || 0; chg++; } else { v.i = ++mx; add++; }
+        upd[k] = v;
+      });
+      dm.ref(pm + '/scripts').update(upd).then(function(){ toast('✅ เพิ่ม ' + add + ' / อัปเดต ' + chg + ' รหัสแล้วค่ะ'); bar(''); pending = null; })
+        .catch(function(err){ bar('บันทึกไม่สำเร็จ: ' + esc(err.message) + ' <button class="ccs-btn" type="button" data-x="cancel">ปิด</button>'); });
+      return;
+    }
     if(b.getAttribute('data-x') === 'ok' && pending){
       var d = getDb(), path = getPath();
       if(!d || !getConn() || !path){ bar('ยังไม่ได้เชื่อมต่อ Firebase ลองใหม่อีกครั้ง <button class="ccs-btn" type="button" data-x="cancel">ปิด</button>'); return; }
