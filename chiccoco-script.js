@@ -79,7 +79,15 @@
     panel.classList.toggle('open', v);
     tab.textContent = v ? '✕ ปิดสคริปต์' : '📜 สคริปต์';
     tab.style.right = v && window.innerWidth > 700 ? 'calc(clamp(320px,44vw,580px) + 12px)' : '12px';
+    pushPage(v);
     if(v) render(getCode(), true);
+  }
+  /* ดันหน้าเดิมไปทางซ้ายตอนแผงเปิด แผงจะได้ไม่บังช่องกรอก (จอแคบ <=700px ยังซ้อนทับเหมือนเดิม) */
+  function pushPage(v){
+    var w = v && window.innerWidth > 700 ? panel.offsetWidth : 0;
+    document.body.style.marginRight = w ? w + 'px' : '';
+    var nav = document.querySelector('.bottom-nav');
+    if(nav) nav.style.right = w ? w + 'px' : '';
   }
   function setSize(d){
     size = Math.min(40, Math.max(14, size + d)); LS.set('ccs_size', size);
